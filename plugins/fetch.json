@@ -1,0 +1,27 @@
+{
+    "org.apache.cordova.camera": {
+        "source": {
+            "type": "registry",
+            "id": "org.apache.cordova.camera"
+        }
+    },
+    "org.apache.cordova.dialogs": {
+        "source": {
+            "type": "registry",
+            "id": "org.apache.cordova.dialogs"
+        }
+    },
+    "com.brodysoft.sqliteStorage": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/litehelpers/Cordova-sqlite-storage",
+            "subdir": "."
+        }
+    },
+    "nl.x-services.plugins.toast": {
+        "source": {
+            "type": "registry",
+            "id": "nl.x-services.plugins.toast"
+        }
+    }
+}

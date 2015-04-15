@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1"/>
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta charset="utf-8">
+  <title>Index</title>
+
+  <!-- StyleSheets -->
+  <link href="css/libs/bootstrap.min.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+  <link href="css/sticky_footer.css" rel="stylesheet">
+
+
+  <!-- Scripts -->
+  <script src="js/libs/jquery-2.1.3.min.js"></script>
+  <script src="cordova.js" charset="utf-8" ></script>
+  <script src="js/libs/bootstrap.min.js" charset="utf-8" ></script>
+
+  <script src="js/database.js" charset="utf-8"></script>
+  <script src="js/all.js" charset="utf-8"></script>
+  <script src="js/plugins.js" charset="utf-8"></script>
+  <script src="js/index.js" charset="utf-8"></script>
+  <script src="js/form.js" charset="utf-8"></script>
+  <script src="js/database.js" charset="utf-8"></script>
+  <script src="js/navigation.js" charset="utf-8"></script>
+  <script src="js/recolts_list.js" charset="utf-8"></script>
+</head>
+
+
+<body onload="init()">
+  <!--
+  ===============================================
+  |
+  | Index page
+  |
+  ===============================================
+-->
+<div id="index" class="page hidden container">
+  <div class="panel panel-default ">
+    <div class="panel-body">
+      <div class="jumbotron"><h1>Société Mycologique du Nord de France</h1></div>
+      <button type="button" class="btn btn-primary btn-lg btn-block" onclick="showPage('camera_screen');">Photographier un champignon</button>
+      <button type="button" class="btn btn-primary btn-lg btn-block" onclick="beginRecolt();">Ajouter une récolte</button>
+      <button type="button" class="btn btn-primary btn-lg btn-block" onclick="toRecolts();">Liste des récoltes</button>
+    </div>
+  </div>
+</div>
+
+  <!--
+  ===============================================
+  |
+  | Add recolt page
+  |
+  ===============================================
+-->
+<div id="add_recolt" class="page hidden container">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="page-header"><h1>Ajout d'une récolte</h1></div>
+
+      <div class="page-header"><h2>Nom</h2> </div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Phylum</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id="listPhylum" class="form-control" name ="list" placeHolder="toto"></select>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Genre*</div>
+        <div class = "col-xs-6 col-sm-4">
+          <input class="form-control" type=text list=dataGenre />
+          <datalist id="dataGenre"></datalist>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Espèce</div>
+        <div class = "col-xs-6 col-sm-4">
+          <input type=text class="form-control" list=dataSpecies />
+          <datalist id="dataSpecies"></datalist>
+        </div>
+        <div class = "col-xs-6 col-sm-2"> subsp./var./f.</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listSVF" class="form-control" name ="list"></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Epithète 2</div>
+        <div class = "col-xs-6 col-sm-4">
+          <input type=text class="form-control" list=dataEpithete />
+          <datalist id="dataEpithete"></datalist>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Auteur</div>
+        <div class = "col-xs-6 col-sm-4">
+          <input type=text class="form-control" list=dataAuthor />
+          <datalist id="dataAuthor"></datalist>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Modulation</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listModulation" class="form-control" name ="list"></select>
+        </div>
+      </div>
+
+
+      <div class="page-header"><h2>Informations sur la récolte</h2></div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Quantité trouvée</div>
+        <div class = "col-xs-6 col-sm-4">
+          <input id="nbFound" class="form-control"/>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Etendue (mètres)</div>
+        <div class = "col-xs-6 col-sm-4">
+          <input id="range" type=text class="form-control"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Longitude</div>
+        <div class = "col-xs-6 col-sm-4">
+          <p id="longitude"></p>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Latitude</div>
+        <div class = "col-xs-6 col-sm-4">
+          <p id="latitude"></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Précision</div>
+        <div class = "col-xs-6 col-sm-4">
+          <p id="accuracy"></p>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Date</div>
+        <div class = "col-xs-6 col-sm-4">
+          <p id="date"></p>
+        </div>         
+      </div>
+      <div class="row">
+        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="calculatePosition();">Actualiser la localisation</button>
+      </div>
+
+
+      <div class="page-header"><h2>Ecologie</h2></div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Référentiel habitat</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listRH" class="form-control"></select>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Habitat choisi</div>
+        <div class = "col-xs-6 col-sm-4">
+          <input type=text class="form-control" list=dataHC />
+          <datalist id="dataHC"></datalist>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Substrat</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listSubstrate" class="form-control"></select>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Hote</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listHost" class="form-control"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Etat de l'hote</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listHostState" class="form-control"></select>
+        </div>
+      </div>
+
+
+      <div class="page-header"><h2>Propriétaires</h2></div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Nombre légataires</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listLegNumber" class="form-control"></select>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Légataire(s)*</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listLegatees" class="form-control"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class = "col-xs-6 col-sm-2">Nb déterminateurs</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listDetNb" class="form-control"></select>
+        </div>
+        <div class = "col-xs-6 col-sm-2">Déterminateurs</div>
+        <div class = "col-xs-6 col-sm-4">
+          <select id = "listDet" class="form-control"></select>
+        </div>
+      </div>
+
+
+      <div class="page-header"><h2>Photo(s)</h2></div>
+      <div id="picturesDiv">
+        <!--Les éléments HTML des photos prises seront ajoutés ici -->
+      </div>
+      <div>
+        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="launchCamera();">Ajouter une photo (4 maximum)</button>
+      </div>
+    </div>
+    <div class="panel-footer">
+    <div class="row">
+      <button type="button" class="btn btn-primary btn-lg pull-left" onclick="goBack()">Retour</button>
+      <button type="button" class="btn btn-primary btn-lg pull-right" onclick="addFakeGathering();toRecolts();">Sauvegarder la récolte</button>
+    </div>
+  </div>
+  </div>
+  
+</div>
+
+
+
+
+  <!--
+  ===============================================
+  |
+  | Camera Screen Page
+  |
+  ===============================================
+-->
+<div id="camera_screen" class="page hidden container">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="page-header"><h1>Photographier un spécimen</h1></div>
+      <div id="CameraScreenPicture" style="text-align:center;margin:20px;">
+        <img class="img-thumbnail" style="display:none" id="cameraPic" src="src" alt="picture" />
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" type="button" onclick="launchCamera();">Prendre une photo</button>
+    </div>
+    <div class="panel-footer">
+      <div class="row">
+        <button type="button" class="btn btn-primary btn-lg pull-left" onclick="goBack();">Retour</button>
+        <button type="button" class="btn btn-primary btn-lg pull-right" onclick="beginRecolt();">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!--
+  ===============================================
+  |
+  | Connection page
+  |
+  ===============================================
+-->
+<div id="connection" class="page container hidden">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <h2 class="page-header">Connexion</h2>
+      <input id="inputLogin" class="form-control" autofocus="" required="" placeholder="Login"></input>
+      <input id="inputPassword" class="form-control" type="password" required="" placeholder="Mot de passe"></input>
+      <button type="button" class="btn btn-primary btn-lg btn-block" onclick="tryToConnect();">Connexion</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!--
+  ===============================================
+  |
+  | Recolts List page
+  |
+  ===============================================
+-->
+<div id="recolts_list" class="page hidden container">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="page-header"><h1>Liste des récoltes</h1></div>
+      <div id="listRows">
+        <table class="table" id="table">
+          <thead>
+            <tr><th>Récoltes en attente</th></tr>
+          </thead>
+          <tbody> </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel-footer">
+      <div class="row">
+        <button type="button" class="btn btn-primary btn-lg pull-left" onclick="goBack();">Retour</button>
+        <button type="button" class="btn btn-primary btn-lg" onclick="refreshGatheringsList();">Refresh</button>
+        <button type="button" class="btn btn-primary btn-lg pull-right" onclick="addFakeGathering();updateGatheringsList();">Ajouter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+  ===============================================
+  |
+  | Modals
+  |
+  ===============================================
+-->
+
+
+<div class="modal fade" id="connectionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-center">
+    <div class="modal-content">
+      <div class="modal-header">
+
+        <h4 class="modal-title" id="myModalLabel">Connexion requise</h4>
+      </div>
+      <div class="modal-body">
+        Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="showPage('connection');showModal('connectionModal', false);">Connexion</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Trop de photos</h4>
+      </div>
+      <div class="modal-body">Vous avez atteint la limite du nombre de photos. Veuillez en supprimer une pour en prendre une nouvelle.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Ok</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
