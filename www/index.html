@@ -63,78 +63,61 @@
 
       <div class="page-header"><h2>Nom</h2> </div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Phylum</div>
-        <div class = "col-xs-6 col-sm-4">
-          <select id="listPhylum" class="form-control" name ="list" placeHolder="toto"></select>
+        <div class = "col-xs-12 col-sm-6">
+          <select id="listPhylum" class="form-control"></select>
         </div>
-        <div class = "col-xs-6 col-sm-2">Genre*</div>
-        <div class = "col-xs-6 col-sm-4">
-          <input class="form-control" type=text list=dataGenre />
-          <datalist id="dataGenre"></datalist>
+        <div class = "col-xs-12 col-sm-6">
+          <input id="dataGenre" class="form-control" type=text/>
         </div>
       </div>
 
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Espèce</div>
-        <div class = "col-xs-6 col-sm-4">
-          <input type=text class="form-control" list=dataSpecies />
-          <datalist id="dataSpecies"></datalist>
+        <div class = "col-xs-12 col-sm-6">
+          <input id="dataSpecies" type=text class="form-control"/>
         </div>
-        <div class = "col-xs-6 col-sm-2"> subsp./var./f.</div>
-        <div class = "col-xs-6 col-sm-4">
-          <select id = "listSVF" class="form-control" name ="list"></select>
+        <div class = "col-xs-12 col-sm-6">
+          <select id = "listSVF" class="form-control"></select>
         </div>
       </div>
 
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Epithète 2</div>
-        <div class = "col-xs-6 col-sm-4">
-          <input type=text class="form-control" list=dataEpithete />
-          <datalist id="dataEpithete"></datalist>
+        <div class = "col-xs-12 col-sm-6">
+          <input id="dataEpithete" type=text class="form-control"/>
         </div>
-        <div class = "col-xs-6 col-sm-2">Auteur</div>
-        <div class = "col-xs-6 col-sm-4">
-          <input type=text class="form-control" list=dataAuthor />
-          <datalist id="dataAuthor"></datalist>
+        <div class = "col-xs-12 col-sm-6">
+          <input id="dataAuthor" type=text class="form-control"/>
         </div>
       </div>
 
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Modulation</div>
-        <div class = "col-xs-6 col-sm-4">
-          <select id = "listModulation" class="form-control" name ="list"></select>
+        <div class = "col-xs-12 col-sm-6">
+          <select id = "listModulation" class="form-control"></select>
         </div>
       </div>
 
 
       <div class="page-header"><h2>Informations sur la récolte</h2></div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Quantité trouvée</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <input id="nbFound" class="form-control"/>
         </div>
-        <div class = "col-xs-6 col-sm-2">Etendue (mètres)</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <input id="range" type=text class="form-control"/>
         </div>
       </div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Longitude</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <p id="longitude"></p>
         </div>
-        <div class = "col-xs-6 col-sm-2">Latitude</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <p id="latitude"></p>
         </div>
       </div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Précision</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <p id="accuracy"></p>
         </div>
-        <div class = "col-xs-6 col-sm-2">Date</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <p id="date"></p>
         </div>         
       </div>
@@ -145,30 +128,24 @@
 
       <div class="page-header"><h2>Ecologie</h2></div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Référentiel habitat</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listRH" class="form-control"></select>
         </div>
-        <div class = "col-xs-6 col-sm-2">Habitat choisi</div>
-        <div class = "col-xs-6 col-sm-4">
-          <input type=text class="form-control" list=dataHC />
-          <datalist id="dataHC"></datalist>
+        <div class = "col-xs-12 col-sm-6">
+          <input id="dataHC" type=text class="form-control"/>
         </div>
       </div>
 
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Substrat</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listSubstrate" class="form-control"></select>
         </div>
-        <div class = "col-xs-6 col-sm-2">Hote</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listHost" class="form-control"></select>
         </div>
       </div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Etat de l'hote</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listHostState" class="form-control"></select>
         </div>
       </div>
@@ -176,22 +153,18 @@
 
       <div class="page-header"><h2>Propriétaires</h2></div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Nombre légataires</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listLegNumber" class="form-control"></select>
         </div>
-        <div class = "col-xs-6 col-sm-2">Légataire(s)*</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listLegatees" class="form-control"></select>
         </div>
       </div>
       <div class="row">
-        <div class = "col-xs-6 col-sm-2">Nb déterminateurs</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listDetNb" class="form-control"></select>
         </div>
-        <div class = "col-xs-6 col-sm-2">Déterminateurs</div>
-        <div class = "col-xs-6 col-sm-4">
+        <div class = "col-xs-12 col-sm-6">
           <select id = "listDet" class="form-control"></select>
         </div>
       </div>

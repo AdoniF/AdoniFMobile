@@ -4,11 +4,11 @@ var user = {};
 var db_name = "smnf.db";
 
 // Ouvre la base de données
-function openDB() {
+function openDB() {/*
 	if (window.sqlitePlugin) {
 		db = window.sqlitePlugin.openDatabase({name: db_name});
 		checkConnection();
-	}
+	}*/
 }
 
 // Détermine si l'utilisateur s'est déjà connecté auparavant, puis agit en conséquence

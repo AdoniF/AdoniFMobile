@@ -20,7 +20,6 @@ function checkConnection() {
 		});
 	}, function (e) {
 		loggedIn = false;
-		connectUser();
 	});
 }
 

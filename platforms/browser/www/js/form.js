@@ -4,14 +4,17 @@ est passé en paramètre
 @param array: suggestions possibles
 @param id : id de l'input auquel on ajoute les suggestions
 */
-function populateInput(array, id) {
-    var data = document.getElementById(id);
+function populateInput(id, array, placeholder) {
+    var data = $("#" + id);
     
+    data.attr("placeholder", placeholder);
     var options = "";
+    options += "<option value='" + placeholder + "'/>";
     for (var i = 0; i < array.length; i++) {
         options += "<option value='" + array[i] + "'/>";
     }
-    data.innerHTML = options;
+
+    data.append(options);
 }
 
 /*
@@ -20,23 +23,25 @@ l'id est passé en paramètre
 @param array : propositions possibles
 @param id : id du select auquel on ajoute les propositions
 */
-function populateSelect(array, id) {
-    var list = document.getElementById(id);
-    /*var list = $("#"+id);*/
+function populateSelect(id, array, selected) {
+    var list = $("#" + id);
 
+    list.attr("placeholder", selected);
     var options = "";
+    options += "<option>" + selected + "</option>";
     for (var i = 0; i < array.length; ++i) {
         options += "<option>" + array[i] + "</option>";
     }
-    list.innerHTML = options;
+
+    list.append(options);
 }
 
 function populateFields() {
+    var array = [];
+
     setDate();
     setLocation();
 
-    var array = [];
-    array.push('');
     array.push('toto 1iubhigbugvugfvuyvuvu');
     array.push('toto 2');
     array.push('toto 3');
@@ -48,47 +53,37 @@ function populateFields() {
     array.push(user.login);
 
     var arraySVF = [];
-    arraySVF.push('');
     arraySVF.push('var.');
     arraySVF.push('ssp.');
     arraySVF.push('f.');
 
-    populateSelect(arraySVF, 'listSVF');
+    populateSelect('listSVF', arraySVF, "var., ssp., f.");
 
-    var selectsArray = [];
-    selectsArray.push('listPhylum');
-    selectsArray.push('listModulation');
-    selectsArray.push('listRH');
-    selectsArray.push('listSubstrate');
-    selectsArray.push('listHost');
-    selectsArray.push('listHostState');
-    selectsArray.push('listLegNumber');
-    selectsArray.push('listLegatees');
-    selectsArray.push('listDetNb');
-    selectsArray.push('listDet');
+    populateSelect("listPhylum", array, "Phylum");
+    populateSelect("listModulation", array, "Modulation");
+    populateSelect("listRH", array, "Référentiel habitat");
+    populateSelect("listSubstrate", array, "Substrat");
+    populateSelect("listHost", array, "Hôte");
+    populateSelect("listHostState", array, "Etat de l'hôte");
+    populateSelect("listDet", array, "Déterminateur(s)");
+    populateSelect("listDetNb", array, "Nombre de déterminateurs");
+    populateSelect("listLegatees", array, "Légataire(s)");
+    populateSelect("listLegNumber", array, "Nombre de légataires");
 
-    selectsArray.forEach(function(select) {
-        populateSelect(array, select);
-    });
-
-    var inputsArray = [];
-    inputsArray.push('dataGenre');
-    inputsArray.push('dataSpecies');
-    inputsArray.push('dataEpithete');
-    inputsArray.push('dataAuthor');
-    inputsArray.push('dataHC');
-
-    inputsArray.forEach(function(input) {
-        populateInput(array, input);
-    });
+    populateInput("dataGenre", array, "Genre*");
+    populateInput("dataSpecies", array, "Espèce");
+    populateInput("dataEpithete", array, "Epithète");
+    populateInput("dataHC", array, "Habitat choisi");
+    populateInput("range", array, "Etendue (mètres)");
+    populateInput("dataAuthor", array, "Auteur");
+    populateInput("nbFound", array, "Quantité trouvée");
 
     setAuthor();
-
 }
 
 //Remplit le champ date
 function setDate() {
-    $("#date").text(new Date().toLocaleString());
+    $("#date").text("Date : " + new Date().toLocaleString());
 }
 
 //Remplit les champs de position
@@ -115,5 +110,4 @@ function generateNewForm(imageSrc) {
 function populateFormFromGathering(gathering) {
     //TODO : Charger depuis la BDD la recolte plutôt qu'un nouveau formulaire
     populateFields();
-
 }

@@ -69,11 +69,6 @@ function changePage(id) {
 Fonction permettant de reculer d'une page dans la hiérarchie
 */
 function goBack() {
-	var ch = "";
-	for (var i = 0; i < previousPages.length; i++) {
-		ch += ":" + previousPages[i] + ": ";
-	}
-	alert(ch);
 	var previous = previousPages.pop();
 	if (!previous) {
 		navigator.app.exitApp();

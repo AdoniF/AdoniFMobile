@@ -76,9 +76,9 @@ function addPicture(src) {
 	var idButton = nb + "delete";
 	var idRow = nb + "row";
 
-	var pictureRow ="<div id='" + idRow + "'><div class='row'><div class='col-xs-6 vcenter'><img class='img-thumbnail' src=" 
-	+ src + " alt='picture' /></div><div class='col-xs-offset-1 col-xs-5 col-sm-offset-2 col-sm-4 vcenter'>"
-	+ "<button type='button' class='btn btn-primary btn-lg delete' id='" + idButton 
+	var pictureRow ="<div id='" + idRow + "'><div class='row'><div class='col-xs-6 pull-left vcenter'><img class='img-thumbnail' src=" 
+	+ src + " alt='picture' /></div><div class='col-xs-6 vcenter'>"
+	+ "<button type='button' class='btn btn-primary btn-lg delete pull-right' id='" + idButton 
 	+ "' onclick='deletePicture(this.id);'>Supprimer</button></div></div><div class='divider'></div></div>";
 
 	++nb;

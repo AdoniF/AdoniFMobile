@@ -4,14 +4,16 @@ est passé en paramètre
 @param array: suggestions possibles
 @param id : id de l'input auquel on ajoute les suggestions
 */
-function populateInput(array, id) {
-    var data = document.getElementById(id);
+function populateInput(id, array, placeholder) {
+    var data = $("#" + id);
     
+    data.attr("placeholder", placeholder);
     var options = "";
     for (var i = 0; i < array.length; i++) {
         options += "<option value='" + array[i] + "'/>";
     }
-    data.innerHTML = options;
+
+    data.append(options);
 }
 
 /*
@@ -20,22 +22,22 @@ l'id est passé en paramètre
 @param array : propositions possibles
 @param id : id du select auquel on ajoute les propositions
 */
-function populateSelect(array, id) {
-    var list = document.getElementById(id);
-    /*var list = $("#"+id);*/
+function populateSelect(id, array, selected) {
+    var list = $("#" + id);
 
     var options = "";
+    options += "<option value='" + selected + "' selected/>";
     for (var i = 0; i < array.length; ++i) {
         options += "<option>" + array[i] + "</option>";
     }
-    list.innerHTML = options;
+    list.append(options);
 }
 
+var array = [];
 function populateFields() {
     setDate();
     setLocation();
 
-    var array = [];
     array.push('');
     array.push('toto 1iubhigbugvugfvuyvuvu');
     array.push('toto 2');
@@ -53,34 +55,19 @@ function populateFields() {
     arraySVF.push('ssp.');
     arraySVF.push('f.');
 
-    populateSelect(arraySVF, 'listSVF');
+    populateSelect('listSVF', arraySVF, "var., ssp., f.");
 
-    var selectsArray = [];
-    selectsArray.push('listPhylum');
-    selectsArray.push('listModulation');
-    selectsArray.push('listRH');
-    selectsArray.push('listSubstrate');
-    selectsArray.push('listHost');
-    selectsArray.push('listHostState');
-    selectsArray.push('listLegNumber');
-    selectsArray.push('listLegatees');
-    selectsArray.push('listDetNb');
-    selectsArray.push('listDet');
+    populateSelect("listPhylum", array, "Phylum");
+    populateSelect("listModulation", array, "Modulation");
+    populateSelect("listRH", array, "Référentiel habitat");
+    populateSelect("listSubstrate", array, "Substrat");
+    populateSelect("listHost", array, "Hôte");
+    populateSelect("listHostState", array, "Etat de l'hôte");
 
-    selectsArray.forEach(function(select) {
-        populateSelect(array, select);
-    });
-
-    var inputsArray = [];
-    inputsArray.push('dataGenre');
-    inputsArray.push('dataSpecies');
-    inputsArray.push('dataEpithete');
-    inputsArray.push('dataAuthor');
-    inputsArray.push('dataHC');
-
-    inputsArray.forEach(function(input) {
-        populateInput(array, input);
-    });
+    populateInput("dataGenre", array, "Genre");
+    populateInput("dataSpecies", array, "Espèce");
+    populateInput("dataEpithete", array, "Epithète");
+    populateInput("dataHC", array, "Habitat choisi");
 
     setAuthor();
 
@@ -115,5 +102,4 @@ function generateNewForm(imageSrc) {
 function populateFormFromGathering(gathering) {
     //TODO : Charger depuis la BDD la recolte plutôt qu'un nouveau formulaire
     populateFields();
-
 }
