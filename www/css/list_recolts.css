@@ -1,0 +1,4 @@
+/* Ajoute un espace entre les boutons */
+.row-button {
+  margin-left: 1px;
+}

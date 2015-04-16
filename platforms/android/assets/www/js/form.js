@@ -9,6 +9,7 @@ function populateInput(id, array, placeholder) {
     
     data.attr("placeholder", placeholder);
     var options = "";
+    options += "<option value='" + placeholder + "'/>";
     for (var i = 0; i < array.length; i++) {
         options += "<option value='" + array[i] + "'/>";
     }
@@ -25,20 +26,22 @@ l'id est passé en paramètre
 function populateSelect(id, array, selected) {
     var list = $("#" + id);
 
+    list.attr("placeholder", selected);
     var options = "";
-    options += "<option value='" + selected + "' selected/>";
+    options += "<option>" + selected + "</option>";
     for (var i = 0; i < array.length; ++i) {
         options += "<option>" + array[i] + "</option>";
     }
+
     list.append(options);
 }
 
-var array = [];
 function populateFields() {
+    var array = [];
+
     setDate();
     setLocation();
 
-    array.push('');
     array.push('toto 1iubhigbugvugfvuyvuvu');
     array.push('toto 2');
     array.push('toto 3');
@@ -50,7 +53,6 @@ function populateFields() {
     array.push(user.login);
 
     var arraySVF = [];
-    arraySVF.push('');
     arraySVF.push('var.');
     arraySVF.push('ssp.');
     arraySVF.push('f.');
@@ -63,19 +65,25 @@ function populateFields() {
     populateSelect("listSubstrate", array, "Substrat");
     populateSelect("listHost", array, "Hôte");
     populateSelect("listHostState", array, "Etat de l'hôte");
+    populateSelect("listDet", array, "Déterminateur(s)");
+    populateSelect("listDetNb", array, "Nombre de déterminateurs");
+    populateSelect("listLegatees", array, "Légataire(s)");
+    populateSelect("listLegNumber", array, "Nombre de légataires");
 
-    populateInput("dataGenre", array, "Genre");
+    populateInput("dataGenre", array, "Genre*");
     populateInput("dataSpecies", array, "Espèce");
     populateInput("dataEpithete", array, "Epithète");
     populateInput("dataHC", array, "Habitat choisi");
+    populateInput("range", array, "Etendue (mètres)");
+    populateInput("dataAuthor", array, "Auteur");
+    populateInput("nbFound", array, "Quantité trouvée");
 
     setAuthor();
-
 }
 
 //Remplit le champ date
 function setDate() {
-    $("#date").text(new Date().toLocaleString());
+    $("#date").text("Date : " + new Date().toLocaleString());
 }
 
 //Remplit les champs de position

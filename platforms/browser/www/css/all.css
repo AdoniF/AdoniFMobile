@@ -1,0 +1,40 @@
+body {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+ /* Permet de cacher toutes les divs au lancement */
+.hidden {
+  display: none;
+}
+
+/* Centre les éléments dans le footer des modaux */
+.modal-footer {
+	text-align: center;
+}
+
+/* Centre les textes h1, utilisés pour les entêtes de pages */
+h1 {
+  text-align: center;
+}
+
+/* Permet de centrer les modaux dans la page */
+.modal {
+  margin-top: 25%;
+}
+
+/* Permet de centrer les éléments de la page de connexion */
+#connection {
+  border:0;
+  margin-top: 25%;
+}
+
+/*
+Conservé pour plus tard
+.vcenter{
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}*/

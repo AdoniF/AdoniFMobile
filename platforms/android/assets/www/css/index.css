@@ -41,8 +41,9 @@ h2, input, select {
 
 .vcenter{
     display: inline-block;
-    vertical-align: middle;
-    float: none;
+    /*vertical-align: middle;*/
+    margin-top: 25%;
+
 }
 
 .row-button {
@@ -64,4 +65,8 @@ h2, input, select {
 
 .img-thumbnail {
   max-height: 60%;
+}
+
+.input-group {
+  margin-bottom: 5px;
 }

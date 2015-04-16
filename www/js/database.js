@@ -87,7 +87,7 @@ function addUser(login, password, asso, role) {
 	});
 }
 
-// Initialise l'utilisateur depuis la base de données
+// Initialise l'utilisateur courant depuis la base de données
 function initUser() {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT data from users;", [], function(tx, res) {

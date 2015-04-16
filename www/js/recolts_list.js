@@ -2,15 +2,15 @@
 function addRecolt(src, phylum, id) {
 	var tbody = $("#table").children("tbody");
 	var deleteID = "delete:" + id;
-	var newRow = "<tr id='entry" + id + "'><td><div class='row'><div class='col-sm-4 vcenter hidden-xs'>"
-	+ "<img class='img-thumbnail' id='recolt' src='" + src + "' alt='picture'/></div>"
-	+ "<div class='col-xs-4 col-sm-2 vcenter'>" + id + " : " + phylum + "</div>"
-	+ "<div class='col-xs-offset-0 col-xs-8 col-sm-offset-2 col-sm-4 vcenter'>"
-	+ "<div class='row'>"
-	+ "<div class='col-xs-6'><button type='button' class='btn btn-primary vcenter row-button'>Modifier</button></div>"
-	+ "<div class='col-xs-6'><button type='button' id = '" + deleteID + "'"
-	+ "class='btn btn-primary vcenter row-button' onclick='removeGathering(this);'>Supprimer</button></div>"
-	+ "</div></div></div></td></tr>";
+	var newRow = "<tr id='entry" + id + "'><td><div class='row'>"
+	+ "<span class='col-sm-4  hidden-xs'><img class='img-thumbnail' id='recolt' src='" + src + "' alt='picture'/></span>"
+	+ "<span class='col-xs-6 col-sm-4'>" + id + " : " + phylum + "</span>"
+	+ "<span class='col-xs-6 col-sm-4'>"
+	+ "<button type='button' class='btn btn-primary row-button'>Modifier</button>"
+	+ "<button type='button' id = '" + deleteID + "'"
+	+ "class='btn btn-primary row-button' onclick='removeGathering(this);'>"
+	+ "<span class='glyphicon glyphicon-trash'></span></button>"
+	+ "</span></div></td></tr>";
 	tbody.append(newRow);
 }
 

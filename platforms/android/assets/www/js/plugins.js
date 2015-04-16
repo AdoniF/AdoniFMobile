@@ -8,25 +8,25 @@ var nbPictures = 0;
 
 // Fonction appellée lors de la réussite d'une géolocalisation
 function onGeolocationSuccess(pos) {
-	$("#longitude").text(pos.coords.longitude);
-	$("#latitude").text(pos.coords.latitude);
-	$("#accuracy").text(Math.round(pos.coords.accuracy) + " mètres");
+	$("#longitude").text("Longitude : " + pos.coords.longitude);
+	$("#latitude").text("Latitude : " + pos.coords.latitude);
+	$("#accuracy").text("Précision : " + Math.round(pos.coords.accuracy) + " mètres");
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
 	window.plugins.toast.showShortCenter("Localisation échouée. Activez votre wifi pour faciliter la localisation." + error.message);
 	//alert("Code " + error.code + "\n" + "message " + error.message + "\n");
-	$("#longitude").text("Echec");
-	$("#latitude").text("Echec");
-	$("#accuracy").text("Echec");
+	$("#longitude").text("Longitude : échec");
+	$("#latitude").text("Latitude : échec");
+	$("#accuracy").text("Précision : échec");
 }
 
 // Lance la géolocalisation de l'utilisateur
 function calculatePosition() {
-	$("#longitude").text("Calcul en cours...");
-	$("#latitude").text("Calcul en cours...");
-	$("#accuracy").text("Calcul en cours...");
+	$("#longitude").text("Longitude : calcul en cours...");
+	$("#latitude").text("Latitude : calcul en cours...");
+	$("#accuracy").text("Précision : calcul en cours...");
 
 	var locationOptions = {maximumAge: 60000, timeout: 5000, enableHighAccuracy: !online};
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, locationOptions);
@@ -39,10 +39,10 @@ function initCamera() {
 		cameraOptions = {quality: 100, destinationType: Camera.DestinationType.DATA_URL,
 			correctOrientation: true, encodingType: Camera.EncodingType.JPEG };
 
-		pictureSource=navigator.camera.PictureSourceType;
-		destinationType=navigator.camera.DestinationType;
+			pictureSource=navigator.camera.PictureSourceType;
+			destinationType=navigator.camera.DestinationType;
+		}
 	}
-}
 
 //	Fonction qui démarre l'appareil photo
 function launchCamera() {
@@ -75,11 +75,20 @@ function addPicture(src) {
 	var picturesDiv = $("#picturesDiv");
 	var idButton = nb + "delete";
 	var idRow = nb + "row";
+	var idPic = nb + "pic";
 
-	var pictureRow ="<div id='" + idRow + "'><div class='row'><div class='col-xs-6 pull-left vcenter'><img class='img-thumbnail' src=" 
-	+ src + " alt='picture' /></div><div class='col-xs-6 vcenter'>"
-	+ "<button type='button' class='btn btn-primary btn-lg delete pull-right' id='" + idButton 
-	+ "' onclick='deletePicture(this.id);'>Supprimer</button></div></div><div class='divider'></div></div>";
+	/*var pictureRow ="<div id='" + idRow + "'><div class='row'>"
+	+ "<span class='pull-left'><span class='col-xs-6 vcenter'><img id='" + idPic + "'class='img-thumbnail' src=" + src + " alt='picture'/></span></span>"
+	+ "<span class='pull-right'><span class='col-xs-6 vcenter'><button type='button' class='btn btn-primary btn-lg delete' id='" + idButton + "'"
+	+ "onclick='deletePicture(this.id);'>"
+	+ "<span class='glyphicon glyphicon-trash'></span></button></span></span></div>"
+	+ "<div class='divider'></div></div>";*/
+
+	var pictureRow = "<div id='" + idRow + "'>"+"<div class='row'>"+"<span class='col-xs-6'><img id='"
+	 + idPic + "'class='img-thumbnail' src=" + src + " alt='picture'/></span>"
+	 +"<span class='col-xs-6'><button type='button' class='btn btn-primary btn-lg delete' id='" + idButton 
+	 + "' onclick='deletePicture(this.id);'>"+"<span class='glyphicon glyphicon-trash'></span></button></span>"
+	 +"</div>"+"<div class='divider'></div></div>";
 
 	++nb;
 	++nbPictures

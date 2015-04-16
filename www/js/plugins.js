@@ -77,19 +77,22 @@ function addPicture(src) {
 	var idRow = nb + "row";
 	var idPic = nb + "pic";
 
-	var pictureRow ="<div id='" + idRow + "'><div class='row'><div class='col-xs-6 pull-left vcenter'><img id='" + idPic + "'"
-	+ "class='img-thumbnail' src=" + src + " alt='picture' /></div><div class='col-xs-6 vcenter'>"
-	+ "<button type='button' class='btn btn-primary btn-lg delete pull-right' id='" + idButton + "'"
-	+ "onclick='deletePicture(this.id);'>Supprimer</button></div></div><div class='divider'></div></div>";
+	/*var pictureRow ="<div id='" + idRow + "'><div class='row'>"
+	+ "<span class='pull-left'><span class='col-xs-6 vcenter'><img id='" + idPic + "'class='img-thumbnail' src=" + src + " alt='picture'/></span></span>"
+	+ "<span class='pull-right'><span class='col-xs-6 vcenter'><button type='button' class='btn btn-primary btn-lg delete' id='" + idButton + "'"
+	+ "onclick='deletePicture(this.id);'>"
+	+ "<span class='glyphicon glyphicon-trash'></span></button></span></span></div>"
+	+ "<div class='divider'></div></div>";*/
+
+	var pictureRow = "<div id='" + idRow + "'>"+"<div class='row'>"+"<span class='col-xs-6'><img id='"
+	 + idPic + "'class='img-thumbnail' src=" + src + " alt='picture'/></span>"
+	 +"<span class='col-xs-6'><button type='button' class='btn btn-primary btn-lg delete' id='" + idButton 
+	 + "' onclick='deletePicture(this.id);'>"+"<span class='glyphicon glyphicon-trash'></span></button></span>"
+	 +"</div>"+"<div class='divider'></div></div>";
 
 	++nb;
 	++nbPictures
 	picturesDiv.append(pictureRow);
-
-	var pic = $("#" + idPic);
-	var button = $("#" + idButton);
-	var marginTop = (pic.height() / 2) - button.height() / 2;
-	button.css("margin-top", marginTop + "px" );	
 }
 
 //	Fonction appelée suite à l'échec de la prise d'une photo

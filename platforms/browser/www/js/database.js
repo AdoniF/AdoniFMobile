@@ -4,11 +4,11 @@ var user = {};
 var db_name = "smnf.db";
 
 // Ouvre la base de données
-function openDB() {/*
+function openDB() {
 	if (window.sqlitePlugin) {
 		db = window.sqlitePlugin.openDatabase({name: db_name});
 		checkConnection();
-	}*/
+	}
 }
 
 // Détermine si l'utilisateur s'est déjà connecté auparavant, puis agit en conséquence
@@ -20,7 +20,6 @@ function checkConnection() {
 		});
 	}, function (e) {
 		loggedIn = false;
-		connectUser();
 	});
 }
 
@@ -88,7 +87,7 @@ function addUser(login, password, asso, role) {
 	});
 }
 
-// Initialise l'utilisateur depuis la base de données
+// Initialise l'utilisateur courant depuis la base de données
 function initUser() {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT data from users;", [], function(tx, res) {

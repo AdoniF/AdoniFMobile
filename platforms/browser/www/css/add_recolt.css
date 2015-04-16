@@ -1,0 +1,14 @@
+/* Ajoute un peu d'espace sous les champs */
+h2, .input-group {
+  margin-bottom: 5px;
+}
+
+/* Crée un séparateur horizontal */
+.divider {
+  height: 1px;
+  width: 100%;
+  display: block;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
