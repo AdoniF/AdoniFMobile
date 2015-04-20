@@ -10,15 +10,21 @@ est passé en paramètre
 @param id : id de l'input auquel on ajoute les suggestions
 */
 function populateInput(id, array, placeholder) {
-    var data = $("#" + id);
-    
-    data.attr("placeholder", placeholder);
+    var list = $("#" + id);
     var options = "";
+
+    var idx = array.indexOf(placeholder);
+    if (idx != -1)
+        array.splice(idx, 1);
+
+    list.attr("placeholder", placeholder);
     options += "<option value='" + placeholder + "'/>";
     for (var i = 0; i < array.length; i++) {
         options += "<option value='" + array[i] + "'/>";
     }
 
+    var data = $("#list" + id);
+    data.empty();
     data.append(options);
 }
 
@@ -31,6 +37,11 @@ l'id est passé en paramètre
 function populateSelect(id, array, selected) {
     var list = $("#" + id);
 
+    var idx = array.indexOf(selected);
+    if (idx != -1)
+        array.splice(idx, 1);
+    
+    list.empty();
     list.attr("placeholder", selected);
     var options = "";
     options += "<option>" + selected + "</option>";
