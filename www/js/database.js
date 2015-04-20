@@ -1,5 +1,7 @@
 var db;
 var phylumsTables = ["asco", "basidio", "chytridio", "glomero", "mycetozoa", "zygo"];
+var phylumsArray = ["Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Mycetozoa", "Zygomycota"];
+
 var loggedIn;
 var user = {};
 var db_name = "smnf.db";
@@ -10,6 +12,14 @@ function openDB() {
 		db = window.sqlitePlugin.openDatabase({name: db_name});
 		checkConnection();
 	}
+}
+
+function getPhylumTable(phylumName) {
+	return phylumsTables[phylumsArray.indexOf(phylumName)];
+}
+
+function getPhylumName(phylumTable) {
+	return phylumsArray[phylumsTables.indexOf(phylumTable)];
 }
 
 // Détermine si l'utilisateur s'est déjà connecté auparavant, puis agit en conséquence
@@ -63,6 +73,7 @@ function createDB() {
 function dropTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS users;");
 	tx.executeSql("DROP TABLE IF EXISTS gatherings;");
+	tx.executeSql("DROP TABLE IF EXISTS substrat");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
 	}
@@ -94,6 +105,7 @@ function createTables(tx) {
 			+ "taxon TEXT"
 			+");");
 	}
+	tx.executeSql("CREATE TABLE IF NOT EXISTS substrat(data TEXT);");
 }
 
 var genres = [];
@@ -275,8 +287,74 @@ function GatheringItem(id, data) {
 //Retire la récolte d'id id de la base
 function deleteGathering(id) {
 	db.transaction(function (tx) {
-		tx.executeSql("DELETE FROM gatherings WHERE id = (?)", [id], function () {/* success */});
+		tx.executeSql("DELETE FROM gatherings WHERE id = (?)", [id], function () {});
 	}, function (e) {
 		alert("error delete gathering " + e.message);
 	});
+}
+
+function getPossibleGenres(phylum, value) {
+	phylum = getPhylumTable(phylum);
+	if (!phylum)
+		getAllGenres(value);
+	else {
+		db.transaction(function (tx) {
+			tx.executeSql("SELECT DISTINCT GENRE FROM " + phylum, [], function(tx, res) {
+				var array = [];
+				for (var i = 0; i < res.rows.length; ++i) 
+					array.push(res.rows.item(i).genre);
+				
+				populateInput("dataGenre", array, value);
+			});
+		}, function (e) {
+			alert("error getGenresFromPhylum " + e.message);
+		});
+	}
+}
+
+function getAllGenres(value) {
+	var array = [];
+
+	db.transaction(function (tx) {
+		var query = "SELECT DISTINCT GENRE FROM " + phylumsTables[0];
+		for (var i = 1; i < phylumsTables.length; ++i) {
+			query += " UNION SELECT DISTINCT GENRE FROM " + phylumsTables[i];
+		}
+
+		query += " ORDER BY GENRE";
+
+		tx.executeSql(query, [], function (tx, res) {
+			var array = [];
+			var ch = "";
+			for (var prop in res.rows.item(0))
+				ch += prop + " / ";
+			alert("ch " + ch);
+			for (var i = 0; i < res.rows.length; ++i) {
+				array.push(res.rows.item(i).GENRE);
+			}
+			populateInput("dataGenre", array, value);		
+		})
+	}, function (e) {
+		alert("error getAllGenres " + e.message);
+	});
+}
+
+function getPossibleEpithetes(phylum, genre, value) {
+	phylum = getPhylumTable(phylum);
+	//TODO : cas ou on n'a pas choisi de phylum et/ou genre ou genre injection sql
+
+	db.transaction(function (tx) {
+		var query = "SELECT DISTINCT epithete FROM " + phylum + " WHERE genre = '" + genre + "';";
+		tx.executeSql(query, [], function (tx, res){
+			var array = [];
+			for (var i = 0; i < res.rows.length; ++i) 
+				array.push(res.rows.item(i).epithete);
+
+			populateInput("dataSpecies", array, value);
+		});
+	}, function (e) {
+		alert("error getPossibleEpithetes " + e.message);
+	});
+
+	//TODO : continue method
 }

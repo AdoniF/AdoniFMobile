@@ -1,4 +1,3 @@
-var phylumsArray = ["Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Mycetozoa", "Zygomycota"];
 var rangArray = ["var.", "f.", "subsp."];
 var recolt = {};
 var recoltID = null;
@@ -9,16 +8,16 @@ est passé en paramètre
 @param array: suggestions possibles
 @param id : id de l'input auquel on ajoute les suggestions
 */
-function populateInput(id, array, placeholder) {
+function populateInput(id, array, content) {
     var list = $("#" + id);
     var options = "";
 
-    var idx = array.indexOf(placeholder);
+    var idx = array.indexOf(content);
     if (idx != -1)
         array.splice(idx, 1);
 
-    list.attr("placeholder", placeholder);
-    options += "<option value='" + placeholder + "'/>";
+    list.val(content);
+    //options += "<option value='" + content + "'/>";
     for (var i = 0; i < array.length; i++) {
         options += "<option value='" + array[i] + "'/>";
     }
@@ -40,7 +39,7 @@ function populateSelect(id, array, selected) {
     var idx = array.indexOf(selected);
     if (idx != -1)
         array.splice(idx, 1);
-    
+
     list.empty();
     list.attr("placeholder", selected);
     var options = "";
@@ -66,26 +65,32 @@ function populateFields() {
     array.push('1');
     array.push(user.login);
 
-    populateSelect('listSVF', rangArray, "var., ssp., f.");
-    populateSelect("listPhylum", phylumsArray, "Phylum");
-    populateSelect("listModulation", array, "Modulation");
-    populateSelect("listSubstrate", array, "Substrat");
-    populateSelect("listHost", array, "Hôte");
-    populateSelect("listHostState", array, "Etat de l&rsquo;hôte");
-    populateSelect("listDet", array, "Déterminateur(s)");
-    populateSelect("listLegatees", array, "Légataire(s)");
+    populateFieldsFromDB();
+
+    populateSelect('listSVF', rangArray, "");
+    populateSelect("listPhylum", phylumsArray, "");
+    populateSelect("listModulation", array, "");
+    populateSelect("listSubstrate", array, "");
+    populateSelect("listHost", array, "");
+    populateSelect("listHostState", array, "");
+    populateSelect("listDet", array, "");
+    populateSelect("listLegatees", array, "");
     
-    populateInput("listLegNumber", array, "Nombre de légataires");
-    populateInput("listDetNb", array, "Nombre de déterminateurs");
-    populateInput("dataGenre", array, "Genre");
-    populateInput("dataSpecies", array, "Epithète");
-    populateInput("dataTaxon", array, "Epithète 2");
-    populateInput("range", array, "Etendue (mètres)");
-    populateInput("dataAuthor", array, "Auteur");
-    populateInput("nbFound", array, "Quantité trouvée");
-    populateInput("dataHC", [], "Habitat choisi");
+    populateInput("listLegNumber", array, "");
+    populateInput("listDetNb", array, "");
+    //populateInput("dataGenre", array, "Genre");
+    populateInput("dataSpecies", array, "");
+    populateInput("dataTaxon", array, "");
+    populateInput("range", array, "");
+    populateInput("dataAuthor", array, "");
+    populateInput("nbFound", array, "");
+    populateInput("dataHC", [], "");
 
     setAuthor();
+}
+
+function populateFieldsFromDB() {
+    getPossibleGenres("", "Genre");
 }
 
 //Remplit le champ date
@@ -231,6 +236,7 @@ function populateFieldsFromRecolt(recolt) {
     array.push('1');
     array.push(user.login);
 
+    populateFieldsFromDBRecolt();
     populateSelect('listSVF', rangArray, recolt.rang);
     populateSelect("listPhylum", phylumsArray, recolt.phylum);
     populateSelect("listModulation", array, recolt.modulation);
@@ -242,8 +248,8 @@ function populateFieldsFromRecolt(recolt) {
     
     populateInput("listLegNumber", array, recolt.nbLegataires);
     populateInput("listDetNb", array, recolt.nbDet);
-    populateInput("dataGenre", array, recolt.genre);
-    populateInput("dataSpecies", array, recolt.epithete);
+    //populateInput("dataGenre", array, recolt.genre);
+    //populateInput("dataSpecies", array, recolt.epithete);
     populateInput("dataTaxon", array, recolt.taxon);
     populateInput("dataHC", [], recolt.habitat);
     populateInput("range", array, recolt.range);
@@ -251,6 +257,9 @@ function populateFieldsFromRecolt(recolt) {
     populateInput("nbFound", array, recolt.quantity);
 
     loadPictures();
+}
+function populateFieldsFromDBRecolt() {
+    updateFields(0);
 }
 
 function loadPictures() {
@@ -262,3 +271,10 @@ function loadPictures() {
     }
 }
 
+function updateFields(rank) {
+    if (rank < 1)
+        getPossibleGenres($("#listPhylum option:selected").text(), $("#dataGenre").val());
+    if (rank < 2)
+        getPossibleEpithetes();
+
+}

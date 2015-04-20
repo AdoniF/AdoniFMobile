@@ -69,13 +69,13 @@
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Phylum</span>
-            <select id="listPhylum" class="form-control"></select>
+            <select id="listPhylum" class="form-control" onchange="updateFields(0);"></select>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Genre</span>
-            <input id="dataGenre" class="form-control" type=text list="listdataGenre"/>
+            <input id="dataGenre" class="form-control" type=text list="listdataGenre" onchange="updateFields(1);"/>
             <datalist id="listdataGenre"></datalist>
           </div>
         </div>
