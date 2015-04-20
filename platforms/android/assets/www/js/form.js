@@ -1,3 +1,8 @@
+var phylumsArray = ["Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Mycetozoa", "Zygomycota"];
+var rangArray = ["var.", "f.", "subsp."];
+var recolt = {};
+var recoltID = null;
+
 /*
 Fonction permettant de remplir les suggestions de l'input dont l'id
 est passé en paramètre
@@ -38,9 +43,7 @@ function populateSelect(id, array, selected) {
 
 function populateFields() {
     var array = [];
-
-    setDate();
-    setLocation();
+    setLocationAndDate();
 
     array.push('toto 1iubhigbugvugfvuyvuvu');
     array.push('toto 2');
@@ -52,43 +55,55 @@ function populateFields() {
     array.push('1');
     array.push(user.login);
 
-    var arraySVF = [];
-    arraySVF.push('var.');
-    arraySVF.push('ssp.');
-    arraySVF.push('f.');
-
-    populateSelect('listSVF', arraySVF, "var., ssp., f.");
-
-    populateSelect("listPhylum", array, "Phylum");
+    populateSelect('listSVF', rangArray, "var., ssp., f.");
+    populateSelect("listPhylum", phylumsArray, "Phylum");
     populateSelect("listModulation", array, "Modulation");
-    populateSelect("listRH", array, "Référentiel habitat");
     populateSelect("listSubstrate", array, "Substrat");
     populateSelect("listHost", array, "Hôte");
-    populateSelect("listHostState", array, "Etat de l'hôte");
+    populateSelect("listHostState", array, "Etat de l&rsquo;hôte");
     populateSelect("listDet", array, "Déterminateur(s)");
-    populateSelect("listDetNb", array, "Nombre de déterminateurs");
     populateSelect("listLegatees", array, "Légataire(s)");
-    populateSelect("listLegNumber", array, "Nombre de légataires");
-
-    populateInput("dataGenre", array, "Genre*");
-    populateInput("dataSpecies", array, "Espèce");
-    populateInput("dataEpithete", array, "Epithète");
-    populateInput("dataHC", array, "Habitat choisi");
+    
+    populateInput("listLegNumber", array, "Nombre de légataires");
+    populateInput("listDetNb", array, "Nombre de déterminateurs");
+    populateInput("dataGenre", array, "Genre");
+    populateInput("dataSpecies", array, "Epithète");
+    populateInput("dataTaxon", array, "Epithète 2");
     populateInput("range", array, "Etendue (mètres)");
     populateInput("dataAuthor", array, "Auteur");
     populateInput("nbFound", array, "Quantité trouvée");
+    populateInput("dataHC", [], "Habitat choisi");
 
     setAuthor();
 }
 
 //Remplit le champ date
-function setDate() {
-    $("#date").text("Date : " + new Date().toLocaleString());
+function setDate(date) {
+    var d;
+    if (date) {
+        d = date
+    } else {
+        d = new Date().toLocaleString();
+        recolt.date = d;
+    }
+    $("#date").text("Date : " + recolt.date);
 }
 
 //Remplit les champs de position
-function setLocation() {
-    calculatePosition();
+function setLocationAndDate(data) {
+    if (data) {
+        setDate(data.date);
+        setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres");
+    } else {
+        calculatePosition();
+        setDate();
+    }
+}
+
+function setLocationFields(longitude, latitude, accuracy) {
+    $("#longitude").text("Longitude : " + longitude);
+    $("#latitude").text("Latitude : " + latitude);
+    $("#accuracy").text("Précision : " + accuracy);
 }
 
 //Remplit par défaut le champ de nombre de légataires et son nom
@@ -107,7 +122,132 @@ function generateNewForm(imageSrc) {
 }
 
 // Génère un formulaire depuis une récolte déjà entamée
-function populateFormFromGathering(gathering) {
+function populateFormFromGathering(gathering, id) {
     //TODO : Charger depuis la BDD la recolte plutôt qu'un nouveau formulaire
-    populateFields();
+    recoltID = id;
+    recolt = gathering;
+    populateFieldsFromRecolt(recolt);
 }
+
+//Récupère les valeurs des champs pour les stocker dans la récolte actuelle
+function saveRecolt() {
+    try {
+        recolt.phylum = $("#listPhylum option:selected").text();
+        recolt.modulation = $("#listModulation option:selected").text();
+        recolt.substrat = $("#listSubstrate option:selected").text();
+        recolt.rang = $("#listSVF option:selected").text();
+        recolt.substrat = $("#listSubstrate option:selected").text();
+        recolt.hote = $("#listHost option:selected").text();
+        recolt.etatHote = $("#listHostState option:selected").text();
+        recolt.legataires = $("#listLegatees option:selected").text();
+        recolt.determinateurs = $("#listDet option:selected").text();
+
+        recolt.genre = $("#dataGenre").val();
+        recolt.epithete = $("#dataSpecies").val();
+        recolt.taxon = $("#dataTaxon").val();
+        recolt.author = $("#dataAuthor").val();
+        recolt.quantity = $("#nbFound").val();
+        recolt.range = $("#range").val();
+        recolt.habitat = $("#dataHC").val();
+        recolt.nbLegataires = $("#listLegNumber").val();
+        recolt.nbDet = $("#listDetNb").val();
+
+        savePictures();
+        if (recoltID) {
+            updateGathering(recolt, recoltID);
+        } else {
+            addGathering(recolt);
+        }
+        recoltID = null;
+    } catch (err) {
+        alert("error : " + err.message);
+    }
+}
+
+//Sauve les images courantes
+function savePictures() {
+    var pictures = $("#picturesDiv img").map(function () {
+        return this;
+    });
+
+    var picturesSources = [];
+    for (var i = 0; i < pictures.length; ++i) {
+        picturesSources.push(pictures[i].src);
+    }
+    recolt.pictures = picturesSources;
+}
+
+//Remplit la récolte et le formulaire avec la récolte data passée en paramètre
+function openRecolt(data) {
+    recolt.phylum = data.phylum;
+    recolt.modulation = data.modulation;
+    recolt.substrat = data.substrat;
+    recolt.rang = data.rang;
+    recolt.substrat = data.substrat;
+    recolt.hote = data.hote;
+    recolt.etatHote = data.etatHote;
+    recolt.legataires = data.legataires;
+    recolt.determinateurs = data.determinateurs;
+    recolt.genre = data.genre;
+    recolt.epithete = data.epithete;
+    recolt.taxon = data.taxon;
+    recolt.author = data.author;
+    recolt.quantity = data.quantity;
+    recolt.range = data.range;
+    recolt.habitat = data.habitat;
+    recolt.range = data.range;
+    recolt.nbLegataires = data.nbLegataires;
+    recolt.nbDet = data.nbDet;
+    recolt.longitude = data.longitude;
+    recolt.latitude = data.latitude;
+    recolt.accuracy = data.accuracy;
+    recolt.date = data.date;
+    recolt.pictures = data.pictures;
+}
+
+function populateFieldsFromRecolt(recolt) {
+    var array = [];
+
+    setLocationAndDate(recolt);
+
+    array.push('toto 1iubhigbugvugfvuyvuvu');
+    array.push('toto 2');
+    array.push('toto 3');
+    array.push('titi 1');
+    array.push('titi 2');
+    array.push('titi 3');
+    array.push('42');
+    array.push('1');
+    array.push(user.login);
+
+    populateSelect('listSVF', rangArray, recolt.rang);
+    populateSelect("listPhylum", phylumsArray, recolt.phylum);
+    populateSelect("listModulation", array, recolt.modulation);
+    populateSelect("listSubstrate", array, recolt.substrat);
+    populateSelect("listHost", array, recolt.hote);
+    populateSelect("listHostState", array, recolt.etatHote);
+    populateSelect("listDet", array, recolt.determinateurs);
+    populateSelect("listLegatees", array, recolt.legataires);
+    
+    populateInput("listLegNumber", array, recolt.nbLegataires);
+    populateInput("listDetNb", array, recolt.nbDet);
+    populateInput("dataGenre", array, recolt.genre);
+    populateInput("dataSpecies", array, recolt.epithete);
+    populateInput("dataTaxon", array, recolt.taxon);
+    populateInput("dataHC", [], recolt.habitat);
+    populateInput("range", array, recolt.range);
+    populateInput("dataAuthor", array, recolt.author);
+    populateInput("nbFound", array, recolt.quantity);
+
+    loadPictures();
+}
+
+function loadPictures() {
+    var pictures = recolt.pictures;
+    if (pictures) {
+        for (var i; i < pictures.length; ++i) {
+            addPicture(pictures[i]);
+        }
+    }
+}
+

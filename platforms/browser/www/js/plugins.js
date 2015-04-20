@@ -8,25 +8,24 @@ var nbPictures = 0;
 
 // Fonction appellée lors de la réussite d'une géolocalisation
 function onGeolocationSuccess(pos) {
-	$("#longitude").text("Longitude : " + pos.coords.longitude);
-	$("#latitude").text("Latitude : " + pos.coords.latitude);
-	$("#accuracy").text("Précision : " + Math.round(pos.coords.accuracy) + " mètres");
+	recolt.longitude = pos.coords.longitude;
+	recolt.latitude = pos.coords.latitude;
+	recolt.accuracy = Math.round(pos.coords.accuracy);
+	setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)");
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
 	window.plugins.toast.showShortCenter("Localisation échouée. Activez votre wifi pour faciliter la localisation." + error.message);
-	//alert("Code " + error.code + "\n" + "message " + error.message + "\n");
-	$("#longitude").text("Longitude : échec");
-	$("#latitude").text("Latitude : échec");
-	$("#accuracy").text("Précision : échec");
+	recolt.longitude = "";
+	recolt.latitude = "";
+	recolt.accuracy = "";
+	setLocationFields("échec", "échec", "échec");
 }
 
 // Lance la géolocalisation de l'utilisateur
 function calculatePosition() {
-	$("#longitude").text("Longitude : calcul en cours...");
-	$("#latitude").text("Latitude : calcul en cours...");
-	$("#accuracy").text("Précision : calcul en cours...");
+	setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...");
 
 	var locationOptions = {maximumAge: 60000, timeout: 5000, enableHighAccuracy: !online};
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, locationOptions);
@@ -77,16 +76,9 @@ function addPicture(src) {
 	var idRow = nb + "row";
 	var idPic = nb + "pic";
 
-	/*var pictureRow ="<div id='" + idRow + "'><div class='row'>"
-	+ "<span class='pull-left'><span class='col-xs-6 vcenter'><img id='" + idPic + "'class='img-thumbnail' src=" + src + " alt='picture'/></span></span>"
-	+ "<span class='pull-right'><span class='col-xs-6 vcenter'><button type='button' class='btn btn-primary btn-lg delete' id='" + idButton + "'"
-	+ "onclick='deletePicture(this.id);'>"
-	+ "<span class='glyphicon glyphicon-trash'></span></button></span></span></div>"
-	+ "<div class='divider'></div></div>";*/
-
-	var pictureRow = "<div id='" + idRow + "'>"+"<div class='row'>"+"<span class='col-xs-6'><img id='"
-	 + idPic + "'class='img-thumbnail' src=" + src + " alt='picture'/></span>"
-	 +"<span class='col-xs-6'><button type='button' class='btn btn-primary btn-lg delete' id='" + idButton 
+	var pictureRow = "<div id='" + idRow + "'>"+"<div class='row vertical-align'>"+"<span class='col-xs-6'><img id='"
+	 + idPic + "'class='img-thumbnail picture' src=" + src + " alt='picture'/></span>"
+	 +"<span class='col-xs-6'><button type='button' class='btn btn-primary btn-lg delete pull-right' id='" + idButton 
 	 + "' onclick='deletePicture(this.id);'>"+"<span class='glyphicon glyphicon-trash'></span></button></span>"
 	 +"</div>"+"<div class='divider'></div></div>";
 

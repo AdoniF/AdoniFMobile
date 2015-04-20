@@ -1,0 +1,4 @@
+/* Permet de mettre une taille max à la photo prise pour que la page ne soit pas trop grande */
+.img-thumbnail {
+  max-height: 60%;
+}

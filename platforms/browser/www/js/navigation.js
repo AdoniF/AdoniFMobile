@@ -13,7 +13,7 @@ function loadRecolt(id) {
 }
 
 function toRecolts() {
-	getGatherings();
+	refreshGatheringsList();
 	toShowRecolts();
 }
 
@@ -25,11 +25,6 @@ function toAddRecolt() {
 	showPage('add_recolt');
 }
 
-function saveRecolt() {
-
-	//TODO : récupérer les infos du formulaire, les mettre dans la db
-	// voir sur quelle page on va ensuite
-}
 
 /* 
 Fonction gérant la transition entre les pages
@@ -57,6 +52,7 @@ function changePage(id) {
 		alert("error each page " + err.message);
 	}
 	
+	window.scrollTo(0, 0);
 	try {
 		$("#" + id).show();
 	} catch (err) {

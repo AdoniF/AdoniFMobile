@@ -169,8 +169,7 @@ function savePictures() {
     var pictures = $("#picturesDiv img").map(function () {
         return this;
     });
-    console.log(pictures);
-    console.log(pictures[0]);
+
     var picturesSources = [];
     for (var i = 0; i < pictures.length; ++i) {
         picturesSources.push(pictures[i].src);

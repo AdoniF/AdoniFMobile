@@ -1,4 +1,5 @@
 var db;
+var phylumsTables = ["asco", "basidio", "chytridio", "glomero", "mycetozoa", "zygo"];
 var loggedIn;
 var user = {};
 var db_name = "smnf.db";
@@ -20,7 +21,32 @@ function checkConnection() {
 		});
 	}, function (e) {
 		loggedIn = false;
+		
+
+
+
+
+
+		connectUser();		
+
+
+
+
+
+		
 	});
+}
+
+// Initialise l'utilisateur s'il est connecté, ou déclenche la procédure de connexion dans le cas contraire
+function connectUser() {
+	if (loggedIn) {
+		initUser();
+	} else {
+		createDB();
+		populateDBs();
+
+		showModal('connectionModal', true);
+	}
 }
 
 // Crée la base de données
@@ -36,11 +62,22 @@ function createDB() {
 //Détruit les tables présentes dans la base
 function dropTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS users;");
-	tx.executeSql("DROP TABLE IF EXISTS referential;");
 	tx.executeSql("DROP TABLE IF EXISTS gatherings;");
+	for (var i = 0; i < phylumsTables.length; ++i) {
+		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
+	}
 }
 
-//Crée les tables de la base
+function dropRecolts() {
+	db.transaction(function (tx) {
+		tx.executeSql("DROP TABLE IF EXISTS gatherings;");
+		tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
+			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ "data TEXT);");
+	});
+}
+
+//Crée les tables de la base. Les tables qui n'ont qu'un champ data contiennent des objets JSON
 function createTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS users("
 		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -48,18 +85,85 @@ function createTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
 		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 		+ "data TEXT);");
-	//TODO : completer cette création
-	//tx.executeSql("CREATE TABLE IF NOT EXISTS referential()");
+	for (var i = 0; i < phylumsTables.length; ++i) {
+		tx.executeSql("CREATE TABLE IF NOT EXISTS " + phylumsTables[i] +"("
+			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ "genre TEXT,"
+			+ "epithete TEXT,"
+			+ "rang TEXT,"
+			+ "taxon TEXT"
+			+");");
+	}
 }
 
-// Initialise l'utilisateur s'il est connecté, ou déclenche la procédure de connexion dans le cas contraire
-function connectUser() {
-	if (loggedIn) {
-		initUser();
-	} else {
-		createDB();
-		showModal('connectionModal', true);
-	}
+var genres = [];
+function populateDBs() {
+	db.transaction(function (tx) {
+		populatePhylums(tx);
+	});
+}
+
+function populatePhylums() {
+	phylumsTables.forEach(function (phylum) {
+		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum);
+	});
+}
+
+function showGenres () {
+	db.transaction(function (tx) {
+		tx.executeSql("SELECT * FROM asco", [], function (tx, res) {
+			var ch = "";
+			alert("showin genres " + res.rows.length);
+			for (var i = 0; i < res.rows.length; i++) {
+				var item = res.rows.item(i); 
+				ch += item.genre;
+			}
+			alert(ch);
+		});
+	});
+}
+
+function insertNameInfo(data, phylum) {
+	var rows = data.split("\n");
+
+	db.transaction(function (tx) {
+		rows.forEach(function(entry) {
+			entry = entry.trim();
+			if (entry.length == 0)
+				return;
+
+			var elements = entry.split(" ");
+			var columns = ["genre", "epithete", "rang", "taxon"];
+			var query = buildInsertQuery(phylum, elements, columns);
+
+			tx.executeSql(query);
+		});
+	}, function (e) {
+		alert("error insertNameInfo " + e.message);
+	});
+}
+
+function buildInsertQuery(table, values, columns) {
+	var validValues = [];
+	values.forEach(function (entry, i) {
+		if (entry.length != 0) {
+			var item = {};
+			item.column = columns[i];
+			item.entry = entry;
+			validValues.push(item);
+		}
+	});
+	var query = "INSERT INTO " + table + " (";
+		validValues.forEach(function (entry) {
+			query += entry.column + ", ";
+		});
+		query = query.substring(0, query.length - 2) + ") VALUES (";
+
+		validValues.forEach(function (entry) {
+			query += "'" + entry.entry + "', ";
+		});
+		query = query.substring(0, query.length - 2) + ");";
+return query;
 }
 
 // Tente de se connecter sur le serveur de l'inventaire
@@ -68,7 +172,12 @@ function tryToConnect() {
 	var password = $("#inputPassword");
 
 	//TODO : connexion base de données en ligne
-	addUser(login.val(), password.val(), "toto", "tata");
+	try {
+		addUser(login.val(), password.val(), "toto", "tata");
+	} catch (err) {
+		alert("error ttc " + err.message);
+	}
+
 }
 
 // Ajoute l'utilisateur à la base de données
@@ -111,6 +220,16 @@ function addGathering(gathering) {
 	});
 }
 
+function updateGathering(gathering, id) {
+	var data = JSON.stringify(gathering);
+	var query = "UPDATE gatherings SET data = '" + data + "' WHERE id = '" + id + "';";
+	db.transaction(function (tx) {
+		tx.executeSql(query);
+	}, function (e) {
+		alert("error update Gathering " + e.message);
+	});
+}
+
 function addFakeGathering() {
 	var gathering = {};
 	gathering.src="none.jpg";
@@ -120,10 +239,10 @@ function addFakeGathering() {
 
 // Récupère la récolte correspondant à l'id en paramètre
 function getGathering(id) {
-	var id = parseInt(id);
 	db.transaction(function (tx) {
-		tx.executeSql("SELECT data from gatherings WHERE id = (?);", [id], function(tx, res) {
-			populateFormFromGathering(JSON.parse(res.rows.item(0).data));
+		tx.executeSql("SELECT data from gatherings WHERE id = " + id + ";", [], function(tx, res) {
+			populateFormFromGathering(JSON.parse(res.rows.item(0).data), id);
+			showPage("add_recolt");
 		});
 	}, function (e) {
 		alert("error getGathering " + e.message);

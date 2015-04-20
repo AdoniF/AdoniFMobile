@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1"/>
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="msapplication-tap-highlight" content="no" />
+	<script src="js/libs/jquery-2.1.3.min.js"></script>
+
+	<script>
+	var toto;
+	function doStuff() {
+		console.log("i'm doin stuff");
+		var data = {};
+		data.email="toto@toto.fr"
+		data.mdp ="toto"
+		$.post(
+		{
+			type: "POST",
+			url: "http://smnf-db.fr/?page_id=426",
+			data: JSON.stringify(data)
+		}
+		
+		).fail(function(err) {
+			toto = err;
+			console.log("has failed");
+			console.log(err.statusCode());
+		}).done(function(data, status) {
+
+			console.log("data");
+			console.log(data);
+			console.log("status");
+			console.log(status);
+		}
+		);
+	}
+	function doOtherStuff() {
+		$.ajax({
+			type: 'GET',
+			context: document.body,
+			url : 'http://smnf-db.fr/?page_id=2167',
+		}).done(function(data) {
+			console.log("done !");
+			console.log(data);
+			$("html").html(data);
+		}).fail(function (data, statusCode) {
+			console.log(data);
+			console.log(statusCode);
+
+		});
+	}
+	</script>
+</head>
+<body>
+	<button role="button" onclick="doOtherStuff();">Click me !</button>
+</body>
+</html>

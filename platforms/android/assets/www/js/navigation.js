@@ -13,7 +13,7 @@ function loadRecolt(id) {
 }
 
 function toRecolts() {
-	getGatherings();
+	refreshGatheringsList();
 	toShowRecolts();
 }
 
@@ -25,11 +25,6 @@ function toAddRecolt() {
 	showPage('add_recolt');
 }
 
-function saveRecolt() {
-
-	//TODO : récupérer les infos du formulaire, les mettre dans la db
-	// voir sur quelle page on va ensuite
-}
 
 /* 
 Fonction gérant la transition entre les pages
@@ -38,8 +33,13 @@ Fonction gérant la transition entre les pages
 function showPage(id, wentBack) {
 	if (id == "index")
 		previousPages = [];
-	else if (!wentBack)
+	else if (!wentBack) {
+		var idx = previousPages.indexOf(id);
+		if (idx != -1) {
+			previousPages = previousPages.slice(0, idx);
+		}
 		previousPages.push($(".page").filter(":visible").attr("id"));
+	}
 	
 	changePage(id);
 }
@@ -49,14 +49,12 @@ Fonction affichant la div d'id id et cachant les autres.
 @param id : id de la div à afficher
 */
 function changePage(id) {
-	try {
-		$(".page").each(function(i, div) {
-			$(this).hide();
-		});
-	} catch(err) {
-		alert("error each page " + err.message);
-	}
+	$(".page").each(function(i, div) {
+		$(this).hide();
+	});
+
 	
+	window.scrollTo(0, 0);
 	try {
 		$("#" + id).show();
 	} catch (err) {

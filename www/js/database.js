@@ -16,13 +16,24 @@ function openDB() {
 function checkConnection() {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT count(*) as cpt from users;", [], function (tx, res) {
-			
 			loggedIn = res.rows.item(0).cpt > 0;
 			connectUser();
 		});
 	}, function (e) {
 		loggedIn = false;
+		
+
+
+
+
+
 		connectUser();		
+
+
+
+
+
+		
 	});
 }
 
@@ -32,6 +43,8 @@ function connectUser() {
 		initUser();
 	} else {
 		createDB();
+		populateDBs();
+
 		showModal('connectionModal', true);
 	}
 }
@@ -59,8 +72,8 @@ function dropRecolts() {
 	db.transaction(function (tx) {
 		tx.executeSql("DROP TABLE IF EXISTS gatherings;");
 		tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
-		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-		+ "data TEXT);");
+			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ "data TEXT);");
 	});
 }
 
@@ -83,13 +96,88 @@ function createTables(tx) {
 	}
 }
 
+var genres = [];
+function populateDBs() {
+	db.transaction(function (tx) {
+		populatePhylums(tx);
+	});
+}
+
+function populatePhylums() {
+	phylumsTables.forEach(function (phylum) {
+		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum);
+	});
+}
+
+function showGenres () {
+	db.transaction(function (tx) {
+		tx.executeSql("SELECT * FROM asco", [], function (tx, res) {
+			var ch = "";
+			alert("showin genres " + res.rows.length);
+			for (var i = 0; i < res.rows.length; i++) {
+				var item = res.rows.item(i); 
+				ch += item.genre;
+			}
+			alert(ch);
+		});
+	});
+}
+
+function insertNameInfo(data, phylum) {
+	var rows = data.split("\n");
+
+	db.transaction(function (tx) {
+		rows.forEach(function(entry) {
+			entry = entry.trim();
+			if (entry.length == 0)
+				return;
+
+			var elements = entry.split(" ");
+			var columns = ["genre", "epithete", "rang", "taxon"];
+			var query = buildInsertQuery(phylum, elements, columns);
+
+			tx.executeSql(query);
+		});
+	}, function (e) {
+		alert("error insertNameInfo " + e.message);
+	});
+}
+
+function buildInsertQuery(table, values, columns) {
+	var validValues = [];
+	values.forEach(function (entry, i) {
+		if (entry.length != 0) {
+			var item = {};
+			item.column = columns[i];
+			item.entry = entry;
+			validValues.push(item);
+		}
+	});
+	var query = "INSERT INTO " + table + " (";
+		validValues.forEach(function (entry) {
+			query += entry.column + ", ";
+		});
+		query = query.substring(0, query.length - 2) + ") VALUES (";
+
+		validValues.forEach(function (entry) {
+			query += "'" + entry.entry + "', ";
+		});
+		query = query.substring(0, query.length - 2) + ");";
+return query;
+}
+
 // Tente de se connecter sur le serveur de l'inventaire
 function tryToConnect() {
 	var login = $("#inputLogin");
 	var password = $("#inputPassword");
 
 	//TODO : connexion base de données en ligne
-	addUser(login.val(), password.val(), "toto", "tata");
+	try {
+		addUser(login.val(), password.val(), "toto", "tata");
+	} catch (err) {
+		alert("error ttc " + err.message);
+	}
+
 }
 
 // Ajoute l'utilisateur à la base de données
@@ -187,8 +275,8 @@ function GatheringItem(id, data) {
 //Retire la récolte d'id id de la base
 function deleteGathering(id) {
 	db.transaction(function (tx) {
-	tx.executeSql("DELETE FROM gatherings WHERE id = (?)", [id], function () {/* success */});
-}, function (e) {
-	alert("error delete gathering " + e.message);
-});
+		tx.executeSql("DELETE FROM gatherings WHERE id = (?)", [id], function () {/* success */});
+	}, function (e) {
+		alert("error delete gathering " + e.message);
+	});
 }
