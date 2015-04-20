@@ -1,4 +1,5 @@
 var db;
+var phylumsTables = ["asco", "basidio", "chytridio", "glomero", "mycetozoa", "zygo"];
 var loggedIn;
 var user = {};
 var db_name = "smnf.db";
@@ -15,12 +16,24 @@ function openDB() {
 function checkConnection() {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT count(*) as cpt from users;", [], function (tx, res) {
+			
 			loggedIn = res.rows.item(0).cpt > 0;
 			connectUser();
 		});
 	}, function (e) {
 		loggedIn = false;
+		connectUser();		
 	});
+}
+
+// Initialise l'utilisateur s'il est connecté, ou déclenche la procédure de connexion dans le cas contraire
+function connectUser() {
+	if (loggedIn) {
+		initUser();
+	} else {
+		createDB();
+		showModal('connectionModal', true);
+	}
 }
 
 // Crée la base de données
@@ -36,11 +49,22 @@ function createDB() {
 //Détruit les tables présentes dans la base
 function dropTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS users;");
-	tx.executeSql("DROP TABLE IF EXISTS referential;");
 	tx.executeSql("DROP TABLE IF EXISTS gatherings;");
+	for (var i = 0; i < phylumsTables.length; ++i) {
+		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
+	}
 }
 
-//Crée les tables de la base
+function dropRecolts() {
+	db.transaction(function (tx) {
+		tx.executeSql("DROP TABLE IF EXISTS gatherings;");
+		tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
+		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+		+ "data TEXT);");
+	});
+}
+
+//Crée les tables de la base. Les tables qui n'ont qu'un champ data contiennent des objets JSON
 function createTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS users("
 		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -48,17 +72,14 @@ function createTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
 		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 		+ "data TEXT);");
-	//TODO : completer cette création
-	//tx.executeSql("CREATE TABLE IF NOT EXISTS referential()");
-}
-
-// Initialise l'utilisateur s'il est connecté, ou déclenche la procédure de connexion dans le cas contraire
-function connectUser() {
-	if (loggedIn) {
-		initUser();
-	} else {
-		createDB();
-		showModal('connectionModal', true);
+	for (var i = 0; i < phylumsTables.length; ++i) {
+		tx.executeSql("CREATE TABLE IF NOT EXISTS " + phylumsTables[i] +"("
+			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ "genre TEXT,"
+			+ "epithete TEXT,"
+			+ "rang TEXT,"
+			+ "taxon TEXT"
+			+");");
 	}
 }
 
@@ -111,6 +132,16 @@ function addGathering(gathering) {
 	});
 }
 
+function updateGathering(gathering, id) {
+	var data = JSON.stringify(gathering);
+	var query = "UPDATE gatherings SET data = '" + data + "' WHERE id = '" + id + "';";
+	db.transaction(function (tx) {
+		tx.executeSql(query);
+	}, function (e) {
+		alert("error update Gathering " + e.message);
+	});
+}
+
 function addFakeGathering() {
 	var gathering = {};
 	gathering.src="none.jpg";
@@ -120,10 +151,10 @@ function addFakeGathering() {
 
 // Récupère la récolte correspondant à l'id en paramètre
 function getGathering(id) {
-	var id = parseInt(id);
 	db.transaction(function (tx) {
-		tx.executeSql("SELECT data from gatherings WHERE id = (?);", [id], function(tx, res) {
-			populateFormFromGathering(JSON.parse(res.rows.item(0).data));
+		tx.executeSql("SELECT data from gatherings WHERE id = " + id + ";", [], function(tx, res) {
+			populateFormFromGathering(JSON.parse(res.rows.item(0).data), id);
+			showPage("add_recolt");
 		});
 	}, function (e) {
 		alert("error getGathering " + e.message);
@@ -156,8 +187,8 @@ function GatheringItem(id, data) {
 //Retire la récolte d'id id de la base
 function deleteGathering(id) {
 	db.transaction(function (tx) {
-		tx.executeSql("DELETE FROM gatherings WHERE id = (?)", [id], function () {/* success */});
-	}, function (e) {
-		alert("error delete gathering " + e.message);
-	});
+	tx.executeSql("DELETE FROM gatherings WHERE id = (?)", [id], function () {/* success */});
+}, function (e) {
+	alert("error delete gathering " + e.message);
+});
 }
