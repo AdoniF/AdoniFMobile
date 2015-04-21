@@ -17,3 +17,16 @@ function onOffline() {
 function onOnline() {
 	online = true;
 }
+
+var clicked = false;
+function showPopover(show) {
+	if (show === true) {
+		$("#popoverButton").popover();
+	} else if (show === false) {
+		if (clicked)
+			clicked = false;
+		else 
+			$("#popoverButton").popover("hide");		
+	} else
+		$("#popoverButton").popover();
+}

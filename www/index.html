@@ -20,12 +20,12 @@
   <script src="cordova.js" charset="utf-8" ></script>
   <script src="js/libs/bootstrap.min.js" charset="utf-8" ></script>
 
-  <script src="js/database.js" charset="utf-8"></script>
   <script src="js/all.js" charset="utf-8"></script>
+  <script src="js/database.js" charset="utf-8"></script>
+  <script src="js/form_queries.js" charset="utf-8"></script>
   <script src="js/plugins.js" charset="utf-8"></script>
   <script src="js/index.js" charset="utf-8"></script>
   <script src="js/form.js" charset="utf-8"></script>
-  <script src="js/database.js" charset="utf-8"></script>
   <script src="js/navigation.js" charset="utf-8"></script>
   <script src="js/recolts_list.js" charset="utf-8"></script>
 </head>
@@ -61,7 +61,7 @@
 <div id="add_recolt" class="page hidden container">
   <div class="panel panel-default">
     <div class="panel-body">
-      <div class="page-header"><h1>Ajout d'une récolte</h1></div>
+      <div class="page-header"><h2>Ajout d'une récolte</h2></div>
 
       <div class="page-header"><h3>Nom</h3> </div>
       <div class="row">
@@ -169,8 +169,8 @@
             <span class="input-group-addon">Référentiel habitat</span>
             <input id="dataRH" type=text class="form-control" placeholder="Libre" disabled/>
             <span class="input-group-btn">
-              <button type="button" class="btn btn-default" title="Popover title" data-container="body" 
-              data-toggle="popover" data-placement="left" data-content="Some content in Popover on left">
+              <button id="popoverButton" type="button" class="btn btn-default" title="Référentiel libre" data-container="body" 
+              data-toggle="popover" data-placement="left" data-content="Seul le référentiel libre est disponible sur mobile. Rendez-vous en ligne pour en choisir un autre." onclick="clicked = true;showPopover();">
               <span class="glyphicon glyphicon-question-sign"></span>
             </button>
 

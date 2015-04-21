@@ -88,9 +88,11 @@ function setLocationFields(longitude, latitude, accuracy) {
 //Remplit par défaut le champ de nombre de légataires et son nom
 function setUserFields() {
     $("#listLegNumber").val(1);
-    $("#listLegatees").val(user.login);
+    //$("#listLegatees").val(user.login);
+    getLegataires(user.login);
     $("#listDetNb").val(1);
-    $("#listDet").val(user.login);
+    //$("#listDet").val(user.login);
+    getDeterminateurs(user.login);
 }
 
 //Génère un formulaire vide pour une nouvelle récolte
@@ -182,7 +184,6 @@ function Recolte(phylum, modulation, substrat, rang, hote, etatHote, legataires,
     this.pictures = pictures || "";
 }
 
-//Remplit la récolte et le formulaire avec la récolte data passée en paramètre
 function openRecolt(data) {
     recolt = new Recolte(data.phylum, data.modulation, data.substrat, data.rang, data.substrat, data.hote, data.etatHote,
         data.legataires, data.determinateurs, data.genre, data.epithete, data.taxon, data.author, data.quantity, data.range,
@@ -214,8 +215,8 @@ function populateFieldsFromRecolt(recolt) {
     populateInput("dataSpecies", [], recolt.epithete);
     populateInput("dataTaxon", [], recolt.taxon);
 
-    populateSelect("listDet", array, recolt.determinateurs);
-    populateSelect("listLegatees", array, recolt.legataires);
+   // populateSelect("listDet", array, recolt.determinateurs);
+    //populateSelect("listLegatees", array, recolt.legataires);
 
     setUserFields();
     updateFields(0);
