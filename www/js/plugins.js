@@ -78,7 +78,7 @@ function addPicture(src) {
 
 	var pictureRow = "<div id='" + idRow + "'>"+"<div class='row vertical-align'>"+"<span class='col-xs-6'><img id='"
 	 + idPic + "'class='img-thumbnail picture' src=" + src + " alt='picture'/></span>"
-	 +"<span class='col-xs-6'><button type='button' class='btn btn-primary btn-lg delete pull-right' id='" + idButton 
+	 +"<span class='col-xs-6'><button type='button' class='btn btn-success btn-lg delete pull-right' id='" + idButton 
 	 + "' onclick='deletePicture(this.id);'>"+"<span class='glyphicon glyphicon-trash'></span></button></span>"
 	 +"</div>"+"<div class='divider'></div></div>";
 

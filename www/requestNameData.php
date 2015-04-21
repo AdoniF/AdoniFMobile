@@ -10,11 +10,12 @@ if (!in_array($base, $arraybase))
 // connexion
 include('../connexionBdd/bddRef.php');
 // requête
-$query = "SELECT DISTINCT GENRE, EPITHETE, RANGINTRASPECIFIQUE, TAXINTRASPECIFIQUE FROM ".$base." ORDER BY GENRE, EPITHETE, RANGINTRASPECIFIQUE, TAXINTRASPECIFIQUE";
+$query = "SELECT DISTINCT GENRE, EPITHETE, RANGINTRASPECIFIQUE, TAXINTRASPECIFIQUE, LB_AUTEUR FROM "
+	.$base." ORDER BY GENRE, EPITHETE, RANGINTRASPECIFIQUE, TAXINTRASPECIFIQUE, LB_AUTEUR";
 
 $resultat = mysql_query($query);
 while($row = mysql_fetch_array($resultat)) {
-	echo $row['GENRE']." ".$row['EPITHETE']." ".$row['RANGINTRASPECIFIQUE']." ".$row['TAXINTRASPECIFIQUE']."\n";
+	echo $row['GENRE']."$".$row['EPITHETE']."$".$row['RANGINTRASPECIFIQUE']."$".$row['TAXINTRASPECIFIQUE']."$".$row['LB_AUTEUR']."\n";
 }
 
 ?>

@@ -37,7 +37,7 @@ function checkConnection() {
 
 
 
-		connectUser();		
+		//connectUser();		
 
 
 
@@ -73,7 +73,7 @@ function createDB() {
 function dropTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS users;");
 	tx.executeSql("DROP TABLE IF EXISTS gatherings;");
-	tx.executeSql("DROP TABLE IF EXISTS substrat");
+	tx.executeSql("DROP TABLE IF EXISTS substrats");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
 	}
@@ -102,17 +102,16 @@ function createTables(tx) {
 			+ "genre TEXT,"
 			+ "epithete TEXT,"
 			+ "rang TEXT,"
-			+ "taxon TEXT"
+			+ "taxon TEXT,"
+			+ "auteur TEXT"
 			+");");
 	}
-	tx.executeSql("CREATE TABLE IF NOT EXISTS substrat(data TEXT);");
+	tx.executeSql("CREATE TABLE IF NOT EXISTS substrats(data TEXT);");
 }
 
-var genres = [];
 function populateDBs() {
-	db.transaction(function (tx) {
-		populatePhylums(tx);
-	});
+	populatePhylums();
+	populateSubstrats();
 }
 
 function populatePhylums() {
@@ -121,11 +120,43 @@ function populatePhylums() {
 	});
 }
 
+function populateSubstrats(tx) {
+	ajaxCall("GET", "http://smnf-db.fr/ajax/requestSubstrats.php", insertSubstratsInfos);
+}
+
+function insertSubstratsInfos(data) {
+	var rows = data.split("\n");
+
+	db.transaction(function (tx) {
+		rows.forEach(function(entry) {
+			entry = entry.trim();
+			if (entry.length == 0)
+				return;
+
+			var query = "INSERT INTO substrats VALUES ('" + entry + "');";
+			tx.executeSql(query);
+		});
+	}, function (e) {
+		alert("error insertNameInfo " + e.message);
+	});
+}
+
+
+
+
+
+
+
+
+
+
+
+
+//Deprecated ?
 function showGenres () {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT * FROM asco", [], function (tx, res) {
 			var ch = "";
-			alert("showin genres " + res.rows.length);
 			for (var i = 0; i < res.rows.length; i++) {
 				var item = res.rows.item(i); 
 				ch += item.genre;
@@ -144,11 +175,12 @@ function insertNameInfo(data, phylum) {
 			if (entry.length == 0)
 				return;
 
-			var elements = entry.split(" ");
-			var columns = ["genre", "epithete", "rang", "taxon"];
+			var elements = entry.split("$");
+			var columns = ["genre", "epithete", "rang", "taxon", "auteur"];
 			var query = buildInsertQuery(phylum, elements, columns);
 
-			tx.executeSql(query);
+			if (query)
+				tx.executeSql(query);
 		});
 	}, function (e) {
 		alert("error insertNameInfo " + e.message);
@@ -161,10 +193,14 @@ function buildInsertQuery(table, values, columns) {
 		if (entry.length != 0) {
 			var item = {};
 			item.column = columns[i];
-			item.entry = entry;
+			var regex = new RegExp("'", "g");
+			item.entry = entry.replace(regex, "");
 			validValues.push(item);
 		}
 	});
+	if (validValues.length == 0)
+		return null;
+
 	var query = "INSERT INTO " + table + " (";
 		validValues.forEach(function (entry) {
 			query += entry.column + ", ";
@@ -174,8 +210,8 @@ function buildInsertQuery(table, values, columns) {
 		validValues.forEach(function (entry) {
 			query += "'" + entry.entry + "', ";
 		});
-		query = query.substring(0, query.length - 2) + ");";
-return query;
+		query = query.substring(0, query.length - 2);
+		return query + ");";
 }
 
 // Tente de se connecter sur le serveur de l'inventaire
@@ -184,12 +220,7 @@ function tryToConnect() {
 	var password = $("#inputPassword");
 
 	//TODO : connexion base de données en ligne
-	try {
-		addUser(login.val(), password.val(), "toto", "tata");
-	} catch (err) {
-		alert("error ttc " + err.message);
-	}
-
+	addUser(login.val(), password.val(), "toto", "tata");
 }
 
 // Ajoute l'utilisateur à la base de données
@@ -287,7 +318,7 @@ function GatheringItem(id, data) {
 //Retire la récolte d'id id de la base
 function deleteGathering(id) {
 	db.transaction(function (tx) {
-		tx.executeSql("DELETE FROM gatherings WHERE id = (?)", [id], function () {});
+		tx.executeSql("DELETE FROM gatherings WHERE id = ?", [id], function () {});
 	}, function (e) {
 		alert("error delete gathering " + e.message);
 	});
@@ -352,7 +383,7 @@ function getPossibleEpithetesForPhylum(phylum, genre, value) {
 	var query = "SELECT DISTINCT epithete FROM " + phylum;
 	var whereArg = [];
 	if (genre && genre.length > 0) {
-		query += " WHERE genre = (?)";
+		query += " WHERE genre = ?";
 		whereArg.push(genre);
 	}
 
@@ -377,7 +408,7 @@ function getPossibleEpithetesForAllPhylums(genre, value) {
 	var hasGenre = genre && genre.length > 0;
 	if (hasGenre)
 		userInput.push(genre);
-	where = " WHERE genre = (?)";
+	where = " WHERE genre = ?";
 
 	var query = "SELECT DISTINCT epithete FROM " + phylumsTables[0] + where;
 	for (var i = 1; i < phylumsTables.length; ++i) {
@@ -398,5 +429,162 @@ function getPossibleEpithetesForAllPhylums(genre, value) {
 		})
 	}, function (e) {
 		alert("error getPossibleEpithetesForAllPhylums " + e.message);
+	});
+}
+
+function getPossibleTaxons(phylum, genre, epithete, rang, value) {
+	phylum = getPhylumTable(phylum);
+	var clause = buildWhereClause(genre, epithete, rang);
+
+	if (phylum)
+		getPossibleTaxonsForPhylum(phylum, clause, value);
+	else
+		getPossibleTaxonsForAllPhylums(genre, clause, value);
+}
+
+function getPossibleTaxonsForPhylum(phylum, clause, value) {
+	var query = "SELECT DISTINCT taxon FROM " + phylum;
+	query += clause.where;
+	query += " ORDER BY taxon;"
+
+	db.transaction(function (tx) {
+
+		tx.executeSql(query, clause.args, function (tx, res){
+			var array = [];
+			for (var i = 0; i < res.rows.length; ++i) 
+				array.push(res.rows.item(i).taxon);
+
+			populateInput("dataTaxon", array, value);
+		});
+	}, function (e) {
+		alert("error getPossibleTaxonsForPhylum " + e.message);
+	});
+}
+
+function buildWhereClause(genre, epithete, rang, taxon) {
+	var clause = {};
+	var values = [];
+	var query = "";
+
+	if (genre && genre.length > 0) {
+		query += " genre = ?";
+		values.push(genre);
+	}
+	if (epithete && epithete.length > 0) {
+		if (query.length > 0)
+			query += " AND ";
+		query += " epithete = ?";
+		values.push(epithete);
+	}
+	if (rang && rang.length > 0) {
+		if (query.length > 0)
+			query += " AND ";
+		query += " rang = ?";
+		values.push(rang);
+	}
+	if (taxon && taxon.length > 0) {
+		if (query.length > 0)
+			query += " AND ";
+		query += " auteur = ?";
+		values.push(taxon);
+	}
+	if (query.length > 0)
+		query = " WHERE " + query;
+
+	clause.where = query;
+	clause.args = values;
+	return clause;
+}
+
+function getPossibleTaxonsForAllPhylums(genre, clause, value) {
+	var whereArgs = [];
+	var query = "SELECT DISTINCT taxon FROM " + phylumsTables[0] + clause.where;
+	whereArgs.push.apply(clause.args);
+	for (var i = 1; i < phylumsTables.length; ++i) {
+		query += " UNION SELECT DISTINCT taxon FROM " + phylumsTables[i] + clause.where;
+		whereArgs.push.apply(clause.args);
+	}
+
+	query += " ORDER BY taxon;";
+
+	db.transaction(function (tx) {
+		tx.executeSql(query, whereArgs, function (tx, res) {
+			var array = [];
+
+			for (var i = 0; i < res.rows.length; ++i)
+				array.push(res.rows.item(i).epithete);
+			
+			populateInput("dataTaxon", array, value);		
+		})
+	}, function (e) {
+		alert("error getPossibleTaxonsForAllPhylums " + e.message);
+	});
+}
+
+function getSubstrats(value) {
+	var query = "SELECT data FROM substrats;"
+	db.transaction(function (tx) {
+		tx.executeSql(query, [], function (tx, res) {
+			var array = [];
+
+			for (var i = 0; i < res.rows.length; ++i)
+				array.push(res.rows.item(i).data);
+			
+			populateSelect("listSubstrate", array, value);		
+		})
+	}, function (e) {
+		alert("error getSubstrats " + e.message);
+	});
+}
+
+function getPossibleAuteurs(phylum, genre, epithete, rang, taxon, value) {
+	phylum = getPhylumTable(phylum);
+	var clause = buildWhereClause(genre, epithete, rang, taxon);
+
+	if (phylum)
+		getPossibleAuteursForPhylum(phylum, clause, value);
+	else
+		getPossibleAuteursForAllPhylums(genre, clause, value);
+}
+
+function getPossibleAuteursForPhylum(phylum, clause, value) {
+	var query = "SELECT DISTINCT auteur FROM " + phylum;
+	query += clause.where;
+	query += " ORDER BY auteur;"
+
+	db.transaction(function (tx) {
+		tx.executeSql(query, clause.args, function (tx, res){
+			var array = [];
+			for (var i = 0; i < res.rows.length; ++i) 
+				array.push(res.rows.item(i).auteur);
+
+			populateInput("dataAuthor", array, value);
+		});
+	}, function (e) {
+		alert("error getPossibleAuteursForPhylum " + e.message);
+	});
+}
+
+function getPossibleAuteursForAllPhylums(genre, clause, value) {
+	var whereArgs = [];
+	var query = "SELECT DISTINCT auteur FROM " + phylumsTables[0] + clause.where;
+	whereArgs.concat(whereArgs, clause.args);
+	for (var i = 1; i < phylumsTables.length; ++i) {
+		query += " UNION SELECT DISTINCT auteur FROM " + phylumsTables[i] + clause.where;
+		whereArgs.concat(whereArgs, clause.args);
+	}
+	query += " ORDER BY auteur;";
+
+	db.transaction(function (tx) {
+		tx.executeSql(query, whereArgs, function (tx, res) {
+			var array = [];
+
+			for (var i = 0; i < res.rows.length; ++i)
+				array.push(res.rows.item(i).epithete);
+			
+			populateInput("dataAuthor", array, value);		
+		})
+	}, function (e) {
+		alert("error getPossibleAuteursForAllPhylums " + e.message);
 	});
 }

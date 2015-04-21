@@ -1,3 +1,4 @@
+//Fonction permettant de créer une nouvelle récolte et de lui associer une photo prise auparavant
 function beginRecolt() {
 	var picSrc = $("#cameraPic").attr('src');
 	if (picSrc.valueOf() === "src")
@@ -7,20 +8,24 @@ function beginRecolt() {
 	toAddRecolt();
 }
 
+//Fonction permettant de charger une récolte pour la modifier et aller sur la page de modification
 function loadRecolt(id) {
 	getGathering(id);
 	toAddRecolt();
 }
 
+//Fonction permettant de se rendre sur la page listant les récoltes locales et de l'actualiser
 function toRecolts() {
 	refreshGatheringsList();
 	toShowRecolts();
 }
 
+//Fonction permettant de se rendre sur la page listant les récoltes locales
 function toShowRecolts() {
 	showPage('recolts_list');
 }
 
+//Fonction permettant de se rendre sur la page de création/modification d'une récolte
 function toAddRecolt() {
 	showPage('add_recolt');
 }
