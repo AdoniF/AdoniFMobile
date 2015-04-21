@@ -272,9 +272,15 @@ function loadPictures() {
 }
 
 function updateFields(rank) {
-    if (rank < 1)
-        getPossibleGenres($("#listPhylum option:selected").text(), $("#dataGenre").val());
-    if (rank < 2)
-        getPossibleEpithetes();
+    var phylum, genre, epithete;
 
+    if (rank < 2) {
+        phylum = $("#listPhylum option:selected").text();
+        genre = $("#dataGenre").val();
+        epithete = $("#dataSpecies").val();
+
+        getPossibleEpithetes(phylum, genre, epithete);
+    }
+    if (rank < 1)
+        getPossibleGenres(phylum, genre);
 }

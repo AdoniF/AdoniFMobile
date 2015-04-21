@@ -295,43 +295,43 @@ function deleteGathering(id) {
 
 function getPossibleGenres(phylum, value) {
 	phylum = getPhylumTable(phylum);
-	if (!phylum)
+
+	if (phylum)
+		getGenresForPhylum(phylum, value);
+	else 
 		getAllGenres(value);
-	else {
-		db.transaction(function (tx) {
-			tx.executeSql("SELECT DISTINCT GENRE FROM " + phylum, [], function(tx, res) {
-				var array = [];
-				for (var i = 0; i < res.rows.length; ++i) 
-					array.push(res.rows.item(i).genre);
-				
-				populateInput("dataGenre", array, value);
-			});
-		}, function (e) {
-			alert("error getGenresFromPhylum " + e.message);
+}
+function getGenresForPhylum(phylum, value) {
+	db.transaction(function (tx) {
+		tx.executeSql("SELECT DISTINCT GENRE FROM " + phylum, [], function(tx, res) {
+			var array = [];
+			for (var i = 0; i < res.rows.length; ++i) 
+				array.push(res.rows.item(i).genre);
+
+			populateInput("dataGenre", array, value);
 		});
-	}
+	}, function (e) {
+		alert("error getGenresFromPhylum " + e.message);
+	});
 }
 
 function getAllGenres(value) {
 	var array = [];
 
+	var query = "SELECT DISTINCT GENRE FROM " + phylumsTables[0];
+	for (var i = 1; i < phylumsTables.length; ++i) {
+		query += " UNION SELECT DISTINCT GENRE FROM " + phylumsTables[i];
+	}
+
+	query += " ORDER BY GENRE";
+
 	db.transaction(function (tx) {
-		var query = "SELECT DISTINCT GENRE FROM " + phylumsTables[0];
-		for (var i = 1; i < phylumsTables.length; ++i) {
-			query += " UNION SELECT DISTINCT GENRE FROM " + phylumsTables[i];
-		}
-
-		query += " ORDER BY GENRE";
-
 		tx.executeSql(query, [], function (tx, res) {
 			var array = [];
-			var ch = "";
-			for (var prop in res.rows.item(0))
-				ch += prop + " / ";
-			alert("ch " + ch);
-			for (var i = 0; i < res.rows.length; ++i) {
+
+			for (var i = 0; i < res.rows.length; ++i) 
 				array.push(res.rows.item(i).GENRE);
-			}
+			
 			populateInput("dataGenre", array, value);		
 		})
 	}, function (e) {
@@ -341,11 +341,25 @@ function getAllGenres(value) {
 
 function getPossibleEpithetes(phylum, genre, value) {
 	phylum = getPhylumTable(phylum);
-	//TODO : cas ou on n'a pas choisi de phylum et/ou genre ou genre injection sql
 
+	if (phylum)
+		getPossibleEpithetesForPhylum(phylum, genre, value);
+	else
+		getPossibleEpithetesForAllPhylums(genre, value);
+}
+
+function getPossibleEpithetesForPhylum(phylum, genre, value) {
+	var query = "SELECT DISTINCT epithete FROM " + phylum;
+	var whereArg = [];
+	if (genre && genre.length > 0) {
+		query += " WHERE genre = (?)";
+		whereArg.push(genre);
+	}
+
+	query += " ORDER BY epithete;"
 	db.transaction(function (tx) {
-		var query = "SELECT DISTINCT epithete FROM " + phylum + " WHERE genre = '" + genre + "';";
-		tx.executeSql(query, [], function (tx, res){
+
+		tx.executeSql(query, whereArg, function (tx, res){
 			var array = [];
 			for (var i = 0; i < res.rows.length; ++i) 
 				array.push(res.rows.item(i).epithete);
@@ -353,8 +367,36 @@ function getPossibleEpithetes(phylum, genre, value) {
 			populateInput("dataSpecies", array, value);
 		});
 	}, function (e) {
-		alert("error getPossibleEpithetes " + e.message);
+		alert("error getPossibleEpithetesForPhylum " + e.message);
 	});
+}
 
-	//TODO : continue method
+function getPossibleEpithetesForAllPhylums(genre, value) {
+	var userInput = [];
+	var where = "";
+	var hasGenre = genre && genre.length > 0;
+	if (hasGenre)
+		userInput.push(genre);
+	where = " WHERE genre = (?)";
+
+	var query = "SELECT DISTINCT epithete FROM " + phylumsTables[0] + where;
+	for (var i = 1; i < phylumsTables.length; ++i) {
+		query += " UNION SELECT DISTINCT epithete FROM " + phylumsTables[i] + where;
+		if (hasGenre)
+			userInput.push(genre);
+	}
+	query += " ORDER BY epithete;";
+
+	db.transaction(function (tx) {
+		tx.executeSql(query, userInput, function (tx, res) {
+			var array = [];
+
+			for (var i = 0; i < res.rows.length; ++i)
+				array.push(res.rows.item(i).epithete);
+			
+			populateInput("dataSpecies", array, value);		
+		})
+	}, function (e) {
+		alert("error getPossibleEpithetesForAllPhylums " + e.message);
+	});
 }
