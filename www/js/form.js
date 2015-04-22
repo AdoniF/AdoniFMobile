@@ -88,9 +88,9 @@ function setLocationFields(longitude, latitude, accuracy) {
 //Remplit par défaut le champ de nombre de légataires et son nom
 function setUserFields() {
     $("#listLegNumber").val(1);
-    $("#listLegatees").val(user.login);
+    $("#listLegatees").val(user.prenom + " " + user.nom);
     $("#listDetNb").val(1);
-    $("#listDet").val(user.login);
+    $("#listDet").val(user.prenom + " " + user.nom);
 }
 
 //Génère un formulaire vide pour une nouvelle récolte

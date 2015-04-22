@@ -109,12 +109,14 @@ function populateDBs() {
 
 function populateNamesInfos() {
 	phylumsTables.forEach(function (phylum) {
-		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum);
+		var errorMessage = "Echec de la récupération des informations du référentiel. Réessayez ultérieurement.";
+		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, errorMessage);
 	});
 }
 
 function populateSubstrats(tx) {
-	ajaxCall("GET", "http://smnf-db.fr/ajax/requestSubstrats.php", insertSubstratsInfos);
+	var errorMessage = "Echec de la récupération des informations du référentiel. Réessayez ultérieurement.";
+	ajaxCall("GET", "http://smnf-db.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, errorMessage);
 }
 
 function insertSubstratsInfos(data) {
@@ -184,23 +186,42 @@ function buildInsertQuery(table, values, columns) {
 
 // Tente de se connecter sur le serveur de l'inventaire
 function tryToConnect() {
-	var login = $("#inputLogin");
+	var email = $("#inputMail");
 	var password = $("#inputPassword");
 
-	//TODO : connexion base de données en ligne
-	addUser(login.val(), password.val(), "toto", "tata");
+	var param = {};
+	param.param1 = email.val();
+	param.param2 = password.val();
+	var errorMessage = "Echec de la connexion au serveur. Vérifiez votre connexion internet.";
+	ajaxCall("POST", "http://smnf-db.fr/ajax/connexion.php", getConnectionResult, param, errorMessage);
+}
+
+function getConnectionResult(data, param) {
+	if (data.indexOf("OK") >= 0) {
+		window.plugins.toast.showShortCenter("Connexion réussie !");
+		goBack();
+
+		createUser(param.param1, param.param2, data);
+		addUser(user);
+	} else {
+		window.plugins.toast.showShortCenter("Echec de la connexion. Veuillez réessayer");
+	}
+}
+
+function createUser(email, password, userData) {
+	var values = userData.split("$");
+	user = {};
+	user.email = email;
+	user.password = password;
+	user.prenom = values[1];
+	user.nom = values[2];
 }
 
 // Ajoute l'utilisateur à la base de données
-function addUser(login, password, asso, role) {
-	user.login = login;
-	user.password = password;
-	user.asso = asso;
-	user.role = role;
-
+function addUser() {
 	db.transaction(function (tx) {
 		tx.executeSql("INSERT INTO users(data) VALUES (?)",
-			[JSON.stringify(user)], function () { window.plugins.toast.showShortCenter("Connexion réussie !"); goBack();});
+			[JSON.stringify(user)]);
 		
 	}, function (e) {
 		alert("error addUser " + e.message);
