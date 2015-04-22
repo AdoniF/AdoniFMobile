@@ -19,8 +19,10 @@ function populateInput(id, array, content) {
     if (idx != -1)
         array.splice(idx, 1);
 
-    list.val(content);
-    //options += "<option value='" + content + "'/>";
+    if (content)
+        list.val(content);
+    if (array.indexOf(content) < 0)
+        options += "<option value='" + content + "'/>";
     for (var i = 0; i < array.length; i++) {
         options += "<option value='" + array[i] + "'/>";
     }
@@ -54,8 +56,6 @@ function populateSelect(id, array, selected) {
     list.append(options);
 }
 
-
-
 //Remplit le champ date
 function setDate(date) {
     var d;
@@ -70,7 +70,7 @@ function setDate(date) {
 
 //Remplit les champs de position
 function setLocationAndDate(data) {
-    if (data.date.length > 0) {
+    if (data && data.date.length > 0) {
         setDate(data.date);
         setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres");
     } else {
@@ -88,11 +88,9 @@ function setLocationFields(longitude, latitude, accuracy) {
 //Remplit par défaut le champ de nombre de légataires et son nom
 function setUserFields() {
     $("#listLegNumber").val(1);
-    //$("#listLegatees").val(user.login);
-    getLegataires(user.login);
+    $("#listLegatees").val(user.login);
     $("#listDetNb").val(1);
-    //$("#listDet").val(user.login);
-    getDeterminateurs(user.login);
+    $("#listDet").val(user.login);
 }
 
 //Génère un formulaire vide pour une nouvelle récolte
@@ -157,33 +155,7 @@ function savePictures() {
     recolt.pictures = picturesSources;
 }
 
-function Recolte(phylum, modulation, substrat, rang, hote, etatHote, legataires, determinateurs,
-    genre, epithete, taxon, author, quantity, range, habitat, nbLegataires, nbDet, longitude, latitude, accuracy,
-    date, pictures) {
-    this.phylum = phylum || "";
-    this.modulation = modulation || "";
-    this.substrat = substrat || "";
-    this.rang = rang || "";
-    this.hote = hote || "";
-    this.etatHote = etatHote || "";
-    this.legataires = legataires || "";
-    this.determinateurs = determinateurs || "";
-    this.genre = genre || "";
-    this.epithete = epithete || "";
-    this.taxon = taxon || "";
-    this.author = author || "";
-    this.quantity = quantity || "";
-    this.range = range || "";
-    this.habitat = habitat || "";
-    this.nbLegataires = nbLegataires || "";
-    this.nbDet = nbDet || "";
-    this.longitude = longitude || "";
-    this.latitude = latitude || "";
-    this.accuracy = accuracy || "";
-    this.date = date || "";
-    this.pictures = pictures || "";
-}
-
+// DEPRECATED ??
 function openRecolt(data) {
     recolt = new Recolte(data.phylum, data.modulation, data.substrat, data.rang, data.substrat, data.hote, data.etatHote,
         data.legataires, data.determinateurs, data.genre, data.epithete, data.taxon, data.author, data.quantity, data.range,
@@ -204,7 +176,6 @@ function populateFieldsFromRecolt(recolt) {
     populateSelect("listPhylum", phylumsArray, recolt.phylum);
     populateSelect("listModulation", modulationArray, recolt.modulation);
     populateSelect("listHostState", etatHoteArray, recolt.etatHote);
-    populateSelect("listHost", [], recolt.hote);
 
     populateInput("listLegNumber", [], recolt.nbLegataires);
     populateInput("listDetNb", [], recolt.nbDet);
@@ -214,6 +185,8 @@ function populateFieldsFromRecolt(recolt) {
     populateInput("dataGenre", [], recolt.genre);
     populateInput("dataSpecies", [], recolt.epithete);
     populateInput("dataTaxon", [], recolt.taxon);
+    populateInput("listHost", [], recolt.hote);
+
 
    // populateSelect("listDet", array, recolt.determinateurs);
     //populateSelect("listLegatees", array, recolt.legataires);
@@ -241,14 +214,40 @@ function updateFields(rank) {
     var rang = $("#listSVF option:selected").text();
     var taxon = $("#dataTaxon").val();
     var auteur = $("#dataAuthor").val();
-   // alert("phylum " + phylum + " genre " + genre + " epithete " + epithete + " rang " + rang + " taxon " + taxon + " auteur " + auteur);
 
-    if (rank < 4)
-        getPossibleAuteurs(phylum, genre, epithete, rang, taxon, auteur);
-    if (rank < 3)
-        getPossibleTaxons(phylum, genre, epithete, rang, taxon);
-    if (rank < 2)
-        getPossibleEpithetes(phylum, genre, epithete);
     if (rank < 1)
         getPossibleGenres(phylum, genre);
+    if (rank < 2)
+        getPossibleEpithetes(phylum, genre, epithete);
+    if (rank < 3)
+        getPossibleTaxons(phylum, genre, epithete, rang, taxon);
+    if (rank < 4)
+        getPossibleAuteurs(phylum, genre, epithete, rang, taxon, auteur);
+}
+
+function Recolte(phylum, modulation, substrat, rang, hote, etatHote, legataires, determinateurs,
+    genre, epithete, taxon, author, quantity, range, habitat, nbLegataires, nbDet, longitude, latitude, accuracy,
+    date, pictures) {
+    this.phylum = phylum || "";
+    this.modulation = modulation || "";
+    this.substrat = substrat || "";
+    this.rang = rang || "";
+    this.hote = hote || "";
+    this.etatHote = etatHote || "";
+    this.legataires = legataires || "";
+    this.determinateurs = determinateurs || "";
+    this.genre = genre || "";
+    this.epithete = epithete || "";
+    this.taxon = taxon || "";
+    this.author = author || "";
+    this.quantity = quantity || "";
+    this.range = range || "";
+    this.habitat = habitat || "";
+    this.nbLegataires = nbLegataires || "";
+    this.nbDet = nbDet || "";
+    this.longitude = longitude || "";
+    this.latitude = latitude || "";
+    this.accuracy = accuracy || "";
+    this.date = date || "";
+    this.pictures = pictures || "";
 }

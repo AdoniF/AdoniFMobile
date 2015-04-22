@@ -30,3 +30,23 @@ function showPopover(show) {
 	} else
 		$("#popoverButton").popover();
 }
+
+/*
+Fonction permettant de faire un appel ajax sur une ressource
+@param method : méthode de la requête (GET, POST...)
+@param url : lien vers la ressource
+@param toDo : méthode qui sera effectuée en réponse à la requête
+@param param : paramètre que l'on peut passer à la méthode toDo si besoin d'infos
+*/
+
+function ajaxCall(method, url, toDo, param) {
+	if (method == "GET") {
+		$.get(url)
+		.done(function (data) {
+			toDo(data, param);
+		})
+		.fail(function (err) {
+			alert(url + " call failed " + err.message);
+		});
+	}
+}

@@ -31,19 +31,7 @@ function checkConnection() {
 		});
 	}, function (e) {
 		loggedIn = false;
-		
-
-
-
-
-
-		//connectUser();		
-
-
-
-
-
-		
+		connectUser();			
 	});
 }
 
@@ -52,11 +40,14 @@ function connectUser() {
 	if (loggedIn) {
 		initUser();
 	} else {
-		createDB();
-		populateDBs();
-
+		initDB();
 		showModal('connectionModal', true);
 	}
+}
+
+function initDB() {
+	createDB();
+	populateDBs();
 }
 
 // Crée la base de données
@@ -74,8 +65,6 @@ function dropTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS users;");
 	tx.executeSql("DROP TABLE IF EXISTS gatherings;");
 	tx.executeSql("DROP TABLE IF EXISTS substrats");
-	tx.executeSql("DROP TABLE IF EXISTS legataires");
-	tx.executeSql("DROP TABLE IF EXISTS determinateurs");
 
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
@@ -99,6 +88,7 @@ function createTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
 		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 		+ "data TEXT);");
+	tx.executeSql("CREATE TABLE IF NOT EXISTS substrats(data TEXT);");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("CREATE TABLE IF NOT EXISTS " + phylumsTables[i] +"("
 			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -109,15 +99,12 @@ function createTables(tx) {
 			+ "auteur TEXT"
 			+");");
 	}
-	tx.executeSql("CREATE TABLE IF NOT EXISTS substrats(data TEXT);");
-	tx.executeSql("CREATE TABLE IF NOT EXISTS legataires(id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT);");
-	tx.executeSql("CREATE TABLE IF NOT EXISTS determinateurs(id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT);");
+	
 }
 
 function populateDBs() {
 	populateNamesInfos();
 	populateSubstrats();
-	populatePeople();
 }
 
 function populateNamesInfos() {
@@ -128,48 +115,6 @@ function populateNamesInfos() {
 
 function populateSubstrats(tx) {
 	ajaxCall("GET", "http://smnf-db.fr/ajax/requestSubstrats.php", insertSubstratsInfos);
-}
-function populatePeople() {
-	ajaxCall("GET", "http://smnf-db.fr/ajax/requestDeterminateurs.php", insertDeterminateursInfos);
-	ajaxCall("GET", "http://smnf-db.fr/ajax/requestLegataires.php", insertLegatairesInfos);
-}
-
-function insertLegatairesInfos(data) {
-	var rows = data.split("\n");
-
-	db.transaction(function (tx) {
-		rows.forEach(function(entry) {
-			if (entry.length == 0)
-				return;
-			var values = entry.split("$");
-			var name = values[1] + " " + values[2];
-			var id = parseInt(values[0]);
-
-			var query = "INSERT INTO legataires VALUES (?, ?);";
-			tx.executeSql(query, [id, name]);
-		});
-	}, function (e) {
-		alert("error insertLegatairesInfos " + e.message);
-	});
-}
-
-function insertDeterminateursInfos(data) {
-	var rows = data.split("\n");
-
-	db.transaction(function (tx) {
-		rows.forEach(function(entry) {
-			if (entry.length == 0)
-				return;
-			var values = entry.split("$");
-			var name = values[1] + " " + values[2];
-			var id = parseInt(values[0]);
-
-			var query = "INSERT INTO determinateurs VALUES (?, ?);";
-			tx.executeSql(query, [id, name]);
-		});
-	}, function (e) {
-		alert("error insertDeterminateursInfos " + e.message);
-	});
 }
 
 function insertSubstratsInfos(data) {
@@ -186,31 +131,6 @@ function insertSubstratsInfos(data) {
 		});
 	}, function (e) {
 		alert("error insertNameInfo " + e.message);
-	});
-}
-
-
-
-
-
-
-
-
-
-
-
-
-//Deprecated ?
-function showGenres () {
-	db.transaction(function (tx) {
-		tx.executeSql("SELECT * FROM asco", [], function (tx, res) {
-			var ch = "";
-			for (var i = 0; i < res.rows.length; i++) {
-				var item = res.rows.item(i); 
-				ch += item.genre;
-			}
-			alert(ch);
-		});
 	});
 }
 
