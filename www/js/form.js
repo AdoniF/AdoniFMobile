@@ -156,8 +156,6 @@ function populateFields() {
 }
 
 function populateFieldsFromRecolt(recolt) {
-    var array = ["toto1561611", "toto 2", "toto 3", "titi 1 ", "titi 42", "42", "6", user.login];
-
     setLocationAndDate(recolt);
 
     populateSelect('listSVF', rangArray, recolt.rang);

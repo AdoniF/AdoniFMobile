@@ -103,14 +103,17 @@ function createTables(tx) {
 }
 
 function populateDB() {
+	populateCallsRunning = 0;
 	populateNamesInfos();
 	populateSubstrats();
 	errorShown = false;
 }
 
+var populateCallsRunning = 0;
 function populateNamesInfos() {
 	phylumsTables.forEach(function (phylum) {
 		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, populateDBError);
+		populateCallsRunning++;
 	});
 }
 
@@ -145,6 +148,11 @@ function insertSubstratsInfos(data) {
 			var query = "INSERT INTO substrats VALUES ('" + entry + "');";
 			tx.executeSql(query);
 		});
+		populateCallsRunning--;
+		if (populateCallsRunning == 0)
+			window.plugins.toast.showShortCenter("Récupération des informations du référentiel réussie !");
+
+
 	}, function (e) {
 		alert("error insertNameInfo " + e.message);
 	});
