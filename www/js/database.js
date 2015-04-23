@@ -10,7 +10,7 @@ var db_name = "smnf.db";
 function openDB() {
 	if (window.sqlitePlugin) {
 		db = window.sqlitePlugin.openDatabase({name: db_name});
-		//checkConnection();
+		checkConnection();
 	}
 }
 
@@ -41,13 +41,18 @@ function connectUser() {
 		initUser();
 	} else {
 		initDB();
-		showModal('connectionModal', true);
+		alert("inited db");
+		//showModal('connectionModal', true);
 	}
 }
 
 function initDB() {
-	createDB();
-	populateDBs();
+	try {
+		createDB();
+		populateDBs();
+	}catch(err) {
+		alert("initDb error " + err.message);
+	}
 }
 
 // Crée la base de données
@@ -105,18 +110,25 @@ function createTables(tx) {
 function populateDBs() {
 	populateNamesInfos();
 	populateSubstrats();
+	errorShown = false;
 }
 
 function populateNamesInfos() {
 	phylumsTables.forEach(function (phylum) {
-		var errorMessage = "Echec de la récupération des informations du référentiel. Réessayez ultérieurement.";
-		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, errorMessage);
+		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, populateDBError);
 	});
 }
 
 function populateSubstrats(tx) {
-	var errorMessage = "Echec de la récupération des informations du référentiel. Réessayez ultérieurement.";
-	ajaxCall("GET", "http://smnf-db.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, errorMessage);
+	ajaxCall("GET", "http://smnf-db.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
+}
+
+var errorShown = false;
+function populateDBError() {
+	if (!errorShown) {
+		alert("Echec de la récupération des informations du référentiel. Réessayez ultérieurement.");
+		errorShown = true;
+	}
 }
 
 function insertSubstratsInfos(data) {
@@ -192,8 +204,11 @@ function tryToConnect() {
 	var param = {};
 	param.param1 = email.val();
 	param.param2 = password.val();
-	var errorMessage = "Echec de la connexion au serveur. Vérifiez votre connexion internet.";
-	ajaxCall("POST", "http://smnf-db.fr/ajax/connexion.php", getConnectionResult, param, errorMessage);
+	ajaxCall("POST", "http://smnf-db.fr/ajax/connexion.php", getConnectionResult, param, connectionError);
+}
+
+function connectionError() {
+	alert("Echec de la connexion au serveur. Vérifiez votre connexion internet.");
 }
 
 function getConnectionResult(data, param) {

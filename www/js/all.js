@@ -37,16 +37,18 @@ Fonction permettant de faire un appel ajax sur une ressource
 @param url : lien vers la ressource
 @param toDo : méthode qui sera effectuée en réponse à la requête
 @param param : paramètre que l'on peut passer à la méthode toDo si besoin d'infos
+@param toDoError : fonction appelée en cas d'échec de l'appel ajax
 */
 
-function ajaxCall(method, url, toDo, param, errorMessage) {
+function ajaxCall(method, url, toDo, param, toDoError) {
 	if (method == "GET") {
 		$.get(url)
 		.done(function (data) {
 			toDo(data, param);
 		})
 		.fail(function (err) {
-			alert(errorMessage);
+			if (toDoError)
+				toDoError();
 		});
 	} else if (method == "POST") {
 		var parameters = {"param1": param.param1, "param2": param.param2};
@@ -55,7 +57,8 @@ function ajaxCall(method, url, toDo, param, errorMessage) {
 			toDo(data, param);
 		})
 		.fail(function (err) {
-			alert(errorMessage);
+			if (toDoError)
+				toDoError();
 		});
 	}
 }
