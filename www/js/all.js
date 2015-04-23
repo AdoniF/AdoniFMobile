@@ -20,15 +20,15 @@ function onOnline() {
 
 var clicked = false;
 function showPopover(show) {
-	if (show === true) {
+	if (show === true)
 		$("#popoverButton").popover();
-	} else if (show === false) {
+	else if (show === false) {
 		if (clicked)
 			clicked = false;
-		else 
+		else
 			$("#popoverButton").popover("hide");		
 	} else
-	$("#popoverButton").popover();
+		$("#popoverButton").popover();
 }
 
 /*

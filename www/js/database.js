@@ -10,7 +10,7 @@ var db_name = "smnf.db";
 function openDB() {
 	if (window.sqlitePlugin) {
 		db = window.sqlitePlugin.openDatabase({name: db_name});
-		checkConnection();
+		//checkConnection();
 	}
 }
 

@@ -16,6 +16,9 @@ function onDeviceReady() {
 	document.addEventListener("online", onOnline, false);
 	document.addEventListener("backbutton", goBack, false);
 
+	//Initialisation du popover
+	$("#popoverButton").popover();
+
 	$('body').on('click', function (e) {
 		if ($('.popover').hasClass('in'))
 			showPopover(false);
