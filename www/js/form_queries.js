@@ -9,14 +9,14 @@ function getPossibleGenres(phylum, value) {
 function getGenresForPhylum(phylum, value) {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT DISTINCT genre FROM " + phylum, [], function(tx, res) {
-			var array = [];
+			var options = "";
 			for (var i = 0; i < res.rows.length; ++i) {
 				var genre = res.rows.item(i).genre;
 				if (genre)
-					array.push(genre);
+					options += "<option value='" + genre + "'/>"
 			}
 
-			populateInput("dataGenre", array, value);
+			populateInput("dataGenre", options, value);
 		});
 	}, function (e) {
 		alert("error getGenresFromPhylum " + e.message);
@@ -35,15 +35,14 @@ function getAllGenres(value) {
 
 	db.transaction(function (tx) {
 		tx.executeSql(query, [], function (tx, res) {
-			var array = [];
-
+			var options = "";
 			for (var i = 0; i < res.rows.length; ++i) {
 				var genre = res.rows.item(i).genre;
 				if (genre)
-					array.push(genre);
+					options += "<option value='" + genre + "'/>"
 			}
 			
-			populateInput("dataGenre", array, value);		
+			populateInput("dataGenre", genre, value);		
 		})
 	}, function (e) {
 		alert("error getAllGenres " + e.message);
@@ -71,13 +70,13 @@ function getPossibleEpithetesForPhylum(phylum, genre, value) {
 	db.transaction(function (tx) {
 
 		tx.executeSql(query, whereArg, function (tx, res){
-			var array = [];
+			var options = "";
 			for (var i = 0; i < res.rows.length; ++i) {
 				var epithete = res.rows.item(i).epithete;
 				if (epithete)
-					array.push(epithete);
+					options += "<option value='" + epithete + "'/>"
 			}
-			populateInput("dataSpecies", array, value);
+			populateInput("dataSpecies", options, value);
 		});
 	}, function (e) {
 		alert("error getPossibleEpithetesForPhylum " + e.message);
@@ -102,12 +101,12 @@ function getPossibleEpithetesForAllPhylums(genre, value) {
 
 	db.transaction(function (tx) {
 		tx.executeSql(query, userInput, function (tx, res) {
-			var array = [];
+			var array = "";
 
 			for (var i = 0; i < res.rows.length; ++i) {
 				var epithete = res.rows.item(i).epithete;
 				if (epithete)
-					array.push(epithete);
+					array += "<option value='" + epithete + "'/>";
 			}
 			
 			populateInput("dataSpecies", array, value);		
@@ -135,11 +134,11 @@ function getPossibleTaxonsForPhylum(phylum, clause, value) {
 	db.transaction(function (tx) {
 
 		tx.executeSql(query, clause.args, function (tx, res){
-			var array = [];
+			var array = "";
 			for (var i = 0; i < res.rows.length; ++i) {
 				var taxon = res.rows.item(i).taxon;
 				if (taxon)
-					array.push(taxon);
+					array += "<option value='" + taxon + "'/>";
 			}
 
 			populateInput("dataTaxon", array, value);
@@ -202,7 +201,7 @@ function getPossibleTaxonsForAllPhylums(genre, clause, value) {
 			for (var i = 0; i < res.rows.length; ++i) {
 				var taxon = res.rows.item(i).taxon;
 				if (taxon)
-					array.push(taxon);
+					array += "<option value='" + taxon + "'/>";
 			}
 			
 			populateInput("dataTaxon", array, value);		
@@ -252,7 +251,7 @@ function getPossibleAuteursForPhylum(phylum, clause, value) {
 			for (var i = 0; i < res.rows.length; ++i) {
 				var auteur = res.rows.item(i).auteur;
 				if (auteur)
-					array.push(auteur);
+					array += "<option value='" + auteur + "'/>";
 			}
 
 			populateInput("dataAuthor", array, value);
@@ -279,7 +278,7 @@ function getPossibleAuteursForAllPhylums(genre, clause, value) {
 			for (var i = 0; i < res.rows.length; ++i) {
 				var auteur = res.rows.item(i).auteur;
 				if (auteur)
-					array.push(auteur);
+					array += "<option value='" + auteur + "'/>";
 			}
 			populateInput("dataAuthor", array, value);		
 		})

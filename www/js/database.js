@@ -41,6 +41,12 @@ function connectUser() {
 		initUser();
 	} else {
 		initDB();
+		navigator.notification.alert(
+			"Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
+			showConnectionPage,
+			"Connexion requise",
+			"Connexion"
+			);
 		//showModal('connectionModal', true);
 	}
 }
@@ -124,9 +130,13 @@ function populateSubstrats(tx) {
 var errorShown = false;
 function populateDBError() {
 	if (!errorShown) {
-		var errorMessage = "Echec de la récupération des informations du référentiel."
-		+ " Veuillez vérifier votre connexion internet ou réessayer ultérieurement.";
-		navigator.notification.confirm(errorMessage, populateDBErrorCallback, "Erreur", ["Annuler", "Réessayer"]);
+		navigator.notification.confirm(
+			"Echec de la récupération des informations du référentiel. Veuillez vérifier votre connexion internet"
+			+ " ou réessayer ultérieurement.",
+			populateDBErrorCallback,
+			"Erreur",
+			["Annuler", "Réessayer"]
+			);
 		errorShown = true;
 	}
 }
@@ -150,7 +160,7 @@ function insertSubstratsInfos(data) {
 		});
 		populateCallsRunning--;
 		if (populateCallsRunning == 0)
-			window.plugins.toast.showShortCenter("Récupération des informations du référentiel réussie !");
+			window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
 
 
 	}, function (e) {
@@ -173,6 +183,10 @@ function insertNameInfo(data, phylum) {
 
 			if (query)
 				tx.executeSql(query);
+
+			populateCallsRunning--;
+			if (populateCallsRunning == 0)
+				window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
 		});
 	}, function (e) {
 		alert("error insertNameInfo " + e.message);
@@ -223,13 +237,14 @@ function connectionError() {
 
 function getConnectionResult(data, param) {
 	if (data.indexOf("OK") >= 0) {
-		window.plugins.toast.showShortCenter("Connexion réussie !");
-		goBack();
+		window.plugins.toast.showShortBottom("Connexion réussie !");
+		toIndex();
 
 		createUser(param.param1, param.param2, data);
 		addUser(user);
+		alert("user created");
 	} else {
-		window.plugins.toast.showShortCenter("Echec de la connexion. Veuillez réessayer");
+		window.plugins.toast.showShortBottom("Echec de la connexion. Veuillez réessayer");
 	}
 }
 
@@ -267,13 +282,9 @@ function initUser() {
 // Ajoute une récolte dans la base de données
 function addGathering(gathering) {
 	db.transaction(function (tx) {
-		tx.executeSql("INSERT INTO gatherings (data) VALUES (?)", [JSON.stringify(gathering)],
-			function () {
-				window.plugins.toast.showShortCenter("Sauvegarde réussie");
-			});
+		tx.executeSql("INSERT INTO gatherings (data) VALUES (?)", [JSON.stringify(gathering)]);
 	}, function (e) {
 		alert("error addGathering " + e.message);
-		window.plugins.toast.showShortCenter("Sauvegarde échouée, veuillez réessayer");
 	});
 }
 

@@ -11,6 +11,7 @@ est passé en paramètre
 @param array: suggestions possibles
 @param id : id de l'input auquel on ajoute les suggestions
 */
+/*
 function populateInput(id, array, content) {
     var list = $("#" + id);
     var options = "";
@@ -30,6 +31,19 @@ function populateInput(id, array, content) {
     var data = $("#list" + id);
     data.empty();
     data.append(options);
+}
+*/
+function populateInput(id, options, content) {
+    var list = document.getElementById(id);
+
+    if (content) {
+        list.value = content;
+        if (options.indexOf(content) < 0)
+            options += "<option value='" + content + "'/>";
+    }
+
+    var data = document.getElementById("list" + id);
+    data.innerHTML = options;
 }
 
 /*
@@ -107,6 +121,23 @@ function populateFormFromGathering(gathering, id) {
     populateFieldsFromRecolt(recolt);
 }
 
+//Sauve les images courantes
+function savePictures() {
+    var pictures = $("#picturesDiv img").map(function () {
+        return this;
+    });
+
+    recolt.pictures = [];
+    for (var i = 0; i < pictures.length; ++i) {
+        recolt.pictures.push(pictures[i].src);
+    }
+}
+
+function populateFields() {
+    var recolt = new Recolte();
+    populateFieldsFromRecolt(recolt);
+}
+
 //Récupère les valeurs des champs pour les stocker dans la récolte actuelle
 function saveRecolt() {
     recolt.phylum = $("#listPhylum option:selected").text();
@@ -137,24 +168,6 @@ function saveRecolt() {
     recoltID = null;
 }
 
-//Sauve les images courantes
-function savePictures() {
-    var pictures = $("#picturesDiv img").map(function () {
-        return this;
-    });
-
-    recolt.pictures = [];
-    alert("save pictures " + pictures);
-    for (var i = 0; i < pictures.length; ++i) {
-        recolt.pictures.push(pictures[i].src);
-    }
-}
-
-function populateFields() {
-    var recolt = new Recolte();
-    populateFieldsFromRecolt(recolt);
-}
-
 function populateFieldsFromRecolt(recolt) {
     setLocationAndDate(recolt);
 
@@ -163,6 +176,18 @@ function populateFieldsFromRecolt(recolt) {
     populateSelect("listModulation", modulationArray, recolt.modulation);
     populateSelect("listHostState", etatHoteArray, recolt.etatHote);
 
+    $("#listLegNumber").val(recolt.nbLegataires);
+    $("#listDetNb").val(recolt.nbDet);
+    $("#dataHC").val(recolt.habitat);
+    $("#range").val(recolt.range);
+    $("#nbFound").val(recolt.quantity);
+    $("#dataGenre").val(recolt.genre);
+    $("#dataSpecies").val(recolt.epithete);
+    $("#dataTaxon").val(recolt.taxon);
+    $("#listHost").val(recolt.hote);
+    $("#dataAuthor").val(recolt.author);
+
+/*
     populateInput("listLegNumber", [], recolt.nbLegataires);
     populateInput("listDetNb", [], recolt.nbDet);
     populateInput("dataHC", [], recolt.habitat);
@@ -171,7 +196,7 @@ function populateFieldsFromRecolt(recolt) {
     populateInput("dataGenre", [], recolt.genre);
     populateInput("dataSpecies", [], recolt.epithete);
     populateInput("dataTaxon", [], recolt.taxon);
-    populateInput("listHost", [], recolt.hote);
+    populateInput("listHost", [], recolt.hote);*/
 
     setUserFields();
     updateFields(0);

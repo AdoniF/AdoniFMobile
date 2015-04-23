@@ -30,13 +30,17 @@ function toAddRecolt() {
 	showPage('add_recolt');
 }
 
+function toIndex() {
+	showPage('index');
+}
+
 
 /* 
 Fonction gérant la transition entre les pages
 @param id : id de la div à afficher 
 */
 function showPage(id, wentBack) {
-	if (id == "index")
+	if (id == "index" || id == "connection")
 		previousPages = [];
 	else if (!wentBack) {
 		var idx = previousPages.indexOf(id);
@@ -77,4 +81,8 @@ function goBack() {
 		navigator.app.exitApp();
 	}
 	showPage(previous, true);
+}
+
+function showConnectionPage() {
+	showPage('connection');
 }

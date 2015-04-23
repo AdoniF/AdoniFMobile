@@ -15,7 +15,7 @@ function onGeolocationSuccess(pos) {
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
-function onGeolocationError(error) {
+function onGeolocationError(error) {/*
 	try {
 		if (error.code == PositionError.PERMISSION_DENIED)
 			alert("error.code permission denied");
@@ -33,17 +33,12 @@ function onGeolocationError(error) {
 	setLocationFields("échec", "échec", "échec");
 	} catch(err) {
 		alert("error ongeolocerror " + error.message);
-	}
+	}*/
 }
 
 // Lance la géolocalisation de l'utilisateur
 function calculatePosition() {
 	setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...");
-	try {
-		alert(PositionError.PERMISSION_DENIED);
-	} catch (err) {
-		alert("permission denied " + err.message);
-	}
 
 	var locationOptions = {maximumAge: 60000, enableHighAccuracy: !online};
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, locationOptions);
@@ -63,7 +58,13 @@ function launchCamera() {
 	if (nbPictures < 4) {
 		navigator.camera.getPicture(cameraSuccess, cameraFailure, cameraOptions);
 	} else {
-		showModal("errorModal", true);
+		navigator.notification.alert(
+			"Vous avez atteint la limite du nombre de photos. Veuillez en supprimer une pour en prendre une nouvelle.",
+			function (){},
+			"Trop de photos",
+			"Ok"
+		);
+		//showModal("errorModal", true);
 	}
 }
 
@@ -85,7 +86,6 @@ function addPictureToCameraScreen(src) {
 var nb = 0;
 //Fonction permettant d'ajouter une photo
 function addPicture(src) {
-	alert("add picture " + src);
 	var picturesDiv = $("#picturesDiv");
 	var idButton = nb + "delete";
 	var idRow = nb + "row";

@@ -46,7 +46,7 @@
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="showPage('camera_screen');">Photographier un champignon</button>
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="beginRecolt();">Ajouter une récolte</button>
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="toRecolts();">Liste des récoltes</button>
-      <button type="button" class="btn btn-success btn-lg btn-block" onclick="toRecolts();">Test</button>
+      <button type="button" class="btn btn-success btn-lg btn-block" onclick="populateDB();">Mettre à jour les infos</button>
     </div>
   </div>
 </div>
@@ -132,13 +132,13 @@
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Quantité trouvée</span>
-            <input id="nbFound" class="form-control"/>
+            <input id="nbFound" type="number" class="form-control"/>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Etendue (mètres)</span>
-            <input id="range" type=text class="form-control"/>
+            <input id="range" type="number" class="form-control"/>
           </div>
         </div>
       </div>
@@ -218,7 +218,7 @@
       <div class = "col-xs-12 col-sm-6">
         <div class="input-group">
           <span class="input-group-addon">Nb Légataire(s)</span>
-          <input id = "listLegNumber" class="form-control"></select>
+          <input id = "listLegNumber" type="number" class="form-control"></select>
         </div>
       </div>
       <div class = "col-xs-12 col-sm-6">
@@ -232,7 +232,7 @@
       <div class = "col-xs-12 col-sm-6">
         <div class="input-group">
           <span class="input-group-addon">Nb Déterminateur(s)</span>
-          <input id = "listDetNb" class="form-control"></select>
+          <input id = "listDetNb" type="number" class="form-control"></select>
         </div>
       </div>
       <div class = "col-xs-12 col-sm-6">
