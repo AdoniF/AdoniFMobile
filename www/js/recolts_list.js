@@ -1,6 +1,6 @@
 //Fonction permettant d'ajouter une récolte dans la table des récoltes
 function addRecolt(src, phylum, id) {
-	var tbody = $("#table").children("tbody");
+	var tbody = dom.tbody;
 	var deleteID = "delete:" + id;
 
 	if (src == null)
@@ -24,7 +24,7 @@ function modifyRecolt(id) {
 
 //Affiche toutes les récoltes dans la base
 function showGatherings(items) {
-	var tbody = $("#table").children("tbody");
+	var tbody = dom.tbody;
 	for (var i = 0; i < items.length; ++i) {
 		var data = JSON.parse(items[i].data);
 		var row = $("#entry" + items[i].id);
@@ -43,7 +43,7 @@ function updateGatheringsList() {
 
 //Nettoie la liste des récoltes et les recharge depuis la db
 function refreshGatheringsList() {
-	var tbody = $("#table").children("tbody");
+	var tbody = dom.tbody;
 	tbody.empty();
 	getGatherings();
 }

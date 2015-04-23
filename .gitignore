@@ -1,3 +1,4 @@
 platforms/ 
 platforms/* 
 *.db 
+plugins/ 

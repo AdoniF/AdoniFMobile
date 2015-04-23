@@ -79,7 +79,7 @@ function setDate(date) {
         d = new Date().toLocaleString();
         recolt.date = d;
     }
-    $("#date").text("Date : " + recolt.date);
+    dom.date.text("Date : " + recolt.date);
 }
 
 //Remplit les champs de position
@@ -94,17 +94,17 @@ function setLocationAndDate(data) {
 }
 
 function setLocationFields(longitude, latitude, accuracy) {
-    $("#longitude").text("Longitude : " + longitude);
-    $("#latitude").text("Latitude : " + latitude);
-    $("#accuracy").text("Précision : " + accuracy);
+    dom.longitude.text("Longitude : " + longitude);
+    dom.latitude.text("Latitude : " + latitude);
+    dom.accuracy.text("Précision : " + accuracy);
 }
 
 //Remplit par défaut le champ de nombre de légataires et son nom
 function setUserFields() {
-    $("#listLegNumber").val(1);
-    $("#listLegatees").val(user.prenom + " " + user.nom);
-    $("#listDetNb").val(1);
-    $("#listDet").val(user.prenom + " " + user.nom);
+    dom.legNumber.val(1);
+    dom.legs.val(user.prenom + " " + user.nom);
+    dom.detNumber.val(1);
+    dom.dets.val(user.prenom + " " + user.nom);
 }
 
 //Génère un formulaire vide pour une nouvelle récolte
@@ -149,15 +149,15 @@ function saveRecolt() {
     recolt.legataires = $("#listLegatees option:selected").text();
     recolt.determinateurs = $("#listDet option:selected").text();
 
-    recolt.genre = $("#dataGenre").val();
-    recolt.epithete = $("#dataSpecies").val();
-    recolt.taxon = $("#dataTaxon").val();
-    recolt.author = $("#dataAuthor").val();
-    recolt.quantity = $("#nbFound").val();
-    recolt.range = $("#range").val();
-    recolt.habitat = $("#dataHC").val();
-    recolt.nbLegataires = $("#listLegNumber").val();
-    recolt.nbDet = $("#listDetNb").val();
+    recolt.genre = dom.genre.val();
+    recolt.epithete = dom.epithete.val();
+    recolt.taxon = dom.taxon.val();
+    recolt.author = dom.author.val();
+    recolt.quantity = dom.quantity.val();
+    recolt.range = dom.range.val();
+    recolt.habitat = dom.hostData.val();
+    recolt.nbLegataires = dom.legNumber.val();
+    recolt.nbDet = dom.detNumber.val();
 
     savePictures();
     if (recoltID) {
@@ -175,28 +175,17 @@ function populateFieldsFromRecolt(recolt) {
     populateSelect("listPhylum", phylumsArray, recolt.phylum);
     populateSelect("listModulation", modulationArray, recolt.modulation);
     populateSelect("listHostState", etatHoteArray, recolt.etatHote);
-
-    $("#listLegNumber").val(recolt.nbLegataires);
-    $("#listDetNb").val(recolt.nbDet);
-    $("#dataHC").val(recolt.habitat);
-    $("#range").val(recolt.range);
-    $("#nbFound").val(recolt.quantity);
-    $("#dataGenre").val(recolt.genre);
-    $("#dataSpecies").val(recolt.epithete);
-    $("#dataTaxon").val(recolt.taxon);
     $("#listHost").val(recolt.hote);
-    $("#dataAuthor").val(recolt.author);
 
-/*
-    populateInput("listLegNumber", [], recolt.nbLegataires);
-    populateInput("listDetNb", [], recolt.nbDet);
-    populateInput("dataHC", [], recolt.habitat);
-    populateInput("range", [], recolt.range);
-    populateInput("nbFound", [], recolt.quantity);
-    populateInput("dataGenre", [], recolt.genre);
-    populateInput("dataSpecies", [], recolt.epithete);
-    populateInput("dataTaxon", [], recolt.taxon);
-    populateInput("listHost", [], recolt.hote);*/
+    dom.legNumber.val(recolt.nbLegataires);
+    dom.detNumber.val(recolt.nbDet);
+    dom.hostData.val(recolt.habitat);
+    dom.range.val(recolt.range);
+    dom.quantity.val(recolt.quantity);
+    dom.genre.val(recolt.genre);
+    dom.epithete.val(recolt.epithete);
+    dom.taxon.val(recolt.taxon);
+    dom.author.val(recolt.author);
 
     setUserFields();
     updateFields(0);
@@ -216,11 +205,11 @@ function loadPictures(recolt) {
 
 function updateFields(rank) {
     var phylum = $("#listPhylum option:selected").text();
-    var genre = $("#dataGenre").val();
-    var epithete = $("#dataSpecies").val();
+    var genre = dom.genre.val();
+    var epithete = dom.epithete.val();
     var rang = $("#listSVF option:selected").text();
-    var taxon = $("#dataTaxon").val();
-    var auteur = $("#dataAuthor").val();
+    var taxon = dom.taxon.val();
+    var auteur = dom.author.val();
 
     if (rank < 1)
         getPossibleGenres(phylum, genre);

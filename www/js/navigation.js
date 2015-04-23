@@ -1,6 +1,6 @@
 //Fonction permettant de créer une nouvelle récolte et de lui associer une photo prise auparavant
 function beginRecolt() {
-	var picSrc = $("#cameraPic").attr('src');
+	var picSrc = dom.cameraPicture.attr('src');
 	if (picSrc.valueOf() === "src")
 		picSrc = null;
 
@@ -47,7 +47,7 @@ function showPage(id, wentBack) {
 		if (idx != -1) {
 			previousPages = previousPages.slice(0, idx);
 		}
-		previousPages.push($(".page").filter(":visible").attr("id"));
+		previousPages.push(dom.pages.filter(":visible").attr("id"));
 	}
 	
 	changePage(id);
@@ -58,17 +58,13 @@ Fonction affichant la div d'id id et cachant les autres.
 @param id : id de la div à afficher
 */
 function changePage(id) {
-	$(".page").each(function(i, div) {
+	dom.pages.each(function(i, div) {
 		$(this).hide();
 	});
 
-	
 	window.scrollTo(0, 0);
-	try {
-		$("#" + id).show();
-	} catch (err) {
-		alert("error show " + err.message);
-	}
+
+	$("#" + id).show();
 	currentPage = id;
 }
 

@@ -47,7 +47,6 @@ function connectUser() {
 			"Connexion requise",
 			"Connexion"
 			);
-		//showModal('connectionModal', true);
 	}
 }
 
@@ -242,7 +241,6 @@ function getConnectionResult(data, param) {
 
 		createUser(param.param1, param.param2, data);
 		addUser(user);
-		alert("user created");
 	} else {
 		window.plugins.toast.showShortBottom("Echec de la connexion. Veuillez réessayer");
 	}

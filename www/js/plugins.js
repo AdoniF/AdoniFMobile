@@ -64,7 +64,6 @@ function launchCamera() {
 			"Trop de photos",
 			"Ok"
 		);
-		//showModal("errorModal", true);
 	}
 }
 
@@ -78,7 +77,7 @@ function cameraSuccess(data) {
 
 // Ajoute l'image photographiée à l'écran de prise de photo
 function addPictureToCameraScreen(src) {
-	var img = $("#cameraPic");
+	var img = dom.cameraPicture;
 	img.attr("src", src);
 	img.show();
 }
@@ -86,7 +85,7 @@ function addPictureToCameraScreen(src) {
 var nb = 0;
 //Fonction permettant d'ajouter une photo
 function addPicture(src) {
-	var picturesDiv = $("#picturesDiv");
+	var picturesDiv = dom.picturesDiv;
 	var idButton = nb + "delete";
 	var idRow = nb + "row";
 	var idPic = nb + "pic";
