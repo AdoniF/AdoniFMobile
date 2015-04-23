@@ -70,7 +70,7 @@ function setDate(date) {
 
 //Remplit les champs de position
 function setLocationAndDate(data) {
-    if (data && data.date.length > 0) {
+    if (data && data.date && data.date.length > 0) {
         setDate(data.date);
         setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres");
     } else {
@@ -102,7 +102,6 @@ function generateNewForm(imageSrc) {
 
 // Génère un formulaire depuis une récolte déjà entamée
 function populateFormFromGathering(gathering, id) {
-    //TODO : Charger depuis la BDD la recolte plutôt qu'un nouveau formulaire
     recoltID = id;
     recolt = gathering;
     populateFieldsFromRecolt(recolt);
@@ -110,36 +109,32 @@ function populateFormFromGathering(gathering, id) {
 
 //Récupère les valeurs des champs pour les stocker dans la récolte actuelle
 function saveRecolt() {
-    try {
-        recolt.phylum = $("#listPhylum option:selected").text();
-        recolt.modulation = $("#listModulation option:selected").text();
-        recolt.substrat = $("#listSubstrate option:selected").text();
-        recolt.rang = $("#listSVF option:selected").text();
-        recolt.hote = $("#listHost option:selected").text();
-        recolt.etatHote = $("#listHostState option:selected").text();
-        recolt.legataires = $("#listLegatees option:selected").text();
-        recolt.determinateurs = $("#listDet option:selected").text();
+    recolt.phylum = $("#listPhylum option:selected").text();
+    recolt.modulation = $("#listModulation option:selected").text();
+    recolt.substrat = $("#listSubstrate option:selected").text();
+    recolt.rang = $("#listSVF option:selected").text();
+    recolt.hote = $("#listHost option:selected").text();
+    recolt.etatHote = $("#listHostState option:selected").text();
+    recolt.legataires = $("#listLegatees option:selected").text();
+    recolt.determinateurs = $("#listDet option:selected").text();
 
-        recolt.genre = $("#dataGenre").val();
-        recolt.epithete = $("#dataSpecies").val();
-        recolt.taxon = $("#dataTaxon").val();
-        recolt.author = $("#dataAuthor").val();
-        recolt.quantity = $("#nbFound").val();
-        recolt.range = $("#range").val();
-        recolt.habitat = $("#dataHC").val();
-        recolt.nbLegataires = $("#listLegNumber").val();
-        recolt.nbDet = $("#listDetNb").val();
+    recolt.genre = $("#dataGenre").val();
+    recolt.epithete = $("#dataSpecies").val();
+    recolt.taxon = $("#dataTaxon").val();
+    recolt.author = $("#dataAuthor").val();
+    recolt.quantity = $("#nbFound").val();
+    recolt.range = $("#range").val();
+    recolt.habitat = $("#dataHC").val();
+    recolt.nbLegataires = $("#listLegNumber").val();
+    recolt.nbDet = $("#listDetNb").val();
 
-        savePictures();
-        if (recoltID) {
-            updateGathering(recolt, recoltID);
-        } else {
-            addGathering(recolt);
-        }
-        recoltID = null;
-    } catch (err) {
-        alert("error : " + err.message);
+    savePictures();
+    if (recoltID) {
+        updateGathering(recolt, recoltID);
+    } else {
+        addGathering(recolt);
     }
+    recoltID = null;
 }
 
 //Sauve les images courantes
@@ -148,19 +143,11 @@ function savePictures() {
         return this;
     });
 
-    var picturesSources = [];
+    recolt.pictures = [];
+    alert("save pictures " + pictures);
     for (var i = 0; i < pictures.length; ++i) {
-        alert("pictures" + pictures[i].src);
-        picturesSources.push(pictures[i].src);
+        recolt.pictures.push(pictures[i].src);
     }
-    recolt.pictures = picturesSources;
-}
-
-// DEPRECATED ??
-function openRecolt(data) {
-    recolt = new Recolte(data.phylum, data.modulation, data.substrat, data.rang, data.substrat, data.hote, data.etatHote,
-        data.legataires, data.determinateurs, data.genre, data.epithete, data.taxon, data.author, data.quantity, data.range,
-        data.habitat, data.nbLegataires, data.nbDet, data.longitude, data.latitude, data.accuracy, data.date, data.pictures);
 }
 
 function populateFields() {

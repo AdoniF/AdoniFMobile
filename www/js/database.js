@@ -41,18 +41,13 @@ function connectUser() {
 		initUser();
 	} else {
 		initDB();
-		alert("inited db");
 		//showModal('connectionModal', true);
 	}
 }
 
 function initDB() {
-	try {
-		createDB();
-		populateDBs();
-	}catch(err) {
-		alert("initDb error " + err.message);
-	}
+	createDB();
+	populateDB();
 }
 
 // Crée la base de données
@@ -107,7 +102,7 @@ function createTables(tx) {
 	
 }
 
-function populateDBs() {
+function populateDB() {
 	populateNamesInfos();
 	populateSubstrats();
 	errorShown = false;
@@ -126,9 +121,16 @@ function populateSubstrats(tx) {
 var errorShown = false;
 function populateDBError() {
 	if (!errorShown) {
-		alert("Echec de la récupération des informations du référentiel. Réessayez ultérieurement.");
+		var errorMessage = "Echec de la récupération des informations du référentiel."
+		+ " Veuillez vérifier votre connexion internet ou réessayer ultérieurement.";
+		navigator.notification.confirm(errorMessage, populateDBErrorCallback, "Erreur", ["Annuler", "Réessayer"]);
 		errorShown = true;
 	}
+}
+
+function populateDBErrorCallback(buttonIndex) {
+	if (buttonIndex == 2)
+		populateDB();
 }
 
 function insertSubstratsInfos(data) {
@@ -278,8 +280,7 @@ function updateGathering(gathering, id) {
 }
 
 function addFakeGathering() {
-	var gathering = {};
-	gathering.src="none.jpg";
+	var gathering = new Recolte();
 	gathering.phylum = "myPhylum" + Math.round(Math.random() * 1000);
 	addGathering(gathering);
 }

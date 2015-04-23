@@ -1,8 +1,11 @@
 //Fonction permettant d'ajouter une récolte dans la table des récoltes
 function addRecolt(src, phylum, id) {
-	alert("src " + src);
 	var tbody = $("#table").children("tbody");
 	var deleteID = "delete:" + id;
+
+	if (src == null)
+		src = "img/no_pic.png";
+	
 	var newRow = "<tr id='entry" + id + "'><td><div class='row vertical-align'>"
 	+ "<span class='col-sm-5  hidden-xs'><img class='img-thumbnail' id='recolt' src='" + src + "' alt='picture'/></span>"
 	+ "<span class='col-xs-7 col-sm-4'>" + id + " : " + phylum + "</span>"
@@ -16,11 +19,7 @@ function addRecolt(src, phylum, id) {
 }
 
 function modifyRecolt(id) {
-	try {
-		getGathering(id);
-	} catch(err) {
-		alert("error modify recolt " + err.message);
-	}
+	getGathering(id);
 }
 
 //Affiche toutes les récoltes dans la base
@@ -31,7 +30,8 @@ function showGatherings(items) {
 		var row = $("#entry" + items[i].id);
 
 		if (row.text() === "") {
-			addRecolt(data.src, data.phylum, items[i].id);
+			var pictureSource = data.pictures && data.pictures.length > 0 ? data.pictures[0] : null;
+			addRecolt(pictureSource, data.phylum, items[i].id);
 		}
 	}
 }

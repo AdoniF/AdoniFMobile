@@ -53,7 +53,7 @@ function calculatePosition() {
 function initCamera() {
 	nbPictures = 0;
 	if (navigator.camera) {
-		cameraOptions = {quality: 50, destinationType: Camera.DestinationType.FILE_URI, correctOrientation: true};
+		cameraOptions = {quality: 50, destinationType: Camera.DestinationType.FILE_URI, correctOrientation: true, encodingType: Camera.EncodingType.JPEG};
 		pictureSource=navigator.camera.PictureSourceType;
 		destinationType=navigator.camera.DestinationType;
 	}
