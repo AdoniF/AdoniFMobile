@@ -35,14 +35,11 @@ function calculatePosition() {
 function initCamera() {
 	nbPictures = 0;
 	if (navigator.camera) {
-		cameraOptions = {quality: 100, destinationType: Camera.DestinationType.DATA_URL,
-			correctOrientation: true, encodingType: Camera.EncodingType.JPEG };
-
-			pictureSource=navigator.camera.PictureSourceType;
-			destinationType=navigator.camera.DestinationType;
-		}
+		cameraOptions = {quality: 50, destinationType: Camera.DestinationType.FILE_URI, correctOrientation: true};
+		pictureSource=navigator.camera.PictureSourceType;
+		destinationType=navigator.camera.DestinationType;
 	}
-
+}
 //	Fonction qui démarre l'appareil photo
 function launchCamera() {
 	if (nbPictures < 4) {
@@ -54,6 +51,7 @@ function launchCamera() {
 
 //	Fonction appelée suite à la réussite de la prise d'une photo
 function cameraSuccess(data) {
+	sendPicture(data);
 	data = "data:image/jpeg;base64," + data;
 	if (currentPage == "camera_screen")
 		addPictureToCameraScreen(data);
@@ -77,10 +75,10 @@ function addPicture(src) {
 	var idPic = nb + "pic";
 
 	var pictureRow = "<div id='" + idRow + "'>"+"<div class='row vertical-align'>"+"<span class='col-xs-6'><img id='"
-	 + idPic + "'class='img-thumbnail picture' src=" + src + " alt='picture'/></span>"
-	 +"<span class='col-xs-6'><button type='button' class='btn btn-primary btn-lg delete pull-right' id='" + idButton 
-	 + "' onclick='deletePicture(this.id);'>"+"<span class='glyphicon glyphicon-trash'></span></button></span>"
-	 +"</div>"+"<div class='divider'></div></div>";
+	+ idPic + "'class='img-thumbnail picture' src=" + src + " alt='picture'/></span>"
+	+"<span class='col-xs-6'><button type='button' class='btn btn-success btn-lg delete pull-right' id='" + idButton 
+	+ "' onclick='deletePicture(this.id);'>"+"<span class='glyphicon glyphicon-trash'></span></button></span>"
+	+"</div>"+"<div class='divider'></div></div>";
 
 	++nb;
 	++nbPictures

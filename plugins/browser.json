@@ -35,7 +35,14 @@
         },
         "nl.x-services.plugins.toast": {
             "PACKAGE_NAME": "fr.test.recoltapp"
+        },
+        "org.apache.cordova.file-transfer": {
+            "PACKAGE_NAME": "fr.test.recoltapp"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "org.apache.cordova.file": {
+            "PACKAGE_NAME": "fr.test.recoltapp"
+        }
+    }
 }

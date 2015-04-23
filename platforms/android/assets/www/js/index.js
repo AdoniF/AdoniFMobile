@@ -16,6 +16,10 @@ function onDeviceReady() {
 	document.addEventListener("online", onOnline, false);
 	document.addEventListener("backbutton", goBack, false);
 
+	$('body').on('click', function (e) {
+		if ($('.popover').hasClass('in'))
+			showPopover(false);
+	});
 	initCamera();
 	openDB();
 }
@@ -32,41 +36,4 @@ function initDivs() {
 	} catch(err) {
 		alert("error hidden each " + err.message);
 	}
-}
-
-function testAjax () {
-	alert("testing ajax");
-	$.get("http://www.smnf-db.fr/ajax/requestGenre.php?q=z&b=union", function () {
-		alert("success");
-	})
-	.done(function(data) {
-		alert("second success");
-		alert(data);
-	})
-	.fail(function(data) {
-		alert("fail");
-		alert(data);
-	})
-	.always(function () {
-		alert("finished");
-	});
-}
-
-function ajaxCall(method, url, toDo, param) {
-	console.log("ajaxCall");
-	if (method == "GET") {
-		$.get(url)
-		.done(function (data) {
-			toDo(data, param);
-		})
-		.fail(function (err) {
-			alert(url + " call failed " + err.message);
-		});
-	}
-}
-function test() {
-	var toto = "ti to  ta";
-	console.log(toto.split(" "));
-	toto = "ti   ta";
-	console.log(toto.split(" "));
 }

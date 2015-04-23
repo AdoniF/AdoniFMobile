@@ -1,14 +1,15 @@
 //Fonction permettant d'ajouter une récolte dans la table des récoltes
 function addRecolt(src, phylum, id) {
+	alert("src " + src);
 	var tbody = $("#table").children("tbody");
 	var deleteID = "delete:" + id;
 	var newRow = "<tr id='entry" + id + "'><td><div class='row vertical-align'>"
 	+ "<span class='col-sm-5  hidden-xs'><img class='img-thumbnail' id='recolt' src='" + src + "' alt='picture'/></span>"
 	+ "<span class='col-xs-7 col-sm-4'>" + id + " : " + phylum + "</span>"
 	+ "<span class='col-xs-5 col-sm-3 text-right'>"
-	+ "<button type='button' class='btn btn-primary row-button' onclick='modifyRecolt(" + id + ");'>Modifier</button>"
+	+ "<button type='button' class='btn btn-success row-button' onclick='modifyRecolt(" + id + ");'>Modifier</button>"
 	+ "<button type='button' id = '" + deleteID + "'"
-	+ "class='btn btn-primary row-button' onclick='removeGathering(this);'>"
+	+ "class='btn btn-success row-button' onclick='removeGathering(this);'>"
 	+ "<span class='glyphicon glyphicon-trash'></span></button>"
 	+ "</span></div></td></tr>";
 	tbody.append(newRow);

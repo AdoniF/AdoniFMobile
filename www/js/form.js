@@ -150,6 +150,7 @@ function savePictures() {
 
     var picturesSources = [];
     for (var i = 0; i < pictures.length; ++i) {
+        alert("pictures" + pictures[i].src);
         picturesSources.push(pictures[i].src);
     }
     recolt.pictures = picturesSources;
@@ -187,18 +188,14 @@ function populateFieldsFromRecolt(recolt) {
     populateInput("dataTaxon", [], recolt.taxon);
     populateInput("listHost", [], recolt.hote);
 
-
-   // populateSelect("listDet", array, recolt.determinateurs);
-    //populateSelect("listLegatees", array, recolt.legataires);
-
     setUserFields();
     updateFields(0);
     getSubstrats(recolt.substrat);
 
-    loadPictures();
+    loadPictures(recolt);
 }
 
-function loadPictures() {
+function loadPictures(recolt) {
     var pictures = recolt.pictures;
     if (pictures) {
         for (var i; i < pictures.length; ++i) {

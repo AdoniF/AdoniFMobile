@@ -1,5 +1,6 @@
 //Fonction permettant d'ajouter une récolte dans la table des récoltes
 function addRecolt(src, phylum, id) {
+	alert("src " + src);
 	var tbody = $("#table").children("tbody");
 	var deleteID = "delete:" + id;
 	var newRow = "<tr id='entry" + id + "'><td><div class='row vertical-align'>"

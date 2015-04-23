@@ -28,7 +28,7 @@ function showPopover(show) {
 		else 
 			$("#popoverButton").popover("hide");		
 	} else
-		$("#popoverButton").popover();
+	$("#popoverButton").popover();
 }
 
 /*
@@ -59,3 +59,5 @@ function ajaxCall(method, url, toDo, param, errorMessage) {
 		});
 	}
 }
+
+
