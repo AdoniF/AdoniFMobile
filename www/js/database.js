@@ -159,7 +159,6 @@ function populateDBErrorCallback(buttonIndex) {
 
 function insertSubstratsInfos(data) {
 	var rows = data.split("\n");
-
 	db.transaction(function (tx) {
 		rows.forEach(function(entry) {
 			entry = entry.trim();
@@ -183,7 +182,7 @@ function insertSubstratsInfos(data) {
 
 function insertNameInfo(data, phylum) {
 	var rows = data.split("\n");
-
+	alert("nameinfo " + data.length);
 	db.transaction(function (tx) {
 		rows.forEach(function(entry) {
 			entry = entry.trim();
@@ -357,6 +356,19 @@ function GatheringItem(id, data) {
 function deleteGathering(id) {
 	db.transaction(function (tx) {
 		tx.executeSql("DELETE FROM gatherings WHERE id = ?", [id], function () {});
+	}, function (e) {
+		alert("error delete gathering " + e.message);
+	});
+}
+
+function checkTablesSizes() {
+	db.transaction(function (tx) {
+		for (var i = 0; i < phylumsTables.length; i++) {
+			var phylum = phylumsTables[i];
+			tx.executeSql("SELECT COUNT(*) as cpt FROM " + phylum,[], function (tx, res) {
+				alert(phylum + " " + res.rows.item(0).cpt);
+			});
+		}
 	}, function (e) {
 		alert("error delete gathering " + e.message);
 	});

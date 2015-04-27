@@ -9,14 +9,14 @@ function getPossibleGenres(phylum, value) {
 function getGenresForPhylum(phylum, value) {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT DISTINCT genre FROM " + phylum, [], function(tx, res) {
-			var options = "";
+			var array = [];
 			for (var i = 0; i < res.rows.length; ++i) {
 				var genre = res.rows.item(i).genre;
 				if (genre)
-					options += "<option value='" + genre + "'/>"
+					array.push(genre);
 			}
 
-			populateInput("dataGenre", options, value);
+			populateInput("dataGenre", array, value);
 		});
 	}, function (e) {
 		alert("error getGenresFromPhylum " + e.message);
@@ -35,13 +35,15 @@ function getAllGenres(value) {
 
 	db.transaction(function (tx) {
 		tx.executeSql(query, [], function (tx, res) {
-			var options = "";
+			var array = [];
+
 			for (var i = 0; i < res.rows.length; ++i) {
 				var genre = res.rows.item(i).genre;
 				if (genre)
-					options += "<option value='" + genre + "'/>"
+					array.push(genre);
 			}
-			populateInput("dataGenre", options, value);		
+			
+			populateInput("dataGenre", array, value);		
 		})
 	}, function (e) {
 		alert("error getAllGenres " + e.message);
@@ -69,13 +71,13 @@ function getPossibleEpithetesForPhylum(phylum, genre, value) {
 	db.transaction(function (tx) {
 
 		tx.executeSql(query, whereArg, function (tx, res){
-			var options = "";
+			var array = [];
 			for (var i = 0; i < res.rows.length; ++i) {
 				var epithete = res.rows.item(i).epithete;
 				if (epithete)
-					options += "<option value='" + epithete + "'/>"
+					array.push(epithete);
 			}
-			populateInput("dataSpecies", options, value);
+			populateInput("dataSpecies", array, value);
 		});
 	}, function (e) {
 		alert("error getPossibleEpithetesForPhylum " + e.message);
@@ -86,9 +88,10 @@ function getPossibleEpithetesForAllPhylums(genre, value) {
 	var userInput = [];
 	var where = "";
 	var hasGenre = genre && genre.length > 0;
-	if (hasGenre)
+	if (hasGenre) {
 		userInput.push(genre);
-	where = " WHERE genre = ?";
+		where = " WHERE genre = ?";
+	}
 
 	var query = "SELECT DISTINCT epithete FROM " + phylumsTables[0] + where;
 	for (var i = 1; i < phylumsTables.length; ++i) {
@@ -100,13 +103,14 @@ function getPossibleEpithetesForAllPhylums(genre, value) {
 
 	db.transaction(function (tx) {
 		tx.executeSql(query, userInput, function (tx, res) {
-			var array = "";
+			var array = [];
 
 			for (var i = 0; i < res.rows.length; ++i) {
 				var epithete = res.rows.item(i).epithete;
 				if (epithete)
-					array += "<option value='" + epithete + "'/>";
+					array.push(epithete);
 			}
+			
 			populateInput("dataSpecies", array, value);		
 		})
 	}, function (e) {
@@ -132,11 +136,11 @@ function getPossibleTaxonsForPhylum(phylum, clause, value) {
 	db.transaction(function (tx) {
 
 		tx.executeSql(query, clause.args, function (tx, res){
-			var array = "";
+			var array = [];
 			for (var i = 0; i < res.rows.length; ++i) {
 				var taxon = res.rows.item(i).taxon;
 				if (taxon)
-					array += "<option value='" + taxon + "'/>";
+					array.push(taxon);
 			}
 
 			populateInput("dataTaxon", array, value);
@@ -199,8 +203,9 @@ function getPossibleTaxonsForAllPhylums(genre, clause, value) {
 			for (var i = 0; i < res.rows.length; ++i) {
 				var taxon = res.rows.item(i).taxon;
 				if (taxon)
-					array += "<option value='" + taxon + "'/>";
+					array.push(taxon);
 			}
+			
 			populateInput("dataTaxon", array, value);		
 		})
 	}, function (e) {
@@ -248,8 +253,9 @@ function getPossibleAuteursForPhylum(phylum, clause, value) {
 			for (var i = 0; i < res.rows.length; ++i) {
 				var auteur = res.rows.item(i).auteur;
 				if (auteur)
-					array += "<option value='" + auteur + "'/>";
+					array.push(auteur);
 			}
+
 			populateInput("dataAuthor", array, value);
 		});
 	}, function (e) {
@@ -274,7 +280,7 @@ function getPossibleAuteursForAllPhylums(genre, clause, value) {
 			for (var i = 0; i < res.rows.length; ++i) {
 				var auteur = res.rows.item(i).auteur;
 				if (auteur)
-					array += "<option value='" + auteur + "'/>";
+					array.push(auteur);
 			}
 			populateInput("dataAuthor", array, value);		
 		})
