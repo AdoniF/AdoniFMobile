@@ -15,6 +15,7 @@ Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
 function onDeviceReady() {
 	initDivs();
 	initDomElements();
+	FastClick.attach(document.body);
 	showPage("index");
 	document.addEventListener("offline", onOffline, false);
 	document.addEventListener("online", onOnline, false);
@@ -88,7 +89,7 @@ function showPopover(show) {
 		else
 			dom.popover.popover("hide");		
 	} else
-		dom.popover.popover();
+	dom.popover.popover();
 }
 
 /*
