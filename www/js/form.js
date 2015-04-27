@@ -11,28 +11,6 @@ est passé en paramètre
 @param array: suggestions possibles
 @param id : id de l'input auquel on ajoute les suggestions
 */
-/*
-function populateInput(id, array, content) {
-    var list = $("#" + id);
-    var options = "";
-
-    var idx = array.indexOf(content);
-    if (idx != -1)
-        array.splice(idx, 1);
-
-    if (content)
-        list.val(content);
-    if (array.indexOf(content) < 0)
-        options += "<option value='" + content + "'/>";
-    for (var i = 0; i < array.length; i++) {
-        options += "<option value='" + array[i] + "'/>";
-    }
-
-    var data = $("#list" + id);
-    data.empty();
-    data.append(options);
-}
-*/
 function populateInput(id, options, content) {
     var list = document.getElementById(id);
 
@@ -197,9 +175,11 @@ function populateFieldsFromRecolt(recolt) {
 function loadPictures(recolt) {
     var pictures = recolt.pictures;
     if (pictures) {
-        for (var i; i < pictures.length; ++i) {
-            addPicture(pictures[i]);
+        var pictureRows = "";
+        for (var i = 0; i < pictures.length; i++) {
+            pictureRows += getPictureRow(pictures[i]);
         }
+        document.getElementById("picturesDiv").innerHTML = pictureRows;
     }
 }
 

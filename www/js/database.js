@@ -3,13 +3,15 @@ var phylumsTables = ["asco", "basidio", "chytridio", "glomero", "mycetozoa", "zy
 var phylumsArray = ["Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Mycetozoa", "Zygomycota"];
 
 var loggedIn;
+var dbCreated = false;
 var user = {};
 var db_name = "smnf.db";
 
 // Ouvre la base de données
 function openDB() {
 	if (window.sqlitePlugin) {
-		db = window.sqlitePlugin.openDatabase({name: db_name});
+		if (!db)
+			db = window.sqlitePlugin.openDatabase({name: db_name});
 		checkConnection();
 	}
 }
@@ -27,6 +29,7 @@ function checkConnection() {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT count(*) as cpt from users;", [], function (tx, res) {
 			loggedIn = res.rows.item(0).cpt > 0;
+			dbCreated = true;
 			connectUser();
 		});
 	}, function (e) {
@@ -40,7 +43,9 @@ function connectUser() {
 	if (loggedIn) {
 		initUser();
 	} else {
-		initDB();
+		if (!dbCreated)
+			initDB();
+		
 		navigator.notification.alert(
 			"Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
 			showConnectionPage,
@@ -69,20 +74,14 @@ function createDB() {
 function dropTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS users;");
 	tx.executeSql("DROP TABLE IF EXISTS gatherings;");
-	tx.executeSql("DROP TABLE IF EXISTS substrats");
+	dropReferentialTables(tx);
+}
 
+function dropReferentialTables(tx) {
+	tx.executeSql("DROP TABLE IF EXISTS substrats");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
 	}
-}
-
-function dropRecolts() {
-	db.transaction(function (tx) {
-		tx.executeSql("DROP TABLE IF EXISTS gatherings;");
-		tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
-			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ "data TEXT);");
-	});
 }
 
 //Crée les tables de la base. Les tables qui n'ont qu'un champ data contiennent des objets JSON
@@ -93,6 +92,10 @@ function createTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS gatherings("
 		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 		+ "data TEXT);");
+	createReferentialTables(tx);
+}
+
+function createReferentialTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS substrats(data TEXT);");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("CREATE TABLE IF NOT EXISTS " + phylumsTables[i] +"("
@@ -103,8 +106,17 @@ function createTables(tx) {
 			+ "taxon TEXT,"
 			+ "auteur TEXT"
 			+");");
-	}
-	
+	}	
+}
+
+function refreshReferential() {
+	db.transaction(function (tx) {
+		dropReferentialTables(tx);
+		createReferentialTables(tx);
+	}, function (e) {
+		alert("error refreshReferential " + e.message);
+	});
+	populateDB();
 }
 
 function populateDB() {
@@ -158,8 +170,10 @@ function insertSubstratsInfos(data) {
 			tx.executeSql(query);
 		});
 		populateCallsRunning--;
-		if (populateCallsRunning == 0)
+		if (populateCallsRunning == 0 && !errorShown)
 			window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
+		else
+			errorShown = false;
 
 
 	}, function (e) {
@@ -184,8 +198,10 @@ function insertNameInfo(data, phylum) {
 				tx.executeSql(query);
 
 			populateCallsRunning--;
-			if (populateCallsRunning == 0)
+			if (populateCallsRunning == 0 && !errorShown)
 				window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
+			else
+				errorShown = false;
 		});
 	}, function (e) {
 		alert("error insertNameInfo " + e.message);

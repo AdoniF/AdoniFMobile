@@ -41,8 +41,7 @@ function getAllGenres(value) {
 				if (genre)
 					options += "<option value='" + genre + "'/>"
 			}
-			
-			populateInput("dataGenre", genre, value);		
+			populateInput("dataGenre", options, value);		
 		})
 	}, function (e) {
 		alert("error getAllGenres " + e.message);
@@ -108,7 +107,6 @@ function getPossibleEpithetesForAllPhylums(genre, value) {
 				if (epithete)
 					array += "<option value='" + epithete + "'/>";
 			}
-			
 			populateInput("dataSpecies", array, value);		
 		})
 	}, function (e) {
@@ -203,7 +201,6 @@ function getPossibleTaxonsForAllPhylums(genre, clause, value) {
 				if (taxon)
 					array += "<option value='" + taxon + "'/>";
 			}
-			
 			populateInput("dataTaxon", array, value);		
 		})
 	}, function (e) {
@@ -253,7 +250,6 @@ function getPossibleAuteursForPhylum(phylum, clause, value) {
 				if (auteur)
 					array += "<option value='" + auteur + "'/>";
 			}
-
 			populateInput("dataAuthor", array, value);
 		});
 	}, function (e) {

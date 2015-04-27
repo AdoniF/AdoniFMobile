@@ -3,6 +3,9 @@ var destinationType;
 var currentPicNumber = -1;
 var online = false;
 var cameraOptions;
+var firstTry;
+
+var timeoutExpired = 3;
 
 var nbPictures = 0;
 
@@ -14,34 +17,41 @@ function onGeolocationSuccess(pos) {
 	setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)");
 }
 
+
 // Fonction appellée lors de l'échec d'une géolocalisation
-function onGeolocationError(error) {/*
-	try {
-		if (error.code == PositionError.PERMISSION_DENIED)
-			alert("error.code permission denied");
-		else if (error.code == PositionError.POSITION_UNAVAILABLE)
-			alert("error.code POSITION_UNAVAILABLE");
-		else if (error.code == PositionError.TIMEOUT)
-			alert("error code timeout");
+function onGeolocationError(error) {
+	if (firstTry) {
+		window.plugins.toast.showShortBottom("Echec de la localisation GPS. Tentative de localisation par le réseau");
+		firstTry = false;
+		calculatePosition(true);
+	} else {
+		recolt.longitude = "";
+		recolt.latitude = "";
+		recolt.accuracy = "";
+		setLocationFields("échec", "échec", "échec");
+	}
 
-		alert("code " + error.code + " message " + error.message);
-
-	//window.plugins.toast.showShortCenter("Localisation échouée. Activez votre wifi pour faciliter la localisation." + error.message);
-	recolt.longitude = "";
-	recolt.latitude = "";
-	recolt.accuracy = "";
-	setLocationFields("échec", "échec", "échec");
-	} catch(err) {
-		alert("error ongeolocerror " + error.message);
-	}*/
 }
 
 // Lance la géolocalisation de l'utilisateur
-function calculatePosition() {
-	setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...");
+function calculatePosition(lowAccuracy) {
+	var timeout, highAccuracy;
+	try {
+		setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...");
+		if (lowAccuracy) {
+			timeout = 30000;
+			highAccuracy = false;
+		} else {
+			firstTry = true;
+			timeout = 10000;
+			highAccuracy = true;
+		}
 
-	var locationOptions = {maximumAge: 60000, enableHighAccuracy: !online};
-	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, locationOptions);
+		var locationOptions = {enableHighAccuracy: highAccuracy, timeout: timeout};
+		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, locationOptions);
+	} catch (err) {
+		alert("error calculate position " + err.message);
+	}
 }
 
 //	Initialisation de la source de l'image et de la destination au lancement de la page
@@ -63,7 +73,7 @@ function launchCamera() {
 			function (){},
 			"Trop de photos",
 			"Ok"
-		);
+			);
 	}
 }
 
@@ -85,7 +95,15 @@ function addPictureToCameraScreen(src) {
 var nb = 0;
 //Fonction permettant d'ajouter une photo
 function addPicture(src) {
-	var picturesDiv = dom.picturesDiv;
+	try {
+		var picturesDiv = document.getElementById("picturesDiv");
+		picturesDiv.innerHTML = picturesDiv.innerHTML + getPictureRow(src);
+	} catch (err) {
+		alert("add picture " + err.message);
+	}
+}
+
+function getPictureRow(src) {
 	var idButton = nb + "delete";
 	var idRow = nb + "row";
 	var idPic = nb + "pic";
@@ -98,7 +116,7 @@ function addPicture(src) {
 
 	++nb;
 	++nbPictures
-	picturesDiv.append(pictureRow);
+	return pictureRow;
 }
 
 //	Fonction appelée suite à l'échec de la prise d'une photo
