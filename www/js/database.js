@@ -212,6 +212,8 @@ function buildInsertQuery(table, values, columns) {
 		if (!entry.isEmpty()) {
 			var item = {};
 			item.column = columns[i];
+
+			//Retire les apostrophes dans la variable entry, pose problème pour les requêtes SQL
 			var regex = new RegExp("'", "g");
 			item.entry = entry.replace(regex, "");
 			validValues.push(item);
@@ -302,9 +304,9 @@ function addGathering(gathering) {
 
 function updateGathering(gathering, id) {
 	var data = JSON.stringify(gathering);
-	var query = "UPDATE gatherings SET data = '" + data + "' WHERE id = '" + id + "';";
+	var query = "UPDATE gatherings SET data = ? WHERE id = ?;";
 	db.transaction(function (tx) {
-		tx.executeSql(query);
+		tx.executeSql(query, [data, id]);
 	}, function (e) {
 		alert("error update Gathering " + e.message);
 	});
@@ -319,7 +321,7 @@ function addFakeGathering() {
 // Récupère la récolte correspondant à l'id en paramètre
 function getGathering(id) {
 	db.transaction(function (tx) {
-		tx.executeSql("SELECT data from gatherings WHERE id = " + id + ";", [], function(tx, res) {
+		tx.executeSql("SELECT data from gatherings WHERE id = ?;", [id], function(tx, res) {
 			populateFormFromGathering(JSON.parse(res.rows.item(0).data), id);
 			toAddRecolt();
 		});
@@ -364,7 +366,7 @@ function checkTablesSizes() {
 	db.transaction(function (tx) {
 		for (var i = 0; i < phylumsTables.length; i++) {
 			var phylum = phylumsTables[i];
-			tx.executeSql("SELECT COUNT(*) as cpt FROM " + phylum,[], function (tx, res) {
+			tx.executeSql("SELECT COUNT(*) as cpt FROM " + phylum, [], function (tx, res) {
 				alert(phylum + " " + res.rows.item(0).cpt);
 			});
 		}

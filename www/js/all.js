@@ -32,12 +32,8 @@ function onDeviceReady() {
 	});
 	initCamera();
 	openDB();
-	try {
-		positionUl();
-	} catch (err) {
-		alert(err.message);
-	}
-	
+	positionUl();	
+	checkTablesSizes();
 }
 
 function addCustomFunctions() {
@@ -51,6 +47,10 @@ function addCustomFunctions() {
 
 	Array.prototype.contains = function (str) {
 		return this.indexOf(str) >= 0;
+	}
+
+	Array.prototype.isEmpty = function() {
+		return this.length == 0;
 	}
 }
 
@@ -167,3 +167,6 @@ function ajaxCall(method, url, toDo, param, toDoError) {
 	}
 }
 
+function escapeHTML(str) {
+	return str.replace(/&/g,'&amp;').str(/</g,'&lt;').str(/>/g,'&gt;');
+}
