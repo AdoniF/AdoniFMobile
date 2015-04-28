@@ -162,7 +162,7 @@ function insertSubstratsInfos(data) {
 	db.transaction(function (tx) {
 		rows.forEach(function(entry) {
 			entry = entry.trim();
-			if (entry.length == 0)
+			if (entry.isEmpty())
 				return;
 
 			var query = "INSERT INTO substrats VALUES ('" + entry + "');";
@@ -182,11 +182,10 @@ function insertSubstratsInfos(data) {
 
 function insertNameInfo(data, phylum) {
 	var rows = data.split("\n");
-	alert("nameinfo " + data.length);
 	db.transaction(function (tx) {
 		rows.forEach(function(entry) {
 			entry = entry.trim();
-			if (entry.length == 0)
+			if (entry.isEmpty())
 				return;
 
 			var elements = entry.split("$");
@@ -210,7 +209,7 @@ function insertNameInfo(data, phylum) {
 function buildInsertQuery(table, values, columns) {
 	var validValues = [];
 	values.forEach(function (entry, i) {
-		if (entry.length != 0) {
+		if (!entry.isEmpty()) {
 			var item = {};
 			item.column = columns[i];
 			var regex = new RegExp("'", "g");
@@ -218,7 +217,7 @@ function buildInsertQuery(table, values, columns) {
 			validValues.push(item);
 		}
 	});
-	if (validValues.length == 0)
+	if (validValues.isEmpty())
 		return null;
 
 	var query = "INSERT INTO " + table + " (";
@@ -250,7 +249,7 @@ function connectionError() {
 }
 
 function getConnectionResult(data, param) {
-	if (data.indexOf("OK") >= 0) {
+	if (data.contains("OK")) {
 		window.plugins.toast.showShortBottom("Connexion réussie !");
 		toIndex();
 

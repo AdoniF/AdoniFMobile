@@ -13,7 +13,7 @@ function init() {
 Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
 */
 function onDeviceReady() {
-	addStringFunctions();
+	addCustomFunctions();
 	initInputFields();
 	initDivs();
 	initDomElements();
@@ -40,12 +40,16 @@ function onDeviceReady() {
 	
 }
 
-function addStringFunctions() {
+function addCustomFunctions() {
 	String.prototype.isEmpty = function() {
 		return this.length == 0;
 	}
 
 	String.prototype.contains = function (str) {
+		return this.indexOf(str) >= 0;
+	}
+
+	Array.prototype.contains = function (str) {
 		return this.indexOf(str) >= 0;
 	}
 }

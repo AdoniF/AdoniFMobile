@@ -30,7 +30,7 @@ function showGatherings(items) {
 		var row = $("#entry" + items[i].id);
 
 		if (row.text() === "") {
-			var pictureSource = data.pictures && data.pictures.length > 0 ? data.pictures[0] : null;
+			var pictureSource = data.pictures && !data.pictures.isEmpty() ? data.pictures[0] : null;
 			addRecolt(pictureSource, data.phylum, items[i].id);
 		}
 	}

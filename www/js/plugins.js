@@ -17,7 +17,6 @@ function onGeolocationSuccess(pos) {
 	setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)");
 }
 
-
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
 	if (firstTry) {

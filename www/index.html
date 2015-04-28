@@ -65,9 +65,9 @@
   <div class="panel panel-default">
     <div class="panel-body">
       <div class="page-header"><div class="row vertical-align">
-          <span class="col-xs-8"><h2>Ajout d'une récolte</h2></span>
-          <span class="col-xs-4"><img class="img-thumbnail" src="img/adonifg.jpg" alt="Adonif"/></span>
-        </div></div>
+        <span class="col-xs-8"><h2>Ajout d'une récolte</h2></span>
+        <span class="col-xs-4"><img class="img-thumbnail" src="img/adonifg.jpg" alt="Adonif"/></span>
+      </div></div>
 
       <div class="page-header"><h3>Nom</h3> </div>
       <div class="row">
@@ -80,8 +80,7 @@
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Genre</span>
-            <input id="dataGenre" class="form-control" type=text list="listdataGenre" onblur="updateFields(1);"/>
-            <datalist id="listdataGenre"></datalist>
+            <input id="dataGenre" class="form-control" type=text onblur="updateFields(1);"/>
           </div>
         </div>
       </div>
@@ -90,9 +89,7 @@
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Epithète</span>
-            <input id="dataSpecies" type=text class="form-control" list="listdataSpecies" onblur="updateFields(2);"/>
-            <datalist id="listdataSpecies"></datalist>
-
+            <input id="dataSpecies" type=text class="form-control" onblur="updateFields(2);"/>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
@@ -107,15 +104,13 @@
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Epithète 2</span>
-            <input id="dataTaxon" type=text class="form-control" list="listdataTaxon" onblur="updateFields(3);"/>
-            <datalist id="listdataTaxon"></datalist>
+            <input id="dataTaxon" type=text class="form-control" onblur="updateFields(3);"/>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Auteur</span>
-            <input id="dataAuthor" type=text class="form-control" list="listdataAuthor"/>
-            <datalist id="listdataAuthor"></datalist>
+            <input id="dataAuthor" type=text class="form-control"/>
           </div>
         </div>
       </div>
@@ -186,8 +181,7 @@
       <div class = "col-xs-12 col-sm-6">
         <div class="input-group">
           <span class="input-group-addon">Habitat choisi</span>
-          <input id="dataHC" type=text class="form-control" list="listdataHC"/>
-          <datalist id="listdataHC"></datalist>
+          <input id="dataHC" type=text class="form-control"/>
         </div>
       </div>
     </div>
@@ -262,7 +256,6 @@
     </div>
   </div>
 </div>
-
 </div>
 
 
@@ -338,9 +331,9 @@
   <div class="panel panel-default">
     <div class="panel-body">
       <div class="page-header"><div class="row vertical-align">
-          <span class="col-xs-8"><h2>Liste des récoltes</h2></span>
-          <span class="col-xs-4"><img class="img-thumbnail" src="img/adonifg.jpg" alt="Adonif"/></span>
-        </div></div>
+        <span class="col-xs-8"><h2>Liste des récoltes</h2></span>
+        <span class="col-xs-4"><img class="img-thumbnail" src="img/adonifg.jpg" alt="Adonif"/></span>
+      </div></div>
       <div id="listRows">
         <table class="table" id="table">
           <thead>

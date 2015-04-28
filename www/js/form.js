@@ -17,7 +17,7 @@ function populateInput(id, options, content) {
 
         if (content) {
             list.value = content;
-            if (options.indexOf(content) < 0)
+            if (!options.contains(content))
                 options.push(content);
         }
 
@@ -93,7 +93,7 @@ function setDate(date) {
 
 //Remplit les champs de position
 function setLocationAndDate(data) {
-    if (data && data.date && data.date.length > 0) {
+    if (data && data.date && !data.date.isEmpty()) {
         setDate(data.date);
         setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres");
     } else {
