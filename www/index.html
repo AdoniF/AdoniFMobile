@@ -72,9 +72,9 @@
       <div class="page-header"><h3>Nom</h3> </div>
       <div class="row">
         <div class = "col-xs-12 col-sm-6">
-          <div class="input-group">
-            <span class="input-group-addon">Phylum</span>
-            <select id="listPhylum" class="form-control" onblur="updateFields(0);"></select>
+          <div id="phylumDiv" class="input-group has-error">
+            <span class="input-group-addon">Phylum*</span>
+            <select id="listPhylum" class="form-control" onchange="checkPhylumValidity()" onblur="updateFields(0);"></select>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
@@ -252,7 +252,7 @@
   <div class="panel-footer">
     <div class="row footer">
       <button type="button" class="btn btn-success btn-lg pull-left" onclick="goBack()">Retour</button>
-      <button type="button" class="btn btn-success btn-lg pull-right" onclick="saveRecolt();toRecolts();">Enregistrer récolte</button>
+      <button type="button" class="btn btn-success btn-lg pull-right" onclick="saveAndShowRecolts();">Enregistrer récolte</button>
     </div>
   </div>
 </div>

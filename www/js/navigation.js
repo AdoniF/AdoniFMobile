@@ -34,6 +34,20 @@ function toIndex() {
 	showPage('index');
 }
 
+function saveAndShowRecolts() {
+	if (phylumIsChosen()) {
+		saveRecolt();
+		toRecolts();
+	} else {
+		navigator.notification.alert(
+			"Vous devez au moins choisir le phylum pour sauvegarder une récolte",
+			null,
+			"Phylum requis",
+			"OK"
+			);
+	}
+}
+
 
 /* 
 Fonction gérant la transition entre les pages

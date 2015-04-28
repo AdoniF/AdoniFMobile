@@ -14,7 +14,7 @@ Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
 */
 function onDeviceReady() {
 	addCustomFunctions();
-	initInputFields();
+	
 	initDivs();
 	initDomElements();
 	FastClick.attach(document.body);
@@ -23,7 +23,6 @@ function onDeviceReady() {
 	document.addEventListener("online", onOnline, false);
 	document.addEventListener("backbutton", goBack, false);
 
-	//Initialisation du popover
 	dom.popover.popover();
 
 	$('body').on('click', function (e) {
@@ -32,13 +31,14 @@ function onDeviceReady() {
 	});
 	initCamera();
 	openDB();
-	positionUl();	
-	checkTablesSizes();
+	positionUl();
+	initInputFields();
 }
 
+//Ajoute des fonctions utilitaires aux chaines et aux tableaux
 function addCustomFunctions() {
 	String.prototype.isEmpty = function() {
-		return this.length == 0;
+		return this.length === 0;
 	}
 
 	String.prototype.contains = function (str) {
@@ -104,6 +104,7 @@ function initDomElements() {
 		cameraPicture: $("#cameraPic"),
 		picturesDiv: $("#picturesDiv"),
 		date: $("#date"),
+		phylum: $("#listPhylum"),
 
 		popover: $("#popoverButton"),
 		pages: $(".page"),
@@ -165,8 +166,4 @@ function ajaxCall(method, url, toDo, param, toDoError) {
 				toDoError();
 		});
 	}
-}
-
-function escapeHTML(str) {
-	return str.replace(/&/g,'&amp;').str(/</g,'&lt;').str(/>/g,'&gt;');
 }
