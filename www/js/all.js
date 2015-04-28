@@ -13,6 +13,8 @@ function init() {
 Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
 */
 function onDeviceReady() {
+	addStringFunctions();
+	initInputFields();
 	initDivs();
 	initDomElements();
 	FastClick.attach(document.body);
@@ -30,6 +32,22 @@ function onDeviceReady() {
 	});
 	initCamera();
 	openDB();
+	try {
+		positionUl();
+	} catch (err) {
+		alert(err.message);
+	}
+	
+}
+
+function addStringFunctions() {
+	String.prototype.isEmpty = function() {
+		return this.length == 0;
+	}
+
+	String.prototype.contains = function (str) {
+		return this.indexOf(str) >= 0;
+	}
 }
 
 /*
@@ -40,6 +58,27 @@ function initDivs() {
 	$(".hidden").each(function(i, div) {
 		$(this).removeClass("hidden");
 	});
+}
+
+var inputCompletions;
+function initInputFields() {
+	var genre = document.getElementById("dataGenre");
+	var epithete = document.getElementById("dataSpecies");
+	var taxon = document.getElementById("dataTaxon");
+	var auteur = document.getElementById("dataAuthor");
+
+	var options = {minChars : 1};
+	inputCompletions = 
+	{
+		dataGenre: new Awesomplete(genre, options),
+		dataSpecies: new Awesomplete(epithete, options),
+		dataTaxon: new Awesomplete(taxon, options),
+		dataAuthor: new Awesomplete(auteur, options)
+	}
+}
+
+function positionUl() {
+	$("div.awesomplete > ul").css("top", $("#dataGenre").outerHeight(true) + 'px');
 }
 
 function initDomElements() {

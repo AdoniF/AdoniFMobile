@@ -12,17 +12,23 @@ est passé en paramètre
 @param id : id de l'input auquel on ajoute les suggestions
 */
 function populateInput(id, options, content) {
-    var list = document.getElementById(id);
+    try {
+        var list = document.getElementById(id);
 
-    if (content) {
-        list.value = content;
-        if (options.indexOf(content) < 0)
-            options.push(content);
+        if (content) {
+            list.value = content;
+            if (options.indexOf(content) < 0)
+                options.push(content);
+        }
+
+        var autoComplete = inputCompletions[id];
+        autoComplete.list = options;
+        autoComplete.evaluate();
+    } catch (err) {
+        alert(err.message);
     }
-
-    processPopulatingInput(id, options)
 }
-
+/*
 function processPopulatingInput(id, options) {
     var data = document.getElementById("list" + id);
     var i = 0, limit = options.length, busy = false;
@@ -32,18 +38,22 @@ function processPopulatingInput(id, options) {
             busy = true;
             var j = Math.min(i + 500, limit);
             var str = "";
-            for (i; i < j; i++) {
-                str += "<option value='" + options[i] + "'/>";
-            }
-            data.innerHTML = data.innerHTML + str;
 
-            if (i == (limit - 1)) {
-                clearInterval(processor);
+            for (i; i < j; i++) {
+                str += "<option value='" + options[i] + "'>";
+            }
+            try {
+                data.innerHTML = data.innerHTML + str;
+                if (i == (limit - 1)) {
+                    clearInterval(processor);
+                }
+            } catch (err) {
+                alert(err.message + ";");
             }
             busy = false;
         }
     }, 50);
-}
+}*/
 
 /*
 Fonction permettant de remplir les propositions du select dont 
@@ -205,12 +215,16 @@ function loadPictures(recolt) {
 }
 
 function updateFields(rank) {
+    var limit = 3;
     var phylum = $("#listPhylum option:selected").text();
     var genre = dom.genre.val();
     var epithete = dom.epithete.val();
     var rang = $("#listSVF option:selected").text();
     var taxon = dom.taxon.val();
     var auteur = dom.author.val();
+
+    if (phylum.isEmpty())
+        return;
 
     if (rank < 1)
         getPossibleGenres(phylum, genre);
