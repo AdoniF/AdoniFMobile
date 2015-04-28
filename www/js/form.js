@@ -149,24 +149,24 @@ function populateFields() {
 
 //Récupère les valeurs des champs pour les stocker dans la récolte actuelle
 function saveRecolt() {
-    recolt.phylum = $("#listPhylum option:selected").text();
-    recolt.modulation = $("#listModulation option:selected").text();
-    recolt.substrat = $("#listSubstrate option:selected").text();
-    recolt.rang = $("#listSVF option:selected").text();
-    recolt.hote = $("#listHost option:selected").text();
-    recolt.etatHote = $("#listHostState option:selected").text();
-    recolt.legataires = $("#listLegatees option:selected").text();
-    recolt.determinateurs = $("#listDet option:selected").text();
+    recolt.phylum = escapeHTML($("#listPhylum option:selected").text());
+    recolt.modulation = escapeHTML($("#listModulation option:selected").text());
+    recolt.substrat = escapeHTML($("#listSubstrate option:selected").text());
+    recolt.rang = escapeHTML($("#listSVF option:selected").text());
+    recolt.hote = escapeHTML($("#listHost option:selected").text());
+    recolt.etatHote = escapeHTML($("#listHostState option:selected").text());
+    recolt.legataires = escapeHTML($("#listLegatees option:selected").text());
+    recolt.determinateurs = escapeHTML($("#listDet option:selected").text());
 
-    recolt.genre = dom.genre.val();
-    recolt.epithete = dom.epithete.val();
-    recolt.taxon = dom.taxon.val();
-    recolt.author = dom.author.val();
-    recolt.quantity = dom.quantity.val();
-    recolt.range = dom.range.val();
-    recolt.habitat = dom.hostData.val();
-    recolt.nbLegataires = dom.legNumber.val();
-    recolt.nbDet = dom.detNumber.val();
+    recolt.genre = escapeHTML(dom.genre.val());
+    recolt.epithete = escapeHTML(dom.epithete.val());
+    recolt.taxon = escapeHTML(dom.taxon.val());
+    recolt.author = escapeHTML(dom.author.val());
+    recolt.quantity = escapeHTML(dom.quantity.val());
+    recolt.range = escapeHTML(dom.range.val());
+    recolt.habitat = escapeHTML(dom.hostData.val());
+    recolt.nbLegataires = escapeHTML(dom.legNumber.val());
+    recolt.nbDet = escapeHTML(dom.detNumber.val());
 
     savePictures();
     if (recoltID) {
