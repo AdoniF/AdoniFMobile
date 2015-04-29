@@ -5,15 +5,16 @@ $arraybase=array('asco','basidio',"chytridio","glomero","mycetozoa", "zygo");
 
 if (!in_array($base, $arraybase))
 	return;
-
 // connexion
-include('../connexionBdd/bddRef.php');
+include('../connexionBdd/bddreferentiel.php');
 // requête
 $query = "SELECT DISTINCT GENRE, EPITHETE, RANGINTRASPECIFIQUE, TAXINTRASPECIFIQUE, LB_AUTEUR FROM "
 	.$base." ORDER BY GENRE, EPITHETE, RANGINTRASPECIFIQUE, TAXINTRASPECIFIQUE, LB_AUTEUR";
 
-$resultat = mysql_query($query);
-while ($row = mysql_fetch_array($resultat)) {
+$resultat = mysqli_query($id_connect, $query);
+//echo mysql_errno().":".mysql_error()."\n";
+
+while ($row = mysqli_fetch_array($resultat)) {
 	echo $row['GENRE']."$".$row['EPITHETE']."$".$row['RANGINTRASPECIFIQUE']."$".$row['TAXINTRASPECIFIQUE']."$".$row['LB_AUTEUR']."\n";
 }
 ?>

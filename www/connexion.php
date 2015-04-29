@@ -3,9 +3,9 @@ $result = "";
 $mail = $_POST['param1'];
 $pass = $_POST['param2'];
 if ((!empty($mail)) && (!empty($pass))) {
-  include("../connexionBdd/mycofrancebdd.php");
+  include("../connexionBdd/bddusers.php");
 
-  $query = 'SELECT nom, prenom, email, password FROM user where provenance=2 or provenance=3';
+  $query = 'SELECT nom, prenom, email, password FROM user';
   $sum = md5($pass);
   $response = mysql_query($query);
 

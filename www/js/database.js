@@ -129,13 +129,15 @@ function populateDB() {
 var populateCallsRunning = 0;
 function populateNamesInfos() {
 	phylumsTables.forEach(function (phylum) {
-		ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, populateDBError);
+		//ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, populateDBError);
+		ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestNameData.php?base=" + phylum,
+			insertNameInfo, phylum, populateDBError);
 		populateCallsRunning++;
 	});
 }
 
 function populateSubstrats(tx) {
-	ajaxCall("GET", "http://smnf-db.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
+	ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
 }
 
 var errorShown = false;
@@ -243,7 +245,7 @@ function tryToConnect() {
 	var param = {};
 	param.param1 = email.val();
 	param.param2 = password.val();
-	ajaxCall("POST", "http://smnf-db.fr/ajax/connexion.php", getConnectionResult, param, connectionError);
+	ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/connexion.php", getConnectionResult, param, connectionError);
 }
 
 function connectionError() {

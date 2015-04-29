@@ -31,8 +31,8 @@ function onDeviceReady() {
 	});
 	initCamera();
 	openDB();
-	positionUl();
 	initInputFields();
+	positionUl();
 }
 
 //Ajoute des fonctions utilitaires aux chaines et aux tableaux
