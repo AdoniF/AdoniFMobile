@@ -33,6 +33,7 @@ function onDeviceReady() {
 	openDB();
 	initInputFields();
 	positionUl();
+	navigator.splashscreen.hide();
 }
 
 //Ajoute des fonctions utilitaires aux chaines et aux tableaux
@@ -101,6 +102,7 @@ function initDomElements() {
 		longitude: $("#longitude"),
 		latitude: $("#latitude"),
 		accuracy: $("#accuracy"),
+		altitude: $("altitude"),
 		cameraPicture: $("#cameraPic"),
 		picturesDiv: $("#picturesDiv"),
 		date: $("#date"),
@@ -156,7 +158,8 @@ function ajaxCall(method, url, toDo, param, toDoError) {
 				toDoError();
 		});
 	} else if (method == "POST") {
-		var parameters = {"param1": param.param1, "param2": param.param2};
+		var parameters = {data: param};
+
 		$.post(url, parameters)
 		.done(function (data) {
 			toDo(data, param);

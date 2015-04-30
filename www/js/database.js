@@ -245,7 +245,8 @@ function tryToConnect() {
 	var param = {};
 	param.param1 = email.val();
 	param.param2 = password.val();
-	ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/connexion.php", getConnectionResult, param, connectionError);
+	ajaxCall("POST", "http://referentiel.dbmyco.fr/ajax/connexionMobile.php", getConnectionResult, JSON.stringify(param),
+		connectionError);
 }
 
 function connectionError() {
@@ -271,6 +272,7 @@ function createUser(email, password, userData) {
 	user.password = password;
 	user.prenom = values[1];
 	user.nom = values[2];
+	user.id = values[3];
 }
 
 // Ajoute l'utilisateur à la base de données
@@ -321,11 +323,10 @@ function addFakeGathering() {
 }
 
 // Récupère la récolte correspondant à l'id en paramètre
-function getGathering(id) {
+function getGathering(id, toDo) {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT data from gatherings WHERE id = ?;", [id], function(tx, res) {
-			populateFormFromGathering(JSON.parse(res.rows.item(0).data), id);
-			toAddRecolt();
+			toDo(JSON.parse(res.rows.item(0).data), id);
 		});
 	}, function (e) {
 		alert("error getGathering " + e.message);
@@ -375,4 +376,45 @@ function checkTablesSizes() {
 	}, function (e) {
 		alert("error delete gathering " + e.message);
 	});
+}
+
+var currentRecoltId = -1;
+function uploadRecolt(recolt, id) {
+	currentRecoltId = id;
+	var data = {};
+	data.recolt_id = id;
+	data.user_id = user.id;
+	data.genre = decodeURIComponent(recolt.genre);
+	data.epithete = decodeURIComponent(recolt.epithete);
+	data.rangintraspec = decodeURIComponent(recolt.rang);
+	data.taxintraspec = decodeURIComponent(recolt.taxon);
+	data.modulation = recolt.modulation;
+	data.autorites = decodeURIComponent(recolt.author);
+	data.date_recolt = recolt.date;
+	data.gps_latitude = recolt.latitude;
+	data.gps_longitude = recolt.longitude;
+	data.altitude = recolt.altitude;
+	data.rayon = decodeURIComponent(recolt.range);
+	data.codeSubstrat = recolt.substrat;
+	data.hote = decodeURIComponent(recolt.hote);
+	data.etat_hote = recolt.etatHote;
+	data.leg = decodeURIComponent(recolt.legataires);
+	data.det = decodeURIComponent(recolt.determinateurs);
+
+	ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/createTemporaryRecolt.php", getUploadResult, JSON.stringify(data),
+		uploadError);
+}
+
+function getUploadResult(data) {
+	if (data.contains("OK")) {
+		window.plugins.toast.showShortBottom("Envoi au serveur réussi !");
+		/*deleteGathering(currentRecoltId);
+		currentRecoltId = -1;*/
+	} else {
+		window.plugins.toast.showShortBottom("Echec de l'envoi. Veuillez réessayer plus tard !");
+	}
+}
+
+function uploadError() {
+	alert("Echec de la connexion au serveur. Vérifiez votre connexion internet.");
 }

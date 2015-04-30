@@ -85,8 +85,9 @@ function setDate(date) {
     if (date) {
         d = date
     } else {
-        d = new Date().toLocaleString();
-        recolt.date = d;
+        d = new Date();
+        var dateFormat = d.getUTCFullYear() + "-" + (d.getUTCMonth() + 1) + "-" + d.getUTCDate();
+        recolt.date = dateFormat;
     }
     dom.date.text("Date : " + recolt.date);
 }
@@ -95,7 +96,7 @@ function setDate(date) {
 function setLocationAndDate(data) {
     if (data && data.date && !data.date.isEmpty()) {
         setDate(data.date);
-        setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres");
+        setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres", data.altitude + " mètres");
     } else {
         calculatePosition();
         setDate();
@@ -106,6 +107,7 @@ function setLocationFields(longitude, latitude, accuracy) {
     dom.longitude.text("Longitude : " + longitude);
     dom.latitude.text("Latitude : " + latitude);
     dom.accuracy.text("Précision : " + accuracy);
+    dom.altitude.text("Altitude : " + accuracy);
 }
 
 //Remplit par défaut le champ de nombre de légataires et son nom
@@ -256,7 +258,7 @@ function updateFields(rank) {
 
 function Recolte(phylum, modulation, substrat, rang, hote, etatHote, legataires, determinateurs,
     genre, epithete, taxon, author, quantity, range, habitat, nbLegataires, nbDet, longitude, latitude, accuracy,
-    date, pictures) {
+    date, pictures, altitude) {
     this.phylum = phylum || "";
     this.modulation = modulation || "";
     this.substrat = substrat || "";
@@ -279,6 +281,7 @@ function Recolte(phylum, modulation, substrat, rang, hote, etatHote, legataires,
     this.accuracy = accuracy || "";
     this.date = date || "";
     this.pictures = pictures || "";
+    this.altitude = altitude || "";
 }
 
 function phylumIsChosen() {

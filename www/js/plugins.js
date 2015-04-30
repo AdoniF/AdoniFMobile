@@ -14,7 +14,8 @@ function onGeolocationSuccess(pos) {
 	recolt.longitude = pos.coords.longitude;
 	recolt.latitude = pos.coords.latitude;
 	recolt.accuracy = Math.round(pos.coords.accuracy);
-	setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)");
+	recolt.altitude = pos.coords.altitude;
+	setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)", recolt.altitude("mètres"));
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
@@ -27,7 +28,8 @@ function onGeolocationError(error) {
 		recolt.longitude = "";
 		recolt.latitude = "";
 		recolt.accuracy = "";
-		setLocationFields("échec", "échec", "échec");
+		recolt.altitude = "";
+		setLocationFields("échec", "échec", "échec", "échec");
 	}
 
 }
@@ -36,7 +38,7 @@ function onGeolocationError(error) {
 function calculatePosition(lowAccuracy) {
 	var timeout, highAccuracy;
 	try {
-		setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...");
+		setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...", "calcul en cours...");
 		if (lowAccuracy) {
 			timeout = 30000;
 			highAccuracy = false;

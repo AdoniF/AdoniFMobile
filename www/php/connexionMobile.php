@@ -1,17 +1,18 @@
 <?php 
 $result = "";
-$mail = $_POST['param1'];
-$pass = $_POST['param2'];
+$data = json_decode($_POST['data']);
+$mail = $data->param1;
+$pass = $data->param2;
 if ((!empty($mail)) && (!empty($pass))) {
   include("../connexionBdd/bddusers.php");
 
-  $query = 'SELECT nom, prenom, email, password FROM user';
+  $query = 'SELECT id, nom, prenom, email, password FROM user';
   $sum = md5($pass);
   $response = mysql_query($query);
 
   while ($data = mysql_fetch_array($response)) {
     if (($data['email']==$mail) and ($data['password']==$sum)) {
-      $result = "OK$".$data['prenom']."$".$data['nom'];
+      $result = "OK$".$data['prenom']."$".$data['nom']."$".$data['id'];
       break;
     }
   }

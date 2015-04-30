@@ -25,6 +25,10 @@ function toShowRecolts() {
 	showPage('recolts_list');
 }
 
+function modifyAndShowRecolt(data, id) {
+	populateFormFromGathering(data, id);
+	toAddRecolt();
+}
 //Fonction permettant de se rendre sur la page de création/modification d'une récolte
 function toAddRecolt() {
 	showPage('add_recolt');
