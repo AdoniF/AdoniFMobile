@@ -94,20 +94,23 @@ function setDate(date) {
 
 //Remplit les champs de position
 function setLocationAndDate(data) {
-    if (data && data.date && !data.date.isEmpty()) {
-        setDate(data.date);
-        setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres", data.altitude + " mètres");
-    } else {
-        calculatePosition();
-        setDate();
-    }
+    try {
+        if (data && data.date && !data.date.isEmpty()) {
+            setDate(data.date);
+            setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres", data.altitude + " mètres");
+        } else {
+            calculatePosition();
+            setDate();
+        }
+    }catch (err) {alert(err.message);}
+
 }
 
-function setLocationFields(longitude, latitude, accuracy) {
+function setLocationFields(longitude, latitude, accuracy, altitude) {
     dom.longitude.text("Longitude : " + longitude);
     dom.latitude.text("Latitude : " + latitude);
     dom.accuracy.text("Précision : " + accuracy);
-    dom.altitude.text("Altitude : " + accuracy);
+    dom.altitude.text("Altitude : " + altitude);
 }
 
 //Remplit par défaut le champ de nombre de légataires et son nom
@@ -157,34 +160,32 @@ function populateFields() {
 
 //Récupère les valeurs des champs pour les stocker dans la récolte actuelle
 function saveRecolt() {
-    try {
-        recolt.phylum = $("#listPhylum option:selected").text();
-        recolt.modulation = $("#listModulation option:selected").text();
-        recolt.substrat = $("#listSubstrate option:selected").text();
-        recolt.rang = $("#listSVF option:selected").text();
-        recolt.hote = $("#listHost option:selected").text();
-        recolt.etatHote = $("#listHostState option:selected").text();
+    recolt.phylum = $("#listPhylum option:selected").text();
+    recolt.modulation = $("#listModulation option:selected").text();
+    recolt.substrat = $("#listSubstrate option:selected").text();
+    recolt.rang = $("#listSVF option:selected").text();
+    recolt.hote = $("#listHost option:selected").text();
+    recolt.etatHote = $("#listHostState option:selected").text();
 
-        recolt.legataires = encodeURIComponent(dom.legs.val());
-        recolt.determinateurs = encodeURIComponent(dom.dets.val());
-        recolt.genre = encodeURIComponent(dom.genre.val());
-        recolt.epithete = encodeURIComponent(dom.epithete.val());
-        recolt.taxon = encodeURIComponent(dom.taxon.val());
-        recolt.author = encodeURIComponent(dom.author.val());
-        recolt.quantity = encodeURIComponent(dom.quantity.val());
-        recolt.range = encodeURIComponent(dom.range.val());
-        recolt.habitat = encodeURIComponent(dom.hostData.val());
-        recolt.nbLegataires = encodeURIComponent(dom.legNumber.val());
-        recolt.nbDet = encodeURIComponent(dom.detNumber.val());
+    recolt.legataires = encodeURIComponent(dom.legs.val());
+    recolt.determinateurs = encodeURIComponent(dom.dets.val());
+    recolt.genre = encodeURIComponent(dom.genre.val());
+    recolt.epithete = encodeURIComponent(dom.epithete.val());
+    recolt.taxon = encodeURIComponent(dom.taxon.val());
+    recolt.author = encodeURIComponent(dom.author.val());
+    recolt.quantity = encodeURIComponent(dom.quantity.val());
+    recolt.range = encodeURIComponent(dom.range.val());
+    recolt.habitat = encodeURIComponent(dom.hostData.val());
+    recolt.nbLegataires = encodeURIComponent(dom.legNumber.val());
+    recolt.nbDet = encodeURIComponent(dom.detNumber.val());
 
-        savePictures();
-        if (recoltID) {
-            updateGathering(recolt, recoltID);
-        } else {
-            addGathering(recolt);
-        }
-        recoltID = null;
-    }catch(err) { alert(err.message);}
+    savePictures();
+    if (recoltID) {
+        updateGathering(recolt, recoltID);
+    } else {
+        addGathering(recolt);
+    }
+    recoltID = null;
 }
 
 function populateFieldsFromRecolt(recolt) {
@@ -225,7 +226,7 @@ function checkPhylumValidity() {
 
 function loadPictures(recolt) {
     var pictures = recolt.pictures;
-    if (pictures) {
+    if (!pictures.isEmpty()) {
         var pictureRows = "";
         for (var i = 0; i < pictures.length; i++) {
             pictureRows += getPictureRow(pictures[i]);
@@ -280,7 +281,7 @@ function Recolte(phylum, modulation, substrat, rang, hote, etatHote, legataires,
     this.latitude = latitude || "";
     this.accuracy = accuracy || "";
     this.date = date || "";
-    this.pictures = pictures || "";
+    this.pictures = pictures || [];
     this.altitude = altitude || "";
 }
 

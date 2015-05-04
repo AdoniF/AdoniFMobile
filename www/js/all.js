@@ -1,5 +1,4 @@
 var previousPages = [], currentPage, dom;
-var currentPage;
 
 /*
 Fonction permettant d'initialiser un listener détectant
@@ -102,7 +101,7 @@ function initDomElements() {
 		longitude: $("#longitude"),
 		latitude: $("#latitude"),
 		accuracy: $("#accuracy"),
-		altitude: $("altitude"),
+		altitude: $("#altitude"),
 		cameraPicture: $("#cameraPic"),
 		picturesDiv: $("#picturesDiv"),
 		date: $("#date"),
@@ -164,9 +163,9 @@ function ajaxCall(method, url, toDo, param, toDoError) {
 		.done(function (data) {
 			toDo(data, param);
 		})
-		.fail(function (err) {
+		.fail(function (xhr, textStatus, errorThrown) {
 			if (toDoError)
-				toDoError();
+				toDoError(xhr, textStatus, errorThrown);
 		});
 	}
 }

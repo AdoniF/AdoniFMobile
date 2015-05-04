@@ -11,27 +11,32 @@ var nbPictures = 0;
 
 // Fonction appellée lors de la réussite d'une géolocalisation
 function onGeolocationSuccess(pos) {
-	recolt.longitude = pos.coords.longitude;
-	recolt.latitude = pos.coords.latitude;
-	recolt.accuracy = Math.round(pos.coords.accuracy);
-	recolt.altitude = pos.coords.altitude;
-	setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)", recolt.altitude("mètres"));
+	try {
+		recolt.longitude = pos.coords.longitude;
+		recolt.latitude = pos.coords.latitude;
+		recolt.accuracy = Math.round(pos.coords.accuracy);
+		recolt.altitude = pos.coords.altitude;
+		
+		var altitude = recolt.altitude ? recolt.altitude + " (mètres)" : "indisponible";
+		setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)", altitude);
+	}catch (err) {alert(err.message);}
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
-	if (firstTry) {
-		window.plugins.toast.showShortBottom("Echec de la localisation GPS. Tentative de localisation par le réseau");
-		firstTry = false;
-		calculatePosition(true);
-	} else {
-		recolt.longitude = "";
-		recolt.latitude = "";
-		recolt.accuracy = "";
-		recolt.altitude = "";
-		setLocationFields("échec", "échec", "échec", "échec");
-	}
-
+	try {
+		if (firstTry) {
+			window.plugins.toast.showShortBottom("Echec de la localisation GPS. Tentative de localisation par le réseau");
+			firstTry = false;
+			calculatePosition(true);
+		} else {
+			recolt.longitude = "";
+			recolt.latitude = "";
+			recolt.accuracy = "";
+			recolt.altitude = "";
+			setLocationFields("échec", "échec", "échec", "échec");
+		}
+	}catch (err) {alert(err.message);}
 }
 
 // Lance la géolocalisation de l'utilisateur
@@ -40,11 +45,11 @@ function calculatePosition(lowAccuracy) {
 	try {
 		setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...", "calcul en cours...");
 		if (lowAccuracy) {
-			timeout = 30000;
+			timeout = 3000;
 			highAccuracy = false;
 		} else {
 			firstTry = true;
-			timeout = 10000;
+			timeout = 2000;
 			highAccuracy = true;
 		}
 
@@ -59,7 +64,8 @@ function calculatePosition(lowAccuracy) {
 function initCamera() {
 	nbPictures = 0;
 	if (navigator.camera) {
-		cameraOptions = {quality: 50, destinationType: Camera.DestinationType.FILE_URI, correctOrientation: true, encodingType: Camera.EncodingType.JPEG};
+		cameraOptions = {quality: 50, destinationType: Camera.DestinationType.FILE_URI, correctOrientation: true, 
+			encodingType: Camera.EncodingType.JPEG, saveToPhotoAlbum: true};
 		pictureSource=navigator.camera.PictureSourceType;
 		destinationType=navigator.camera.DestinationType;
 	}
@@ -131,26 +137,4 @@ function deletePicture(id) {
 	div.remove();
 	
 	--nbPictures;
-}
-
-function uploadPicture(fileURI) {
-	var options = new FileUploadOptions();
-	options.fileKey = "file";
-	options.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
-	options.mimeType = "image/jpeg";
-
-	var ft = new FileTransfer();
-	ft.upload(fileURI, encodeURI("http://smnf-db.fr/ajax/uploadPicture.php"), onUploadSuccess, onUploadFailure, options);
-}
-
-function onUploadSuccess (r) {
-	alert("Code = " + r.responseCode);
-	alert("Response = " + r.response);
-	alert("Sent = " + r.bytesSent);
-}
-
-function onUploadFailure (error) {
-	alert("An error has occurred: Code = " + error.code);
-	alert("upload error source " + error.source);
-	alert("upload error target " + error.target);
 }

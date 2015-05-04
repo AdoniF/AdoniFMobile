@@ -1,20 +1,9 @@
 <?php
 include('../connexionBdd/bddInventaireMobile.php');
-/*
-error_reporting(-1);
-ini_set('display_errors', 'On');
-*/
+
 $data = json_decode($_POST['data']);
 if (!$data || empty($data->user_id))
 	return;
-
-
-//Vérifier les permissions pour l'user id droits = 4 5 ou 6
-
-if (!canInsert($data->user_id)) {
-	echo "Vous n'avez pas les droits nécessaires pour insérer une récolte";
-	return;
-}
 
 //Requête d'insertion dans la base
 $query = "INSERT INTO recolte_mobile (user_id, genre, epithete, rangintraspec, taxintraspec, modulation, autorites, "
@@ -27,6 +16,7 @@ if (! ($stmt = $id_connect->prepare($query))) {
 }
 
 //On récupère le code du substrat entré sur mobile
+
 $codeSubstrat = getCodeSubstrat($data->codeSubstrat);
 
 //On bind les paramètres à la requête
@@ -40,7 +30,8 @@ if (!$stmt->bind_param("isssssssddiiissss", $data->user_id, $data->genre, $data-
 if (!$stmt->execute()) {
 	echo "echec de l'execution ".$stmt->errno." : ".$stmt->error;
 } else {
-	echo "OK";
+	$id = mysqli_insert_id($id_connect);
+	echo "OK;".$id;
 }
 
 //Fonction permettant de récupérer le code du substrat textuel passé en paramètre
@@ -65,9 +56,5 @@ function getCodeSubstrat($code) {
 	$stmt->fetch();
 	
 	return $substrat;
-}
-
-function canInsert($id) {
-	
 }
 ?>
