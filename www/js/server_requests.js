@@ -53,10 +53,6 @@ function RecoltBean (data, picturesUrls) {
 	}
 
 	function onUploadFailure (error) {
-		/*alert("An error has occurred: Code = " + error.code);
-		alert("upload error source " + error.source);
-		alert("upload error target " + error.target);*/
-		// Si le code d'erreur n'est pas celui d'un abort de l'upload, on abort
 		if (error.code != 4)
 			abortPicturesUpload();
 		
@@ -82,7 +78,7 @@ function RecoltBean (data, picturesUrls) {
 
 function uploadRecolt(recolt, id) {
 	var data = {};
-	
+
 	data.recolt_id = id;
 	data.user_id = user.id;
 	data.genre = decodeURIComponent(recolt.genre);

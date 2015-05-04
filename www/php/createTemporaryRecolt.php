@@ -42,6 +42,8 @@ function getCodeSubstrat($code) {
 	if (! ($stmt = $id_connect->prepare($query))) {
 		echo "Echec de la préparation : (" . $id_connect->errno . ") " . $id_connect->error;
 	}
+	$code = trim(str_replace("&nbsp", "", $code));
+
 	if (!$stmt->bind_param("s", $code)) {
 		echo "Echec lors du liage des paramètres : (" . $stmt->errno . ") " . $stmt->error;
 	}

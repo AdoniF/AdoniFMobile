@@ -1,12 +1,9 @@
-var pictureSource;
-var destinationType;
 var currentPicNumber = -1;
 var online = false;
 var cameraOptions;
 var firstTry;
 
 var timeoutExpired = 3;
-
 var nbPictures = 0;
 
 // Fonction appellée lors de la réussite d'une géolocalisation
@@ -16,7 +13,7 @@ function onGeolocationSuccess(pos) {
 		recolt.latitude = pos.coords.latitude;
 		recolt.accuracy = Math.round(pos.coords.accuracy);
 		recolt.altitude = pos.coords.altitude;
-		
+
 		var altitude = recolt.altitude ? recolt.altitude + " (mètres)" : "indisponible";
 		setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)", altitude);
 	}catch (err) {alert(err.message);}
@@ -49,7 +46,7 @@ function calculatePosition(lowAccuracy) {
 			highAccuracy = false;
 		} else {
 			firstTry = true;
-			timeout = 2000;
+			timeout = 20000;
 			highAccuracy = true;
 		}
 
@@ -64,10 +61,12 @@ function calculatePosition(lowAccuracy) {
 function initCamera() {
 	nbPictures = 0;
 	if (navigator.camera) {
-		cameraOptions = {quality: 50, destinationType: Camera.DestinationType.FILE_URI, correctOrientation: true, 
-			encodingType: Camera.EncodingType.JPEG, saveToPhotoAlbum: true};
-		pictureSource=navigator.camera.PictureSourceType;
-		destinationType=navigator.camera.DestinationType;
+		cameraOptions = {
+			quality: 50, 
+			destinationType: Camera.DestinationType.FILE_URI, 
+			correctOrientation: true, 
+			encodingType: Camera.EncodingType.JPEG
+		};
 	}
 }
 //	Fonction qui démarre l'appareil photo
