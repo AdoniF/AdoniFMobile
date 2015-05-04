@@ -32,6 +32,7 @@ function onDeviceReady() {
 	openDB();
 	initInputFields();
 	positionUl();
+	calculatePosition();
 	navigator.splashscreen.hide();
 }
 

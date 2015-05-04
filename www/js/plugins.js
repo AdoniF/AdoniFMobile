@@ -6,55 +6,41 @@ var firstTry;
 var timeoutExpired = 3;
 var nbPictures = 0;
 
-// Fonction appellée lors de la réussite d'une géolocalisation
-function onGeolocationSuccess(pos) {
-	try {
-		recolt.longitude = pos.coords.longitude;
-		recolt.latitude = pos.coords.latitude;
-		recolt.accuracy = Math.round(pos.coords.accuracy);
-		recolt.altitude = pos.coords.altitude;
+var position = {
+	coords : {
+		longitude: "en cours...",
+		latitude: "en cours...",
+		accuracy: "en cours....",
+		altitude: "en cours..."
+	}
+};
 
-		var altitude = recolt.altitude ? recolt.altitude + " (mètres)" : "indisponible";
-		setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)", altitude);
-	}catch (err) {alert(err.message);}
+// Fonction appellée lors de la réussite d'une géolocalisation
+function updatePosition() {
+	recolt.longitude = position.coords.longitude;
+	recolt.latitude = position.coords.latitude;
+	recolt.accuracy = Math.round(position.coords.accuracy);
+	recolt.altitude = position.coords.altitude;
+
+	var altitude = recolt.altitude ? recolt.altitude + " (mètres)" : "indisponible";
+	var accuracy = recolt.accuracy ? recolt.accuracy + " (mètres)" : "indisponible"
+	setLocationFields(recolt.longitude, recolt.latitude, accuracy, altitude);
+}
+
+function onGeolocationSuccess (pos) {
+	position = pos;
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
-	try {
-		if (firstTry) {
-			window.plugins.toast.showShortBottom("Echec de la localisation GPS. Tentative de localisation par le réseau");
-			firstTry = false;
-			calculatePosition(true);
-		} else {
-			recolt.longitude = "";
-			recolt.latitude = "";
-			recolt.accuracy = "";
-			recolt.altitude = "";
-			setLocationFields("échec", "échec", "échec", "échec");
-		}
-	}catch (err) {alert(err.message);}
+	window.plugins.toast.showShortBottom("Echec de la localisation GPS.");
 }
 
+var watchID;
 // Lance la géolocalisation de l'utilisateur
-function calculatePosition(lowAccuracy) {
-	var timeout, highAccuracy;
-	try {
-		setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...", "calcul en cours...");
-		if (lowAccuracy) {
-			timeout = 3000;
-			highAccuracy = false;
-		} else {
-			firstTry = true;
-			timeout = 20000;
-			highAccuracy = true;
-		}
-
-		var locationOptions = {enableHighAccuracy: highAccuracy, timeout: timeout};
-		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, locationOptions);
-	} catch (err) {
-		alert("error calculate position " + err.message);
-	}
+function calculatePosition() {
+	var options = {enableHighAccuracy: true, timeout: 20000, maximumAge: 5000};
+	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
 }
 
 //	Initialisation de la source de l'image et de la destination au lancement de la page

@@ -95,11 +95,11 @@ function setDate(date) {
 //Remplit les champs de position
 function setLocationAndDate(data) {
     try {
-        if (data && data.date && !data.date.isEmpty()) {
+        if (data && !data.date.isEmpty()) {
             setDate(data.date);
             setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres", data.altitude + " mètres");
         } else {
-            calculatePosition();
+            updatePosition();
             setDate();
         }
     }catch (err) {alert(err.message);}
