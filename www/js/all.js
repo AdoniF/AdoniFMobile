@@ -1,4 +1,4 @@
-var previousPages = [], currentPage, dom;
+var currentPage, dom;
 
 /*
 Fonction permettant d'initialiser un listener détectant
@@ -8,9 +8,7 @@ function init() {
 	document.addEventListener("deviceready",onDeviceReady,false);
 }
 
-/*
-Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
-*/
+//Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
 function onDeviceReady() {
 	addCustomFunctions();
 	

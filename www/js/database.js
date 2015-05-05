@@ -125,7 +125,6 @@ function populateDB() {
 var populateCallsRunning = 0;
 function populateNamesInfos() {
 	phylumsTables.forEach(function (phylum) {
-		//ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, populateDBError);
 		ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestNameData.php?base=" + phylum,
 			insertNameInfo, phylum, populateDBError);
 		populateCallsRunning++;
