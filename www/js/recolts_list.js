@@ -68,3 +68,12 @@ function removeGathering(buttonIndex, id) {
 	}
 	toRemove = null;
 }
+
+function uploadAllRecolts() {
+	try {
+		dom.tbody.children().each(function (idx, row) {
+			var id = $(row).attr("id").split("entry")[1];
+			getGathering(id, uploadRecolt);
+		})
+	} catch (err) {alert(err.message);}
+}

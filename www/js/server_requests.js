@@ -15,7 +15,7 @@ function RecoltBean (data, picturesUrls, localID) {
 
 	function onDataUploadSuccess(data) {
 		if (data.contains("OK")) {
-			var message = "Envoi de la récolte réussi.";
+			var message = "Envoi de la récolte " + localID + " réussi.";
 
 			if (!picturesUrls.isEmpty())
 				uploadPictures(data.split(";")[1]);
@@ -80,10 +80,10 @@ function RecoltBean (data, picturesUrls, localID) {
 		uploadFinished();
 
 		if (uploadFailed)
-			shortBottomToast("Ajout de récolte réussi mais échec de la sauvegarde des photos. "
+			alert("Ajout de la récolte " + localID + ":" + data.phylum + " réussi mais échec de la sauvegarde des photos. "
 				+ "Veuillez les ajouter manuellement sur le site.");
 		else
-			shortBottomToast("Envoi de la récolte et des photos réussi !");
+			shortBottomToast("Envoi de la récolte " + localID + " et des photos réussi !");
 	}
 
 	function uploadFinished() {

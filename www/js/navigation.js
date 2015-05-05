@@ -4,7 +4,9 @@ function beginRecolt() {
 	if (picSrc.valueOf() === "src")
 		picSrc = null;
 
+	dom.cameraPicture.hide();
 	generateNewForm(picSrc);
+	dom.cameraPicture.attr("src", "");
 	toAddRecolt();
 }
 
@@ -20,7 +22,7 @@ function showConnectionPage() {
 
 //Fonction permettant de se rendre sur la page listant les récoltes locales et de l'actualiser
 function toRecolts() {
-	refreshGatheringsList();
+	updateGatheringsList();
 	toShowRecolts();
 }
 

@@ -28,32 +28,6 @@ function populateInput(id, options, content) {
         alert(err.message);
     }
 }
-/*
-function processPopulatingInput(id, options) {
-    var data = document.getElementById("list" + id);
-    var i = 0, limit = options.length, busy = false;
-
-    var processor = setInterval(function () {
-        if (!busy) {
-            busy = true;
-            var j = Math.min(i + 500, limit);
-            var str = "";
-
-            for (i; i < j; i++) {
-                str += "<option value='" + options[i] + "'>";
-            }
-            try {
-                data.innerHTML = data.innerHTML + str;
-                if (i == (limit - 1)) {
-                    clearInterval(processor);
-                }
-            } catch (err) {
-                alert(err.message + ";");
-            }
-            busy = false;
-        }
-    }, 50);
-}*/
 
 /*
 Fonction permettant de remplir les propositions du select dont 
@@ -64,9 +38,9 @@ l'id est passé en paramètre
 function populateSelect(id, array, selected) {
     var list = $("#" + id);
 
-    var idx = array.indexOf(selected);
+    /*var idx = array.indexOf(selected);
     if (idx != -1)
-        array.splice(idx, 1);
+        array.splice(idx, 1);*/
 
     list.empty();
     list.attr("placeholder", selected);
@@ -226,7 +200,8 @@ function loadPictures(recolt) {
             pictureRows += getPictureRow(pictures[i]);
         }
         document.getElementById("picturesDiv").innerHTML = pictureRows;
-    }
+    } else
+        document.getElementById("picturesDiv").innerHTML = "";
 }
 
 function updateFields(rank) {
