@@ -80,9 +80,10 @@ function RecoltBean (data, picturesUrls, localID) {
 		uploadFinished();
 
 		if (uploadFailed)
-			shortBottomToast("Echec de la sauvegarde des photos. Veuillez les ajouter manuellement sur le site.");
+			shortBottomToast("Ajout de récolte réussi mais échec de la sauvegarde des photos. "
+				+ "Veuillez les ajouter manuellement sur le site.");
 		else
-			shortBottomToast("Sauvegarde des photos réussie !");
+			shortBottomToast("Envoi de la récolte et des photos réussi !");
 	}
 
 	function uploadFinished() {

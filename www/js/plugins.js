@@ -56,13 +56,8 @@ function initCamera() {
 }
 //	Fonction qui démarre l'appareil photo
 function launchCamera() {
-	if (nbPictures < 4) {
-		canvas = document.createElement("canvas");
-		navigator.camera.getPicture(cameraSuccess, cameraFailure, cameraOptions);
-	} else {
-		alert("Vous avez atteint la limite du nombre de photos. Veuillez en supprimer une pour en prendre une nouvelle.",
-			null, "Trop de photos", "Ok");
-	}
+	canvas = document.createElement("canvas");
+	navigator.camera.getPicture(cameraSuccess, cameraFailure, cameraOptions);
 }
 
 //	Fonction appelée suite à la réussite de la prise d'une photo
