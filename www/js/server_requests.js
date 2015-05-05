@@ -14,11 +14,11 @@ function RecoltBean (data, picturesUrls) {
 
 	function onDataUploadSuccess(data) {
 		if (data.contains("OK")) {
-			window.plugins.toast.showShortBottom("Envoi de la récolte réussi. Envoi des photos en cours...");
+			shortBottomToast("Envoi de la récolte réussi. Envoi des photos en cours...");
 			uploadPictures(data.split(";")[1]);
 			checkUploadCompletion();
 		} else {
-			window.plugins.toast.showShortBottom("Echec de l'envoi. Veuillez réessayer plus tard.");
+			shortBottomToast("Echec de l'envoi. Veuillez réessayer plus tard.");
 		}
 	}
 

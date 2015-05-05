@@ -46,12 +46,8 @@ function connectUser() {
 		if (!dbCreated)
 			initDB();
 		
-		navigator.notification.alert(
-			"Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
-			showConnectionPage,
-			"Connexion requise",
-			"Connexion"
-			);
+		alert("Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
+			showConnectionPage, "Connexion requise", "Connexion");
 	}
 }
 
@@ -143,13 +139,8 @@ function populateSubstrats(tx) {
 var errorShown = false;
 function populateDBError() {
 	if (!errorShown) {
-		navigator.notification.confirm(
-			"Echec de la récupération des informations du référentiel. Veuillez vérifier votre connexion internet"
-			+ " ou réessayer ultérieurement.",
-			populateDBErrorCallback,
-			"Erreur",
-			["Annuler", "Réessayer"]
-			);
+		confirm("Echec de la récupération des informations du référentiel. Veuillez vérifier votre connexion internet"
+			+ " ou réessayer ultérieurement.", populateDBErrorCallback, "Erreur", ["Annuler", "Réessayer"]);
 		errorShown = true;
 	}
 }
@@ -172,7 +163,7 @@ function insertSubstratsInfos(data) {
 		});
 		populateCallsRunning--;
 		if (populateCallsRunning == 0 && !errorShown)
-			window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
+			shortBottomToast("Récupération des informations du référentiel réussie !");
 		else
 			errorShown = false;
 
@@ -199,7 +190,7 @@ function insertNameInfo(data, phylum) {
 
 			populateCallsRunning--;
 			if (populateCallsRunning == 0 && !errorShown)
-				window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
+				shortBottomToast("Récupération des informations du référentiel réussie !");
 			else
 				errorShown = false;
 		});
@@ -255,13 +246,13 @@ function connectionError() {
 
 function getConnectionResult(data, param) {
 	if (data.contains("OK")) {
-		window.plugins.toast.showShortBottom("Connexion réussie !");
+		shortBottomToast("Connexion réussie !");
 		toIndex();
 
 		createUser(param.param1, param.param2, data);
 		addUser(user);
 	} else {
-		window.plugins.toast.showShortBottom("Echec de la connexion. Veuillez réessayer");
+		shortBottomToast("Echec de la connexion. Veuillez réessayer");
 	}
 }
 

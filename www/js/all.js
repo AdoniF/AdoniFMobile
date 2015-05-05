@@ -18,8 +18,7 @@ function onDeviceReady() {
 	initDomElements();
 	FastClick.attach(document.body);
 	showPage("index");
-	document.addEventListener("offline", onOffline, false);
-	document.addEventListener("online", onOnline, false);
+
 	document.addEventListener("backbutton", goBack, false);
 
 	dom.popover.popover();
@@ -34,25 +33,6 @@ function onDeviceReady() {
 	positionUl();
 	calculatePosition();
 	navigator.splashscreen.hide();
-}
-
-//Ajoute des fonctions utilitaires aux chaines et aux tableaux
-function addCustomFunctions() {
-	String.prototype.isEmpty = function() {
-		return this.length === 0;
-	}
-
-	String.prototype.contains = function (str) {
-		return this.indexOf(str) >= 0;
-	}
-
-	Array.prototype.contains = function (str) {
-		return this.indexOf(str) >= 0;
-	}
-
-	Array.prototype.isEmpty = function() {
-		return this.length == 0;
-	}
 }
 
 /*
@@ -113,16 +93,6 @@ function initDomElements() {
 		tbody: $("#table").children("tbody")
 	}
 
-}
-
-//	Fonction appelée quand la connexion est coupée
-function onOffline() {
-	online = false;
-}
-
-// Fonction appelée quand la connexion est établie
-function onOnline() {
-	online = true;
 }
 
 var clicked = false;

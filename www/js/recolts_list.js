@@ -55,12 +55,7 @@ function refreshGatheringsList() {
 var toRemove = null;
 function tryRemovingGathering(button) {
 	toRemove = button;
-	navigator.notification.confirm(
-		"Etes vous sur de vouloir supprimer cette récolte ?",
-		removeGathering,
-		"Supprimer une récolte",
-		["Annuler", "Valider"]
-		);
+	confirm("Etes vous sur de vouloir supprimer cette récolte ?", removeGathering, "Supprimer une récolte", ["Annuler", "Valider"]);
 }
 // Supprime l'entrée associée au bouton en paramètre de la liste des récoltes
 function removeGathering(buttonIndex) {

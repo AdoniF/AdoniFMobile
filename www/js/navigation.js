@@ -42,14 +42,8 @@ function saveAndShowRecolts() {
 	if (phylumIsChosen()) {
 		saveRecolt();
 		toRecolts();
-	} else {
-		navigator.notification.alert(
-			"Vous devez au moins choisir le phylum pour sauvegarder une récolte",
-			null,
-			"Phylum requis",
-			"OK"
-			);
-	}
+	} else
+		alert("Vous devez au moins choisir le phylum pour sauvegarder une récolte", null, "Phylum requis", "OK");
 }
 
 
@@ -89,12 +83,16 @@ function changePage(id) {
 /*
 Fonction permettant de reculer d'une page dans la hiérarchie
 */
-function goBack() {
+function goBack() {/*
 	var previous = previousPages.pop();
 	if (!previous) {
 		navigator.app.exitApp();
 	}
-	showPage(previous, true);
+	showPage(previous, true);*/
+	if (currentPage == "index")
+		navigator.app.exitApp();
+	else
+		showPage("index");
 }
 
 function showConnectionPage() {

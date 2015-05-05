@@ -1,5 +1,4 @@
 var currentPicNumber = -1;
-var online = false;
 var cameraOptions;
 var firstTry;
 
@@ -33,7 +32,7 @@ function onGeolocationSuccess (pos) {
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
-	window.plugins.toast.showShortBottom("Echec de la localisation GPS.");
+	shortBottomToast("Echec de la localisation GPS.");
 }
 
 var watchID;
@@ -58,23 +57,57 @@ function initCamera() {
 //	Fonction qui démarre l'appareil photo
 function launchCamera() {
 	if (nbPictures < 4) {
+		canvas = document.createElement("canvas");
 		navigator.camera.getPicture(cameraSuccess, cameraFailure, cameraOptions);
 	} else {
-		navigator.notification.alert(
-			"Vous avez atteint la limite du nombre de photos. Veuillez en supprimer une pour en prendre une nouvelle.",
-			function (){},
-			"Trop de photos",
-			"Ok"
-			);
+		alert("Vous avez atteint la limite du nombre de photos. Veuillez en supprimer une pour en prendre une nouvelle.",
+			null, "Trop de photos", "Ok");
 	}
 }
 
 //	Fonction appelée suite à la réussite de la prise d'une photo
-function cameraSuccess(data) {
+function cameraSuccess(src) {
+	showSpinnerDialog("Sauvegarde", "Sauvegarde de l'image en cours...", true);
+	savePictureToGallery(src);
+
 	if (currentPage == "camera_screen")
-		addPictureToCameraScreen(data);
+		addPictureToCameraScreen(src);
 	else
-		addPicture(data);
+		addPicture(src);
+}
+
+var canvas;
+function savePictureToGallery(src) {
+	var context, imageDataUrl, imageData;
+	var img = new Image();
+	img.onload = function() {
+		canvas = document.createElement('canvas');
+		canvas.width = img.width;
+		canvas.height = img.height;
+		context = canvas.getContext('2d');
+		context.drawImage(img, 0, 0);
+		
+		imageDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+		imageData = imageDataUrl.replace(/data:image\/jpeg;base64,/, '');
+		cordova.exec(
+			onSaveSuccess,
+			onSaveFailure,
+			'Canvas2ImagePlugin',
+			'saveImageDataToLibrary',
+			[imageData]
+			);
+	};
+
+	img.src = src;
+}
+
+function onSaveSuccess() {
+	window.plugins.spinnerDialog.hide();
+	shortBottomToast("Sauvegarde réussie !")
+}
+function onSaveFailure() {
+	alert("La sauvegarde de la photo a échoué. Vous pourrez l'utiliser dans l'application, mais vous ne pourrez pas la retrouver"
+		+ "dans votre gallerie.", null, "Echec de la sauvegarde", "Ok");
 }
 
 // Ajoute l'image photographiée à l'écran de prise de photo
