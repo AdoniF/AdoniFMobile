@@ -2,8 +2,8 @@ function shortBottomToast(message) {
 	window.plugins.toast.showShortBottom(message);
 }
 
-function showSpinnerDialog(title, message, dismissible) {
-	window.plugins.spinnerDialog.show(title, message, dismissible);
+function showSpinnerDialog(title, message, irrevocable) {
+	window.plugins.spinnerDialog.show(title, message, irrevocable);
 }
 
 function hideSpinnerDialog() {

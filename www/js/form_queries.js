@@ -13,7 +13,6 @@ function getGenresForPhylum(phylum, value) {
 				if (genre)
 					array.push(genre);
 			}
-
 			populateInput("dataGenre", array, value);
 		});
 	}, function (e) {
