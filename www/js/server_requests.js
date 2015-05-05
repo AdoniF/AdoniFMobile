@@ -1,6 +1,7 @@
-function RecoltBean (data, picturesUrls) {
+function RecoltBean (data, picturesUrls, localID) {
 	this.data = data;
 	this.picturesUrls = picturesUrls;
+	var localID = localID;
 	
 	var uploadFailed = false;
 
@@ -14,19 +15,26 @@ function RecoltBean (data, picturesUrls) {
 
 	function onDataUploadSuccess(data) {
 		if (data.contains("OK")) {
-			shortBottomToast("Envoi de la récolte réussi. Envoi des photos en cours...");
-			uploadPictures(data.split(";")[1]);
-			checkUploadCompletion();
+			var message = "Envoi de la récolte réussi.";
+
+			if (!picturesUrls.isEmpty())
+				uploadPictures(data.split(";")[1]);
+			else {
+				uploadFinished();
+				shortBottomToast(message);
+			}
 		} else {
+			hideSpinnerDialog();
 			shortBottomToast("Echec de l'envoi. Veuillez réessayer plus tard.");
 		}
 	}
 
 	function onDataUploadError() {
+		hideSpinnerDialog();
 		alert("Echec de la connexion au serveur. Vérifiez votre connexion internet.");
 	}
 
-	function uploadPictures(id) {
+	function uploadPictures(recoltID) {
 		for (var i = 0; i < picturesUrls.length; ++i) {
 			var fileURI = picturesUrls[i];
 			var options = new FileUploadOptions();
@@ -36,7 +44,9 @@ function RecoltBean (data, picturesUrls) {
 
 			var params = {};
 			params.userID = user.id;
-			params.recoltID = id;
+			params.recoltID = recoltID;
+			params.fileName = data.genre + "_" + data.epithete + "_" + data.rangintraspec + "_" + data.taxintraspec 
+			+ "_" + recoltID + "_" + data.date_recolt + "_" + i;
 			options.params = params;
 
 			var ft = new FileTransfer();
@@ -55,7 +65,6 @@ function RecoltBean (data, picturesUrls) {
 	function onUploadFailure (error) {
 		if (error.code != 4)
 			abortPicturesUpload();
-		
 		uploadFailed = true;
 	}
 
@@ -68,18 +77,23 @@ function RecoltBean (data, picturesUrls) {
 	function checkUploadCompletion() {
 		if (nbUploaded !== picturesUrls.length)
 			return;
+		uploadFinished();
 
 		if (uploadFailed)
-			window.plugins.toast.showShortBottom("Echec de la sauvegarde des photos. Veuillez les ajouter manuellement sur le site.");
+			shortBottomToast("Echec de la sauvegarde des photos. Veuillez les ajouter manuellement sur le site.");
 		else
-			window.plugins.toast.showShortBottom("Sauvegarde des photos réussie !");
+			shortBottomToast("Sauvegarde des photos réussie !");
+	}
+
+	function uploadFinished() {
+		hideSpinnerDialog();
+		removeGathering(2, localID);		
 	}
 }
 
 function uploadRecolt(recolt, id) {
 	var data = {};
 
-	data.recolt_id = id;
 	data.user_id = user.id;
 	data.genre = decodeURIComponent(recolt.genre);
 	data.epithete = decodeURIComponent(recolt.epithete);
@@ -98,6 +112,6 @@ function uploadRecolt(recolt, id) {
 	data.leg = decodeURIComponent(recolt.legataires);
 	data.det = decodeURIComponent(recolt.determinateurs);
 
-	var bean = new RecoltBean(data, recolt.pictures);
+	var bean = new RecoltBean(data, recolt.pictures, id);
 	bean.upload();
 }

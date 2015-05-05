@@ -319,12 +319,6 @@ function updateGathering(gathering, id) {
 	});
 }
 
-function addFakeGathering() {
-	var gathering = new Recolte();
-	gathering.phylum = "myPhylum" + Math.round(Math.random() * 1000);
-	addGathering(gathering);
-}
-
 // Récupère la récolte correspondant à l'id en paramètre
 function getGathering(id, toDo) {
 	db.transaction(function (tx) {

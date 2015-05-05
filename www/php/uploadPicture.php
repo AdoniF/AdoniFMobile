@@ -5,6 +5,7 @@ error_reporting(-1);
 include('../connexionBdd/bddInventaireMobile.php');
 $user_id = $_POST["userID"];
 $recolt_id = $_POST["recoltID"];
+$image_name = $_POST["fileName"].".jpg";
 
 $pictures_path = "/home/dbmycofrhu/www/inventaire/wp-content/uploads/photos_recoltes/";
 $user_path = $pictures_path."user".$user_id."/";
@@ -16,7 +17,7 @@ if (!file_exists($image_path))
 	mkdir($image_path);
 
 echo $_FILES["file"]["tmp_name"]."\n";
-$image_name = substr($_FILES["file"]["tmp_name"], strrpos($_FILES["file"]["tmp_name"], "/") + 1).".jpg";
+//$image_name = substr($_FILES["file"]["tmp_name"], strrpos($_FILES["file"]["tmp_name"], "/") + 1).".jpg";
 
 $query = "INSERT INTO recolte_photos_mobile (user_id, recolt_id, nom) VALUES (?, ?, ?);";
 

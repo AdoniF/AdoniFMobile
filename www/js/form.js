@@ -81,11 +81,8 @@ function populateSelect(id, array, selected) {
 
 //Remplit le champ date
 function setDate(date) {
-    var d;
-    if (date) {
-        d = date
-    } else {
-        d = new Date();
+    if (!date) {
+        var d = new Date();
         var dateFormat = d.getUTCFullYear() + "-" + (d.getUTCMonth() + 1) + "-" + d.getUTCDate();
         recolt.date = dateFormat;
     }
@@ -94,16 +91,13 @@ function setDate(date) {
 
 //Remplit les champs de position
 function setLocationAndDate(data) {
-    try {
-        if (data && !data.date.isEmpty()) {
-            setDate(data.date);
-            setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres", data.altitude + " mètres");
-        } else {
-            updatePosition();
-            setDate();
-        }
-    }catch (err) {alert(err.message);}
-
+    if (data && !data.date.isEmpty()) {
+        setDate(data.date);
+        setLocationFields(data.longitude, data.latitude, data.accuracy + " mètres", data.altitude + " mètres");
+    } else {
+        updatePosition();
+        setDate();
+    }
 }
 
 function setLocationFields(longitude, latitude, accuracy, altitude) {
@@ -260,29 +254,29 @@ function updateFields(rank) {
 function Recolte(phylum, modulation, substrat, rang, hote, etatHote, legataires, determinateurs,
     genre, epithete, taxon, author, quantity, range, habitat, nbLegataires, nbDet, longitude, latitude, accuracy,
     date, pictures, altitude) {
-    this.phylum = phylum || "";
-    this.modulation = modulation || "";
-    this.substrat = substrat || "";
-    this.rang = rang || "";
-    this.hote = hote || "";
-    this.etatHote = etatHote || "";
-    this.legataires = legataires || "";
-    this.determinateurs = determinateurs || "";
-    this.genre = genre || "";
-    this.epithete = epithete || "";
-    this.taxon = taxon || "";
-    this.author = author || "";
-    this.quantity = quantity || "";
-    this.range = range || "";
-    this.habitat = habitat || "";
-    this.nbLegataires = nbLegataires || "";
-    this.nbDet = nbDet || "";
-    this.longitude = longitude || "";
-    this.latitude = latitude || "";
-    this.accuracy = accuracy || "";
-    this.date = date || "";
-    this.pictures = pictures || [];
-    this.altitude = altitude || "";
+    this.phylum = phylum || "",
+    this.modulation = modulation || "",
+    this.substrat = substrat || "",
+    this.rang = rang || "",
+    this.hote = hote || "",
+    this.etatHote = etatHote || "",
+    this.legataires = legataires || "",
+    this.determinateurs = determinateurs || "",
+    this.genre = genre || "",
+    this.epithete = epithete || "",
+    this.taxon = taxon || "",
+    this.author = author || "",
+    this.quantity = quantity || "",
+    this.range = range || "",
+    this.habitat = habitat || "",
+    this.nbLegataires = nbLegataires || "",
+    this.nbDet = nbDet || "",
+    this.longitude = longitude || "",
+    this.latitude = latitude || "",
+    this.accuracy = accuracy || "",
+    this.date = date || "",
+    this.pictures = pictures || [],
+    this.altitude = altitude || ""
 }
 
 function phylumIsChosen() {

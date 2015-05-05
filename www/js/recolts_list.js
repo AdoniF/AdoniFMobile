@@ -1,6 +1,5 @@
 //Fonction permettant d'ajouter une récolte dans la table des récoltes
 function addRecolt(src, phylum, id) {
-	var tbody = dom.tbody;
 	var deleteID = "delete:" + id;
 
 	if (src == null)
@@ -15,11 +14,16 @@ function addRecolt(src, phylum, id) {
 	+ "<button type='button' id = '" + deleteID + "' class='btn btn-success row-button' onclick='tryRemovingGathering(this);'>"
 	+ "<span class='glyphicon glyphicon-trash'></span></button>"
 	+ "</span></div></td></tr>";
-	tbody.append(newRow);
+	dom.tbody.append(newRow);
 }
 
 function uploadRecoltForId(id) {
+	showSpinnerDialog("Upload", "Envoi de la récolte au serveur...", true);
 	getGathering(id, uploadRecolt);
+}
+
+function uploadAllRecolts() {
+	
 }
 
 function modifyRecolt(id) {
@@ -28,7 +32,6 @@ function modifyRecolt(id) {
 
 //Affiche toutes les récoltes dans la base
 function showGatherings(items) {
-	var tbody = dom.tbody;
 	for (var i = 0; i < items.length; ++i) {
 		var data = JSON.parse(items[i].data);
 		var row = $("#entry" + items[i].id);
@@ -47,8 +50,7 @@ function updateGatheringsList() {
 
 //Nettoie la liste des récoltes et les recharge depuis la db
 function refreshGatheringsList() {
-	var tbody = dom.tbody;
-	tbody.empty();
+	dom.tbody.empty();
 	getGatherings();
 }
 
@@ -58,9 +60,9 @@ function tryRemovingGathering(button) {
 	confirm("Etes vous sur de vouloir supprimer cette récolte ?", removeGathering, "Supprimer une récolte", ["Annuler", "Valider"]);
 }
 // Supprime l'entrée associée au bouton en paramètre de la liste des récoltes
-function removeGathering(buttonIndex) {
+function removeGathering(buttonIndex, id) {
 	if (buttonIndex == 2) {
-		var gatheringID = toRemove.id.split(":")[1];
+		var gatheringID = id ? id : toRemove.id.split(":")[1];
 		deleteGathering(gatheringID);
 		$("#entry" + gatheringID).remove();
 	}
