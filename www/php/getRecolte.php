@@ -4,7 +4,7 @@ ini_set("display_errors", 1);
 $recoltID = $_GET['id'];
 include('../connexionBdd/bddInventaireMobile.php');
 
-$query = "SELECT genre, epithete, rangintraspec, taxintraspec, modulation, autorites, date_recolt, gps_latitude, "
+$query = "SELECT user_id, genre, epithete, rangintraspec, taxintraspec, modulation, autorites, date_recolt, gps_latitude, "
 ."gps_longitude, altitude, rayon, quantite, hote, etat_hote, leg, det FROM recolte_mobile WHERE id=?";
 
 if (!($stmt = $id_connect->prepare($query)))
@@ -18,10 +18,10 @@ if (!$stmt->execute())
 else {
 	$substrat = getSubstrat($recoltID);
 
-	$stmt->bind_result($genre, $epithete, $rang, $taxon, $modulation, $autorites, $date, $latitude,
+	$stmt->bind_result($user_id, $genre, $epithete, $rang, $taxon, $modulation, $autorites, $date, $latitude,
 		$longitude, $altitude, $rayon, $quantite, $hote, $etat_hote, $leg, $det);
 	$stmt->fetch();
-	echo $genre."$".$epithete."$".$rang."$".$taxon."$".$modulation."$".$autorites."$".$date."$".$latitude
+	echo $user_id."$".$genre."$".$epithete."$".$rang."$".$taxon."$".$modulation."$".$autorites."$".$date."$".$latitude
 	."$".$longitude."$".$altitude."$".$rayon."$".$quantite."$".$substrat."$".$hote."$".$etat_hote."$".$leg."$".$det;
 }
 

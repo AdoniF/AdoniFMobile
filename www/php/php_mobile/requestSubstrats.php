@@ -2,7 +2,7 @@
 //Ce fichier permet de récupérer l'intégralité des substrats depuis le référentiel.
 
 // connexion
-include('../connexionBdd/bddreferentiel.php');
+include('../connexionBdd/bddReferentielMobile.php');
 // requête
 $query = "SELECT DISTINCT code, libelle FROM substrat ORDER BY code";
 
