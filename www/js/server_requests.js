@@ -112,6 +112,8 @@ function uploadRecolt(recolt, id) {
 	data.etat_hote = recolt.etatHote;
 	data.leg = decodeURIComponent(recolt.legataires);
 	data.det = decodeURIComponent(recolt.determinateurs);
+	data.quantite = decodeURIComponent(recolt.quantity);
+	data.precision = recolt.accuracy;
 
 	var bean = new RecoltBean(data, recolt.pictures, id);
 	bean.upload();

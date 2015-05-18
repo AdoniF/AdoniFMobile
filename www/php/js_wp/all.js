@@ -7,6 +7,7 @@ var recoltTypeArray = ["Sortie privée", "Association", "Financement", "Saisir u
 var referentielHabitatArray = ["EUNIS", "CORINE", "Phytosocio", "Libre"];
 var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 var pictures = [];
+var reignArray = ["Fungi", "Mycetozoa", "Chromista"];
 
 var recolt;
 var recolt_id;
@@ -32,7 +33,8 @@ function ajaxCall(method, url, toDo, param, toDoError) {
 			url: url,
 			type: "GET",
 			data: param,
-			success: toDo
+			success: toDo,
+			error: toDoError
 		});
 	}
 }
@@ -41,7 +43,6 @@ function getRecolt(data) {
 	var arr = data.split("$");
 	recolt = new Recolte(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7], arr[8], arr[9], arr[10],
 		arr[11], arr[12], arr[13], arr[14], arr[15], arr[16], arr[17]);
-	console.log(recolt);
 
 	populateFields();
 }
@@ -53,6 +54,7 @@ function populateFields() {
 	populateSelect("hostState", etatHoteArray, recolt.etatHote);
 	populateSelect("typeRecolte", recoltTypeArray);
 	populateSelect("ref", referentielHabitatArray);
+	populateSelect("listRegne", reignArray);
 
 	populateElementsFromReferential();
 
@@ -69,8 +71,8 @@ function populateFields() {
 	populateInput("range", recolt.rayon);
 	populateInput("nbFound", recolt.quantite);
 	
-	populateInput("legs", recolt.leg);
-	populateInput("dets", recolt.det);
+	populateInput("leg0", recolt.leg);
+	populateInput("det0", recolt.det);
 
 	callPositionInformations();
 
@@ -157,6 +159,7 @@ function populateDepartements() {
 function populateDepartementsInfos(data) {
 	var array = data.split("\n");
 	populateSelect("dpt", array, dpt);
+	checkFields();
 }
 
 function loadPictures() {
@@ -195,9 +198,6 @@ function addPictureInput() {
 	++picID;
 	var input = "<input class='hidden' type='file' accept='image/*' id='picInput" + picID + "'/>";
 	$("#pics").append(input);
-
-	console.log("pic id " + picID);
-	console.log($("#picInput" + picID));
 	$("#picInput" + picID).bind("change", function() {
 		readURL(this);
 	});
@@ -229,11 +229,11 @@ function getFormatedDate() {
 
 function makePictureRow(name, picSrc) {
 	var src = picSrc ? picSrc : "/wp-content/uploads/photos_recoltes/user" + recolt.user_id + "/recolte " + recolt_id + "/" + name;
-	var row = "<div class='row's>"
+	var row = "<div class='col-xs-12'>"
 	+ "<span class='col-xs-offset-1 col-xs-3'><img style='height=250px' class='img-thumbnail picture' src='" + src + "' alt='picture'/></span>"
-	+ "<span class='col-xs-4'>" + name + "</span>";
-	+"<span class='col-xs-4'><button type='button' class='btn btn-success btn-lg delete pull-right'>"
-	+"<span class='glyphicon glyphicon-trash'></span></button></span>/div>";
+	+ "<span class='col-xs-4'>" + name + "</span>"
+	+ "<span class='col-xs-4 text-center'><button type='button' class='btn btn-success delete'>"
+	+ "<span class='glyphicon glyphicon-trash'></span></button></span></div>";
 
 	return row;
 }
@@ -256,11 +256,11 @@ function populateSelect(id, array, selected) {
 	if (!selected)
 		selected = "";
 	list.empty();
-	list.attr("placeholder", selected);
-	var options = "<option>" + selected + "</option>";
+	var options = "<option selected>" + selected + "</option>";
 	for (var i = 0; i < array.length; ++i) {
 		options += "<option>" + array[i] + "</option>";
 	}
+	list.val(selected);
 
 	list.append(options);
 }
@@ -288,7 +288,9 @@ function Recolte(user_id, genre, epithete, rang, taxon, modulation, autorites, d
 }
 
 function checkFields() {
-	//jQuery.(".has-error")
+	$(".has-error").each(function() {
+		$(this).trigger("change");
+	});
 }
 
 function addListeners() {
@@ -299,12 +301,31 @@ function addListeners() {
 	$("#dataSpecies").bind("focus", function() {
 		getEpithete($(this).val(), $("#dataGenre").val(), $("#listPhylum").val());
 	});
+
+	$(".has-error").bind("change", function() {
+		var div = $(this);
+		var id = div.attr("id").split("group")[1];
+		var child = $("#" + id);
+
+
+		var isValid = child.is("input") ? child.val().length > 0 : child.find(":selected").text().length > 0;
+
+		if (isValid && div.hasClass("has-error")) {
+			div.removeClass("has-error");
+			div.addClass("has-success");
+		} else if (!isValid && div.hasClass("has-success")) {
+			div.removeClass("has-success");
+			div.addClass("has-error");
+		}
+	});
+
+	$("#ref").bind("change", selectHabitat);
 }
 
 function getGenre(genre, base){
 	if (!base)
 		base="union";
-	
+
 	//Supprime les résultats précédents restés dans le DOM
 	$("div").remove(".ac_results");
 	$("#dataGenre").autocomplete("/lib_js_autocomplete/requestGenre.php?q=" + genre + "&b=" + base);
@@ -317,4 +338,189 @@ function getEpithete(espece, genre, base) {
 	//Supprime les résultats précédents restés dans le DOM
 	$("div").remove(".ac_results");
 	$('#dataSpecies').autocomplete("/lib_js_autocomplete/requestEspece.php?q=" + espece + "&genre=" + genre + "&b=" + base);
+}
+
+//Choisie le bon habitat selon le referentiel choisi
+function selectHabitat() {
+	var select = document.getElementById("ref");
+	var choice = select.selectedIndex;
+	var valeur = select.options[choice].value;
+	$.ajax({
+		url:"/ajax/AJHabitat.php",
+		data:{valeur:valeur},
+		dataType:'text',
+		type:'POST',
+		success: function(data){
+			document.getElementById("SELECTHABITAT").innerHTML=data;
+		}
+	});
+
+	document.getElementById("ecologie").value="";
+
+	$(document.getElementById('groupselectHabitat')).slideDown();
+	
+	var ulHabitat = document.getElementById("SELECTHABITAT");
+	var refValue = select.options[select.selectedIndex].value;
+	if (refValue == 'EUNIS' || refValue == 'Phytosocio'){
+		ulHabitat.style.height="300px";
+	} else if (refValue == 'CORINE'){
+		ulHabitat.style.height="203px";
+	} else {
+		$(document.getElementById('groupselectHabitat')).slideUp();
+	}
+}
+
+var legDetRow = 1;
+function addLegDet() {
+	var legInfo = $("#groupleg0").find("img").attr("title").replace("'", "&#39;");
+	var detInfo = $("#groupdet0").find("img").attr("title").replace("'", "&#39;");
+	var div = "<div id='groupleg" + legDetRow + "'class='form-group col-xs-6'>"
+	+ "<label for='leg' class='control-label col-xs-3'>Légataire</label>"
+	+ "<div class='col-xs-7'>"
+	+ "<input id='leg" + legDetRow + "' class='legdet' style='width:100%;'></input>"
+	+ "</div>"
+	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + legInfo + "' src='/images/infobulle.png'></span>"
+	+ "</div>";
+
+	div += "<div id='groupdet" + legDetRow + "'class='form-group col-xs-6'>"
+	+ "<label for='det' class='control-label col-xs-3'>Déterminateur</label>"
+	+ "<div class='col-xs-6'>"
+	+ "<input id='det" + legDetRow + "' class='legdet' style='width:100%;'></input>"
+	+ "</div>"
+	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + detInfo + "' src='/images/infobulle.png'></span>"
+	+ "<div class='col-xs-2'>"
+	+ "<button type='button' class='btn btn-success btn-block' onclick='addLegDet()'>"
+	+ "<span class='glyphicon glyphicon-plus'></span>"
+	+ "</button></div></div>";
+
+	$("#groupdet" + (legDetRow - 1)).after(div);
+	legDetRow++;
+}
+
+var herbierRow = 1;
+function addHerbier() {
+	var codeInfo = $("#groupcodeHerbier0").find("img").attr("title").replace("'", "&#39;");
+	var numInfo = $("#groupnumHerbier0").find("img").attr("title").replace("'", "&#39;");
+
+	var div = "<div id='groupcodeHerbier" + herbierRow + "'class='form-group col-xs-6'>"
+	+ "<label for='codeHerbier' class='control-label col-xs-3'>Code herbier</label>"
+	+ "<div class='col-xs-7'>"
+	+ "<input id='codeHerbier" + herbierRow + "' class='legdet' style='width:100%;'></input>"
+	+ "</div>"
+	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + codeInfo + "' src='/images/infobulle.png'></span>"
+	+ "</div>";
+
+	div += "<div id='groupnumHerbier" + herbierRow + "'class='form-group col-xs-6'>"
+	+ "<label for='numHerbier' class='control-label col-xs-3'>Num herbier</label>"
+	+ "<div class='col-xs-6'>"
+	+ "<input id='numHerbier" + herbierRow + "' class='legdet' type=number min='0' style='width:100%;'></input>"
+	+ "</div>"
+	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + numInfo + "' src='/images/infobulle.png'></span>"
+	+ "<div class='col-xs-2'>"
+	+ "<button type='button' class='btn btn-success btn-block' onclick='addHerbier()'>"
+	+ "<span class='glyphicon glyphicon-plus'></span>"
+	+ "</button></div></div>";
+
+	$("#groupnumHerbier" + (herbierRow - 1)).after(div);
+	herbierRow++;
+}
+
+function requestCompleteRecolte() {
+	var phylum = $("#listPhylum").find(":selected").text();
+	var genre = $("#dataGenre").val();
+	var espece = $("#dataSpecies").val();
+	var rang = $("#listSVF").find(":selected").text();
+	var taxon = $("#dataTaxon").val();
+
+	var url = "/ajax/completeInfosRecolte.php?phylum=" + phylum + "&genre=" + genre + "&espece=" + espece + "&rang=" + rang
+	+ "&taxon=" + taxon;
+	console.log(url);
+	ajaxCall("GET", url, completeRecolte);
+}
+
+function completeRecolte(data) {
+	var response = data.split("||");
+
+	$("#listPhylum").val(response[0]);
+	$("#dataAuthor").val(response[1]);
+	$("#dataFamille").val(response[2]);
+	$("#dataClasse").val(response[3]);
+	$("#listRegne").val(response[4]);
+	$("#dataOrdre").val(response[5]);
+	$("#dataTaxon").val(response[6]);
+	$("#listSVF").val(response[7]);
+}
+
+function submit() {
+	if (!fieldsAreFilled()) {
+		alert("Vous devez remplir tous les champs en rouge pour soumettre une récolte.");
+		return;
+	}
+	saveRecolt();
+}
+
+function fieldsAreFilled() {
+	return $(".has-error").length > 0;
+}
+
+function saveRecolt() {
+	recolt.genre = $("#dataGenre").val();
+	recolt.espece = $("#dataSpecies").val();
+	recolt.rang = $("#listSVF option:selected").text();
+	recolt.taxon = $("#dataTaxon").val();
+	recolt.modulation = $("#listModulation option:selected").text();
+	recolt.autorites = $("#dataAuthor").val();
+
+	recolt.regne = $("#listRegne").text();
+	recolt.phylum = $("#listPhylum").text();
+	recolt.classe = $("#dataClasse").val();
+	recolt.ordre = $("#dataOrdre").val();
+	recolt.famille = $("#dataFamille").val();
+
+	recolt.pays = $("#country").val();
+	recolt.departement = $("#dpt option:selected").text();
+	recolt.ville = $("#city").val();
+	recolt.lieu_dit = $("#lieu-dit").val();
+	recolt.domaine = $("#domain").val();
+	recolt.sous_domaine = $("#subdomain").val();
+	recolt.statut_protection = $("#protectionStatus option:selected").text();
+	recolt.mailles = $("#mailles").val();
+	recolt.latitude = $("#latitude").val();
+	recolt.longitude = $("#longitude").val();
+	recolt.altitude = $("#altitude").val();
+	recolt.precision = $("#precision").val();
+	recolt.quantite = $("#nbFound").val();
+	recolt.etendue = $("#range").val();
+
+	recolt.referentiel = $("#ref option:selected").text();
+	recolt.habitat = $("#ecologie").val();
+	recolt.hote = $("#hote option:selected").text();
+	recolt.etat_hote = $("#hostState option:selected").text();
+	recolt.substrat = $("#substrat option:selected").text();
+
+	saveLegsAndDets();
+	saveHerbiers();
+
+	recolt.asso = $("#asso option:selected").text();
+	recolt.collaboration = $("#collaboration").val();
+	recolt.type_recolte = $("#typeRecolte option:selected").text();
+	saveDate();
+	recolt.remarques = $("#remarques").val();
+	savePictures();
+}
+
+function saveLegsAndDets() {
+
+}
+
+function saveHerbiers() {
+
+}
+
+function saveDate() {
+
+}
+
+function savePictures() {
+
 }
