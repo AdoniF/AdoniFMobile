@@ -3,21 +3,34 @@ var rangArray = ["var.", "f.", "subsp."];
 var modulationArray = ["aff.", "(cf.)", "ad int.", "sp.", "ss.lat", "ss.str", "(gr.)", "?"];
 var etatHoteArray = ["vivant", "moribond", "mort"];
 var substratArray = [];
-var recoltTypeArray = ["Sortie privée", "Association", "Financement", "Saisir une novuelle valeur"];
+var recoltTypeArray = ["Sortie privée", "Association", "Financement", "Saisir une nouvelle valeur"];
 var referentielHabitatArray = ["EUNIS", "CORINE", "Phytosocio", "Libre"];
 var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 var pictures = [];
+var picturesAuthors = [];
 var reignArray = ["Fungi", "Mycetozoa", "Chromista"];
 
-var recolt;
+var recolt = null;
 var recolt_id;
+
+//typeID = 0 => création
+//typeID = 1 => modification de récolte
+//typeID = 2 => complétion d'une récolte faite sur mobile
+var type_id;
 var picID = -1;
 
 
-function init(id) {
-	recolt_id = id;
-	ajaxCall("GET", "/ajax/getRecolte.php?id=" + recolt_id, getRecolt);
+function init(recoltID, typeID) {
+	recolt_id = recoltID;
+	type_id = typeID;
 	addListeners();
+
+	if (type_id != 0)
+		ajaxCall("GET", "/ajax/getRecolte.php?id=" + recolt_id + "&type=" + type_id, getRecolt);
+	else {
+		getRecolt("");
+		recolt.user_id = recoltID;
+	}
 }
 /*
 Fonction permettant de faire un appel ajax sur une ressource
@@ -36,15 +49,55 @@ function ajaxCall(method, url, toDo, param, toDoError) {
 			success: toDo,
 			error: toDoError
 		});
+	} else if (method === "POST") {
+		var parameters = {data: param};
+
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: parameters,
+			success: toDo,
+			error: toDoError
+		});
 	}
 }
 
 function getRecolt(data) {
 	var arr = data.split("$");
-	recolt = new Recolte(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7], arr[8], arr[9], arr[10],
-		arr[11], arr[12], arr[13], arr[14], arr[15], arr[16], arr[17]);
+	if (arr[0] == "0") {
+		alert("La récolte passée en paramètre n'existe pas.");
+		document.location.href="http://inventaire.dbmyco.fr/";
+	}
+
+	if (type_id == 0)
+		recolt = new Recolte();
+	else if (type_id == 1) {
+		recolt = new Recolte(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7], arr[8], arr[9], arr[10],
+			arr[11], arr[12], arr[13], arr[14], arr[15], arr[16], arr[17], "", arr[18], arr[19], arr[20], arr[21], arr[22],
+			arr[23], arr[24], arr[25], arr[26], arr[27], arr[28], arr[29], arr[30], arr[31], arr[32]);
+		ajaxCall("GET", "/ajax/getHerbiers.php?id=" + recolt_id, populateHerbiers);
+	}
+	else
+		recolt = new Recolte(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7], arr[8], arr[9], arr[10],
+			arr[11], arr[12], arr[13], arr[14], arr[15], arr[16], arr[17], arr[18]);		
 
 	populateFields();
+}
+
+function populateHerbiers(data) {
+	if (data.length == 0)
+		return;
+
+	var array = data.split("\n");
+	for (var i = 0; i < array.length; i++) {
+		if (array[i].length > 0) {
+			var entry = array[i].split("$");
+
+			recolt.codeHerbier.push(entry[0]);
+			recolt.herbier.push(entry[1]);
+		}
+	}
+	populateHerbierFields();
 }
 
 function populateFields() {
@@ -52,8 +105,8 @@ function populateFields() {
 	populateSelect("listPhylum", phylumsArray, "");
 	populateSelect("listModulation", modulationArray, recolt.modulation);
 	populateSelect("hostState", etatHoteArray, recolt.etatHote);
-	populateSelect("typeRecolte", recoltTypeArray);
-	populateSelect("ref", referentielHabitatArray);
+	populateSelect("typeRecolte", recoltTypeArray, recolt.type_recolte);
+	populateSelect("ref", referentielHabitatArray, recolt.ref);
 	populateSelect("listRegne", reignArray);
 
 	populateElementsFromReferential();
@@ -68,15 +121,56 @@ function populateFields() {
 	populateInput("latitude", recolt.latitude);
 	populateInput("longitude", recolt.longitude);
 	populateInput("altitude", recolt.altitude);
+	populateInput("precision", recolt.precision);
 	populateInput("range", recolt.rayon);
 	populateInput("nbFound", recolt.quantite);
 	
-	populateInput("leg0", recolt.leg);
-	populateInput("det0", recolt.det);
+	populateLegsDets();
+
+	populateInput("lieu-dit", recolt.lieu_dit);
+	populateInput("domain", recolt.domaine);
+	populateInput("subdomain", recolt.sous_domaine);
+	populateInput("mailles", recolt.mer + "/" + recolt.men);
+	populateInput("ecologie", recolt.ecologie);
+
+	populateInput("collaboration", recolt.collaboration);
+	populateInput("remarques", recolt.remarque);
 
 	callPositionInformations();
-
+	requestCompleteRecolte();
 	loadPictures();
+}
+
+function populateLegsDets() {
+	var legs = recolt.leg.split("/");
+	var dets = recolt.det.split("/");
+
+	populateInput("leg0", legs[0]);
+	populateInput("det0", dets[0]);
+
+	if (legs.length > 1 || dets.length > 1) {
+		var max = Math.max(legs.length, dets.length);
+		for (var i = 1; i < max; i++) {
+			addLegDet(legs[i], dets[i]);
+		}
+	}
+}
+
+function populateHerbierFields() {
+	var codes = recolt.codeHerbier;
+	var nums = recolt.herbier;
+
+	if (codes[0])
+		populateInput("codeHerbier0", codes[0]);
+	if (nums[0])
+		populateInput("numHerbier0", nums[0]);
+
+	if (codes.length > 1 || nums.length > 1) {
+		var max = Math.max(codes.length, nums.length);
+		for (var i = 1; i < max; i++) {
+			addHerbier(codes[i], nums[i]);
+		}
+	}
 }
 
 function populateElementsFromReferential() {
@@ -93,19 +187,19 @@ function populateSubstrats(data) {
 
 function populateProtectionStatus(data) {
 	var array = data.trim().split("\n");
-	populateSelect("protectionStatus", array);
+	populateSelect("protectionStatus", array, recolt.statut_protection);
 }
 
 function populateAssos(data) {
 	var array = data.trim().split("\n");
-	populateSelect("asso", array);
+	populateSelect("asso", array, recolt.asso);
 
 	//TODO : Ajouter possibilité d'ajouter une nouvelle asso
 }
 
 function populateHosts(data) {
 	var array = data.trim().split("\n");
-	populateSelect("hote", array);
+	populateSelect("hote", array, recolt.hote);
 
 	//TODO : Ajouter possibilité d'ajouter un nouvel hote
 }
@@ -137,19 +231,51 @@ var geocoder;
 var dpt;
 function callPositionInformations() {
 	geocoder = new google.maps.Geocoder();
-	var latlng = new google.maps.LatLng(parseFloat(recolt.latitude), parseFloat(recolt.longitude));
-	geocoder.geocode({'latLng': latlng}, function(results, status) {
-		if (status == google.maps.GeocoderStatus.OK) {
-			var comp = results[0].address_components;
-			populateInput("country", comp[5].long_name);
-			dpt = comp[3].short_name + " - " + comp[3].long_name.toUpperCase();
-			populateDepartements();
-			populateInput("city", comp[2].long_name);
-		} else {
-			alert('Geocoder failed due to: ' + status);
-		}
-	});
+	var lat = $("#latitude").val(), lon = $("#longitude").val();
+	if (lat)
+		recolt.latitude = lat;
+	if (lon)
+		recolt.longitude = lon;
 
+	if (recolt.latitude.length > 1 && recolt.longitude.length > 1) {
+		var latlng = new google.maps.LatLng(parseFloat(recolt.latitude), parseFloat(recolt.longitude));
+		geocoder.geocode({'latLng': latlng}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				var position = getPositionInformations(results);
+				populateInput("country", position.country);
+				dpt = position.dpt;
+				populateDepartements();
+				populateInput("city", position.city);
+			} else {
+				alert('Geocoder failed due to: ' + status);
+			}
+		});
+	} else {
+		populateInput("country", recolt.pays);
+		dpt = recolt.departement;
+		populateDepartements();
+		populateInput("city", recolt.ville);
+	}
+
+}
+
+function getPositionInformations(position) {
+	var infos = {};
+	for (var i = 0; i < position.length; i++) {
+		var components = position[i].address_components;
+		for (var j = 0; j < components.length; j++) {
+			var item = components[j];
+			for (var k = 0; k < item.types.length; k++) {
+				if (!infos.city && item.types[k] == "locality")
+					infos.city = item.long_name;
+				if (!infos.dpt && item.types[k] == "administrative_area_level_2")
+					infos.dpt = item.short_name + " - " + item.long_name.toUpperCase();
+				if (!infos.country && item.types[k] == "country")
+					infos.country = item.long_name;
+			}
+		}
+	}
+	return infos;
 }
 
 function populateDepartements() {
@@ -158,22 +284,34 @@ function populateDepartements() {
 
 function populateDepartementsInfos(data) {
 	var array = data.split("\n");
+	for (var i = 0; i < array.length; i++) {
+		if (array[i].indexOf(dpt) > -1) {
+			dpt = array[i];
+			break;
+		}
+	}
 	populateSelect("dpt", array, dpt);
+	finishInit();
+}
+
+function finishInit() {
 	checkFields();
 }
 
 function loadPictures() {
-	ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestPictures.php?id=" + recolt_id, populatePictures);
+	ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestPictures.php?id=" + recolt_id + "&type=" + type_id, populatePictures);
 }
 
 function populatePictures(data) {
 	var array = data.split("\n");
 	array.forEach(function(entry) {
-		if (entry.trim().length > 0)
-			pictures.push(entry);
+		if (entry.trim().length > 0) {
+			var values = entry.split("$");
+			pictures.push("/wp-content/uploads/photos_recoltes/user" + recolt.user_id + "/recolte" + recolt_id + "/" + values[0]);
+			picturesAuthors.push(values[1]);
+		}
 	});
-
-	showPictures();
+	showPicturesTab();
 }
 
 function changePhotoListener(id) {
@@ -182,16 +320,6 @@ function changePhotoListener(id) {
 		$("#picInput" + id).trigger("click");
 	});
 
-}
-
-function showPictures() {
-	var pics = $("#pics");
-	pictures.forEach(function(entry) {
-		pics.append(makePictureRow(entry));
-		++picID;
-	});
-	--picID;
-	addPictureInput();
 }
 
 function addPictureInput() {
@@ -206,15 +334,68 @@ function addPictureInput() {
 }
 
 function readURL(input) {
+	if (!input.files || !input.files[0].type.match("image.*")) {
+		alert("Veuillez sélectionner une image.");
+		return;
+	}
+
 	if (input.files && input.files[0]) {
 		var reader = new FileReader();
 		reader.onload = function(e) {
-			var newRow = makePictureRow(getPicName(), e.target.result);
-			$("#pics").append(newRow);
+			pictures.push(e.target.result);
+			picturesAuthors.push("");
+			savePicturesAuthors();
+			showPicturesTab();
 		}
 		reader.readAsDataURL(input.files[0]);
-		addPictureInput();
 	}
+}
+
+function savePicturesAuthors() {
+	for (var i = 0; i < picturesAuthors.length; i++) {
+		var input = $("#picAuthorInput" + i);
+		if (input.length != 0) {
+			var regex = new RegExp("'", "g");
+			picturesAuthors[i] = input.val().replace(regex, "&#39;");
+		}
+	}
+}
+
+function showPicturesTab() {
+	var pics = "<tr>", authors = "<tr>", deletes = "<tr>";
+
+	var picMaxWidth;
+	if (pictures.length == 1)
+		picMaxWidth = "30%";
+	else if (pictures.length == 2)
+		picMaxWidth = "75%";
+	else
+		picMaxWidth = "100%";
+
+	var div = "";
+	for (var i = 0; i < pictures.length; i++) {
+		pics += "<td class='text-center'><img style='max-width: " + picMaxWidth + ";' class='picture' src='" + pictures[i] + "' alt='photo'/></td>";
+		authors += "<td class='text-center'>Auteur : <input id='picAuthorInput" + i + "' value='" + picturesAuthors[i] + "'></input></td>";
+		deletes += "<td class='text-center'><button type='button' class='btn btn-success delete' onclick='removePicture(" + i + ")'>"
+		+ "<span class='glyphicon glyphicon-trash'></span></button></td>";
+
+		if ((i - 3)%4 == 0 && i != (pictures.length - 1)) {
+			pics += "</tr>", authors += "</tr>", deletes += "</tr>";
+			div += pics + authors + deletes; 
+			pics = "<tr>", authors = "<tr>", deletes = "<tr>";
+		}
+	}
+	pics += "</tr>", authors += "</tr>", deletes += "</tr>";
+	div += pics + authors + deletes;
+	$("#tableBody").empty();
+	$("#tableBody").append(div);
+	addPictureInput();
+}
+
+function removePicture(id) {
+	pictures.splice(id, 1);
+	picturesAuthors.splice(id, 1);
+	showPicturesTab();
 }
 
 function getPicName() {
@@ -228,7 +409,7 @@ function getFormatedDate() {
 }
 
 function makePictureRow(name, picSrc) {
-	var src = picSrc ? picSrc : "/wp-content/uploads/photos_recoltes/user" + recolt.user_id + "/recolte " + recolt_id + "/" + name;
+	var src = picSrc ? picSrc : "/wp-content/uploads/photos_recoltes/user" + recolt.user_id + "/recolte" + recolt_id + "/" + name;
 	var row = "<div class='col-xs-12'>"
 	+ "<span class='col-xs-offset-1 col-xs-3'><img style='height=250px' class='img-thumbnail picture' src='" + src + "' alt='picture'/></span>"
 	+ "<span class='col-xs-4'>" + name + "</span>"
@@ -266,7 +447,8 @@ function populateSelect(id, array, selected) {
 }
 
 function Recolte(user_id, genre, epithete, rang, taxon, modulation, autorites, date, latitude, longitude, altitude, rayon,
-	quantite, substrat, hote, etatHote, leg, det) {
+	quantite, substrat, hote, etatHote, leg, det, precision, pays, departement, ville, lieu_dit, domaine, sous_domaine, statut_protection,
+	men, mer, ref, ecologie, asso, collaboration, remarque, type_recolte) {
 	this.user_id = user_id || "";
 	this.genre = genre || "",
 	this.epithete = epithete || "",
@@ -278,13 +460,32 @@ function Recolte(user_id, genre, epithete, rang, taxon, modulation, autorites, d
 	this.latitude = latitude || "",
 	this.longitude = longitude || "",
 	this.altitude = altitude || "",
+	this.precision = precision || "",
 	this.rayon = rayon || "",
 	this.quantite = quantite || "",
 	this.substrat = substrat || "",
 	this.hote = hote || "",
 	this.etatHote = etatHote || "",
 	this.leg = leg || "",
-	this.det = det || ""
+	this.det = det || "",
+
+	this.pays = pays || "",
+	this.departement = departement || "",
+	this.ville = ville || "",
+	this.lieu_dit = lieu_dit || "",
+	this.domaine = domaine || "",
+	this.sous_domaine = sous_domaine || "",
+	this.statut_protection = statut_protection || "",
+	this.men = men || "",
+	this.mer = mer || "",
+	this.ref = ref || "",
+	this.ecologie = ecologie || "",
+	this.codeHerbier = [],
+	this.herbier = [],
+	this.asso = asso || "",
+	this.collaboration = collaboration || "",
+	this.remarque = remarque || "",
+	this.type_recolte = type_recolte || ""
 }
 
 function checkFields() {
@@ -320,6 +521,11 @@ function addListeners() {
 	});
 
 	$("#ref").bind("change", selectHabitat);
+
+	$("#biblioButton").bind("click", function() {
+		window.open("http://doc.dbmyco.fr/ajouter-un-document/");
+		return false;
+	});
 }
 
 function getGenre(genre, base){
@@ -371,13 +577,19 @@ function selectHabitat() {
 }
 
 var legDetRow = 1;
-function addLegDet() {
+function addLegDet(leg, det) {
 	var legInfo = $("#groupleg0").find("img").attr("title").replace("'", "&#39;");
 	var detInfo = $("#groupdet0").find("img").attr("title").replace("'", "&#39;");
+
+	if (!leg)
+		leg = "";
+	if (!det)
+		det = "";
+
 	var div = "<div id='groupleg" + legDetRow + "'class='form-group col-xs-6'>"
 	+ "<label for='leg' class='control-label col-xs-3'>Légataire</label>"
-	+ "<div class='col-xs-7'>"
-	+ "<input id='leg" + legDetRow + "' class='legdet' style='width:100%;'></input>"
+	+ "<div class='col-xs-8'>"
+	+ "<input id='leg" + legDetRow + "' value='" + leg + "' class='legataire' style='width:100%;'></input>"
 	+ "</div>"
 	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + legInfo + "' src='/images/infobulle.png'></span>"
 	+ "</div>";
@@ -385,27 +597,37 @@ function addLegDet() {
 	div += "<div id='groupdet" + legDetRow + "'class='form-group col-xs-6'>"
 	+ "<label for='det' class='control-label col-xs-3'>Déterminateur</label>"
 	+ "<div class='col-xs-6'>"
-	+ "<input id='det" + legDetRow + "' class='legdet' style='width:100%;'></input>"
+	+ "<input id='det" + legDetRow + "' value='" + det + "' class='determinateur' style='width:100%;'></input>"
 	+ "</div>"
 	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + detInfo + "' src='/images/infobulle.png'></span>"
-	+ "<div class='col-xs-2'>"
-	+ "<button type='button' class='btn btn-success btn-block' onclick='addLegDet()'>"
-	+ "<span class='glyphicon glyphicon-plus'></span>"
-	+ "</button></div></div>";
+	+ "<div class='col-xs-1'>"
+	+ "<button type='button' class='btn btn-success' onclick='addLegDet()'>"
+	+ "<span class='glyphicon glyphicon-plus'></span></div>"
+	+ "<div class='col-xs-1'>"
+	+ "<button type='button' class='btn btn-success' onclick='removeLegDet(" + legDetRow + ");'>"
+	+ "<span class='glyphicon glyphicon-minus'></span></button>"
+	+ "</div></div>";
 
-	$("#groupdet" + (legDetRow - 1)).after(div);
+	var row = getLastLegDetRow();
+	$("#groupdet" + row).after(div);
 	legDetRow++;
 }
 
 var herbierRow = 1;
-function addHerbier() {
-	var codeInfo = $("#groupcodeHerbier0").find("img").attr("title").replace("'", "&#39;");
-	var numInfo = $("#groupnumHerbier0").find("img").attr("title").replace("'", "&#39;");
+function addHerbier(codeHerbier, numHerbier) {
+	var regex = new RegExp("'", "g");
+	var codeInfo = $("#groupcodeHerbier0").find("img").attr("title").replace(regex, "&#39;");
+	var numInfo = $("#groupnumHerbier0").find("img").attr("title").replace(regex, "&#39;");
+
+	if (!codeHerbier)
+		codeHerbier = "";
+	if (!numHerbier)
+		numHerbier = ""; 
 
 	var div = "<div id='groupcodeHerbier" + herbierRow + "'class='form-group col-xs-6'>"
 	+ "<label for='codeHerbier' class='control-label col-xs-3'>Code herbier</label>"
-	+ "<div class='col-xs-7'>"
-	+ "<input id='codeHerbier" + herbierRow + "' class='legdet' style='width:100%;'></input>"
+	+ "<div class='col-xs-8'>"
+	+ "<input id='codeHerbier" + herbierRow + "' value='" + codeHerbier + "' class='codeHerbier' style='width:100%;'></input>"
 	+ "</div>"
 	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + codeInfo + "' src='/images/infobulle.png'></span>"
 	+ "</div>";
@@ -413,16 +635,53 @@ function addHerbier() {
 	div += "<div id='groupnumHerbier" + herbierRow + "'class='form-group col-xs-6'>"
 	+ "<label for='numHerbier' class='control-label col-xs-3'>Num herbier</label>"
 	+ "<div class='col-xs-6'>"
-	+ "<input id='numHerbier" + herbierRow + "' class='legdet' type=number min='0' style='width:100%;'></input>"
+	+ "<input id='numHerbier" + herbierRow + "' value='" + numHerbier + "' class='numHerbier' style='width:100%;'></input>"
 	+ "</div>"
 	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + numInfo + "' src='/images/infobulle.png'></span>"
-	+ "<div class='col-xs-2'>"
-	+ "<button type='button' class='btn btn-success btn-block' onclick='addHerbier()'>"
-	+ "<span class='glyphicon glyphicon-plus'></span>"
-	+ "</button></div></div>";
+	+ "<div class='col-xs-1'>"
+	+ "<button type='button' class='btn btn-success' onclick='addHerbier()'>"
+	+ "<span class='glyphicon glyphicon-plus'></span></button></div>"
+	+ "<div class='col-xs-1'>"
+	+ "<button type='button' class='btn btn-success' onclick='removeHerbier(" + herbierRow + ");'>"
+	+ "<span class='glyphicon glyphicon-minus'></span></button>"
+	+ "</div></div>";
 
-	$("#groupnumHerbier" + (herbierRow - 1)).after(div);
+	var row = getLastHerbierRow();
+	$("#groupnumHerbier" + row).after(div);
 	herbierRow++;
+}
+
+function getLastLegDetRow() {
+	var max = 0;
+	$("div").filter(function() {
+		return this.id.match("groupleg.*");
+	}).each(function() {
+		var id = parseInt(this.id.split("groupleg")[1]);
+		if (id > max)
+			max = id;
+	});
+	return max;
+}
+function getLastHerbierRow() {
+	var max = 0;
+	$("div").filter(function() {
+		return this.id.match("groupnumHerbier.*");
+	}).each(function() {
+		var id = parseInt(this.id.split("groupnumHerbier")[1]);
+		if (id > max)
+			max = id;
+	});
+	return max;
+}
+
+function removeHerbier(id) {
+	$("#groupcodeHerbier" + id).remove();
+	$("#groupnumHerbier" + id).remove();
+}
+
+function removeLegDet(id) {
+	$("#groupleg" + id).remove();
+	$("#groupdet" + id).remove();
 }
 
 function requestCompleteRecolte() {
@@ -434,12 +693,16 @@ function requestCompleteRecolte() {
 
 	var url = "/ajax/completeInfosRecolte.php?phylum=" + phylum + "&genre=" + genre + "&espece=" + espece + "&rang=" + rang
 	+ "&taxon=" + taxon;
-	console.log(url);
 	ajaxCall("GET", url, completeRecolte);
 }
 
 function completeRecolte(data) {
-	var response = data.split("||");
+	var response;
+	if (data.length == 0) {
+		response = ["", "", "", "", "", "", "", ""];
+	} else {
+		response = data.split("||");
+	}
 
 	$("#listPhylum").val(response[0]);
 	$("#dataAuthor").val(response[1]);
@@ -460,10 +723,13 @@ function submit() {
 }
 
 function fieldsAreFilled() {
-	return $(".has-error").length > 0;
+	return $(".has-error").length == 0;
 }
 
 function saveRecolt() {
+	var user_id = recolt.user_id;
+	recolt = {};
+	recolt.user_id = user_id;
 	recolt.genre = $("#dataGenre").val();
 	recolt.espece = $("#dataSpecies").val();
 	recolt.rang = $("#listSVF option:selected").text();
@@ -471,20 +737,29 @@ function saveRecolt() {
 	recolt.modulation = $("#listModulation option:selected").text();
 	recolt.autorites = $("#dataAuthor").val();
 
-	recolt.regne = $("#listRegne").text();
-	recolt.phylum = $("#listPhylum").text();
+	recolt.regne = $("#listRegne option:selected").text();
+	recolt.phylum = $("#listPhylum option:selected").text();
 	recolt.classe = $("#dataClasse").val();
 	recolt.ordre = $("#dataOrdre").val();
 	recolt.famille = $("#dataFamille").val();
 
 	recolt.pays = $("#country").val();
-	recolt.departement = $("#dpt option:selected").text();
+	recolt.departement = $("#dpt option:selected").text().split("-")[0];
 	recolt.ville = $("#city").val();
 	recolt.lieu_dit = $("#lieu-dit").val();
 	recolt.domaine = $("#domain").val();
 	recolt.sous_domaine = $("#subdomain").val();
 	recolt.statut_protection = $("#protectionStatus option:selected").text();
-	recolt.mailles = $("#mailles").val();
+
+	var mailles = $("#mailles").val();
+	if (mailles.length > 0) {
+		mailles = mailles.split("/");
+		recolt.men = mailles[0];
+		recolt.mer = mailles[1];
+	} else {
+		recolt.men = "";
+		recolt.mer = "";
+	}
 	recolt.latitude = $("#latitude").val();
 	recolt.longitude = $("#longitude").val();
 	recolt.altitude = $("#altitude").val();
@@ -498,29 +773,102 @@ function saveRecolt() {
 	recolt.etat_hote = $("#hostState option:selected").text();
 	recolt.substrat = $("#substrat option:selected").text();
 
-	saveLegsAndDets();
+	saveLegsDets();
 	saveHerbiers();
 
 	recolt.asso = $("#asso option:selected").text();
 	recolt.collaboration = $("#collaboration").val();
 	recolt.type_recolte = $("#typeRecolte option:selected").text();
-	saveDate();
 	recolt.remarques = $("#remarques").val();
-	savePictures();
+	recolt.pictures = pictures;
+	savePicturesAuthors();
+	recolt.pictures_authors = picturesAuthors;
+	
+	recolt.type_id = type_id;
+	recolt.former_id = recolt_id;
+
+	saveDate();
+	if (!isValidDate(recolt.date)) {
+		alert("La date de récolte est invalide, veuillez la modifier.");
+		return;
+	}
+
+	ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/submitCompleteMobileRecolte.php", 
+		recoltSaved, JSON.stringify(recolt), saveFailed);
 }
 
-function saveLegsAndDets() {
-
+function recoltSaved(data) {
+	if (data.contains("OK")) {
+		alert("Sauvegarde réussie !");
+		document.location.href="http://inventaire.dbmyco.fr/";
+		return false;
+	} else
+	alert("echec côté serveur");
 }
 
+function saveFailed(a, b, c) {
+	alert("Echec de la requête de sauvegarde");
+	console.log(a);
+	console.log(b);
+	console.log(c);
+}
+function saveLegsDets() {
+	recolt.legs = $("#leg").val();
+	recolt.dets = $("#det").val();
+	var legs = "", dets = "";
+	$(".legataire").each(function () {
+		var val = $(this).val();
+		if (val.length > 0)
+			legs += val + "/";
+	});
+	legs = legs.substring(0, legs.length - 1);
+
+	$(".determinateur").each(function () {
+		var val = $(this).val();
+		if (val.length > 0)
+			dets += val + "/";
+	});
+	dets = dets.substring(0, dets.length - 1);
+
+	recolt.legs = legs;
+	recolt.dets = dets;
+}
 function saveHerbiers() {
+	var numsHerbier = [], codesHerbier = [];
+	$(".codeHerbier").each(function () {
+		var val = $(this).val();
+		if (val.length > 0)
+			codesHerbier.push(val);
+	});
+	$(".numHerbier").each(function () {
+		var val = $(this).val();
+		if (val.length > 0)
+			numsHerbier.push(val);
+	});
 
+	recolt.numsHerbier = numsHerbier;
+	recolt.codesHerbier = codesHerbier;
 }
 
 function saveDate() {
+	var day, month, year;
+	day = $("#day option:selected").text();
+	month = (months.indexOf($("#month option:selected").text()) + 1) + "";
+	year = $("#year").val();
 
+	if (month.length == 1)
+		month = "0" + month;
+
+	recolt.date = year + "-" + month + "-" + day;
+	var d = new Date();
+	recolt.created_at = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 }
 
-function savePictures() {
-
+function isValidDate(d) {
+	try {
+		var date = new Date(d).toISOString();
+		return true;
+	} catch (e) {
+		return false;
+	}
 }

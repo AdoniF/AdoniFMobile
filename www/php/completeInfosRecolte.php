@@ -1,5 +1,7 @@
 <?php
-
+ini_set('display_errors', 1);
+// Reporte toutes les erreurs PHP (Voir l'historique des modifications)
+error_reporting(E_ALL);
 $phylum = $_GET['phylum'];
 $genre = "%".$_GET['genre']."%";
 $espece = "%".$_GET['espece']."%";
@@ -59,8 +61,12 @@ if (strlen($params) == 2) {
 if (!$stmt->execute()) {
 	echo "echec de l'execution ".$stmt->errno." : ".$stmt->error;
 } else {
-	$stmt->bind_result($phylum, $auteur, $famille, $classe, $regne, $ordre, $taxon, $rang);
-	$stmt->fetch();
-	echo $phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
+
+	$stmt->store_result();
+	if ($stmt->num_rows > 0) {
+		$stmt->bind_result($phylum, $auteur, $famille, $classe, $regne, $ordre, $taxon, $rang);
+		$stmt->fetch();
+		echo $phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
+	}
 }
 ?>

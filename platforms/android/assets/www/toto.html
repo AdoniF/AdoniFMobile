@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Index</title>
+
+  <!-- StyleSheets -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/awesomplete.css" rel="stylesheet">
+  <link href="css/all.css" rel="stylesheet">
+  <link href="css/add_recolt.css" rel="stylesheet">
+  <link href="css/list_recolts.css" rel="stylesheet">
+  <link href="css/camera_screen.css" rel="stylesheet">
+
+  <!-- Scripts -->
+  <script src="js/libs/jquery-2.1.3.min.js"></script>
+  <script src="cordova.js" charset="utf-8" ></script>
+  <script src="js/libs/bootstrap.min.js" charset="utf-8" ></script>
+  <script src="js/libs/fastclick.js" charset="utf-8"></script>
+  <script src="js/libs/awesomplete.min.js"></script>
+
+  <script src="js/all.js" charset="utf-8"></script>
+  <script src="js/database.js" charset="utf-8"></script>
+  <script src="js/form_queries.js" charset="utf-8"></script>
+  <script src="js/plugins.js" charset="utf-8"></script>
+  <script src="js/form.js" charset="utf-8"></script>
+  <script src="js/navigation.js" charset="utf-8"></script>
+  <script src="js/recolts_list.js" charset="utf-8"></script>
+  <script> 
+  function test() {
+    var data = 
+    {
+      user_id: 4,
+      epithete: "abrothallus",
+      codeSubstrat: "Argile dominant"
+    }
+    var json = JSON.stringify(data);
+    ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/createTemporaryRecolt.php", success, json, fail);
+  }
+
+  function success(data, param) {
+    alert(data);
+  }
+  function fail(err) {
+    alert("failure "+err.message);
+  }
+  </script>
+</head>
+<body>
+  <button class="btn" onclick="test();">Click me</button>
+</body>
+</html>

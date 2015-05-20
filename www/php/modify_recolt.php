@@ -1,28 +1,42 @@
 <link type="text/css" rel="stylesheet" href="/lib_js_autocomplete/jquery.autocomplete.css" />
+<link type="text/css" rel="stylesheet" href="/css/creation_modif.css" />
 <script type="text/javascript" src="/lib_js_autocomplete/jquery.js"></script>
 <script type="text/javascript" src="/lib_js_autocomplete/jquery.autocomplete.js"></script>
 <script type='text/javascript' src='/javascript/all.js'></script>
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
-<script type="text/javascript" src="../ajax/listlist.js"></script>
-<script type="text/javascript" src="../ajax/listlist2.js"></script>
-<script type="text/javascript" src="../ajax/listlist3.js"></script>
+<script type="text/javascript" src="/ajax/listlist.js"></script>
+<script type="text/javascript" src="/ajax/listlist2.js"></script>
+<script type="text/javascript" src="/ajax/listlist3.js"></script>
 
 <?php
-echo "<style>.control-label {text-align: right; padding-top:5px;} .label-success{margin-bottom: 5px;} .btn{margin-bottom: 1px;}</style>";
-echo "<style>#SELECTHABITAT {overflow: scroll; display: block; cursor: default; width: 600px; height: 300px;}</style>";
-echo "<style>.vcenter{display: table-cell; vertical-align: middle;}</style>";
-
 echo "<div class='row'><h3><span class='label label-success col-xs-offset-1'>Modification d'une récolte</span></h3></div>";
 
+//typeID = 0 => création
+//typeID = 1 => modification de récolte
+//typeID = 2 => complétion d'une récolte faite sur mobile
+
+$typeID = $_GET['type'];
 $recoltID = $_GET['id'];
+
 if (!isset($_SESSION['id'])) {
 	echo "Veuillez vous connecter.";
 	return;
 }
-if (!isset($recoltID)) {
+
+if (!isset($recoltID) && $typeID != 0) {
 	echo "Vous devez choisir une récolte pour pouvoir la modifier.";
 	return;
 }
+
+if (isset($recoltID) && (!isset($typeID) || $typeID == 0)) {
+	echo "Erreur dans les paramètres de la requête";
+	return;
+}
+if (!isset($typeID)) {
+	$typeID = 0;
+}
+if (!isset($recoltID))
+	$recoltID = $_SESSION['id'];
 
 remove_filter( 'the_content', 'wpautop'); 
 include('connexionBdd/bddInventaireMobile.php');
@@ -49,7 +63,7 @@ echo getSelect("Phylum", "listPhylum", $tooltips['phylum']);
 echo getInput("Classe", "dataClasse", $tooltips['classe']);
 echo getInput("Ordre", "dataOrdre", $tooltips['ordre']);
 echo getInput("Famille", "dataFamille", $tooltips['famille']);
-echo "<div class='form-group col-xs-6 text-center'><button type='button' class='btn btn-success' onclick='requestCompleteRecolte()'>Compléter</button></div>";
+echo getCompletionButton();
 
 
 echo getSubtitle("Informations et localisation");
@@ -68,6 +82,7 @@ echo getInput("GPS Altitude", "altitude");
 echo getInput("GPS Précision", "precision");
 echo getInput("Quantité", "nbFound", "", false, "type='number' min='0'");
 echo getInput("Etendue(mètres)", "range", "", false, "type='number' min='0'");
+echo getRecalculatePositionButton();
 
 
 echo getSubtitle("Ecologie");
@@ -82,10 +97,10 @@ echo getSelect("Substrat", "substrat", $tooltips['substrat']);
 
 echo getSubtitle("Propriétaires");
 
-echo getInput("Légataire(s)*", "leg0", $tooltips['leg'], true);
-echo getInputWithButton("Déterminateur(s)*", "det0", "addLegDet()", $tooltips['det'], true);
-echo getInput("Code herbier", "codeHerbier0", $tooltips['codeherbier']);
-echo getInputWithButton("Num herbier", "numHerbier0", "addHerbier()", $tooltips['numherbier'], false, "type=number min='0'");
+echo getInput("Légataire(s)*", "leg0", $tooltips['leg'], true, "class='legataire'");
+echo getInputWithButton("Déterminateur(s)*", "det0", "addLegDet();", $tooltips['det'], true, "class='determinateur'");
+echo getInput("Code herbier", "codeHerbier0", $tooltips['codeherbier'], false, "class='codeHerbier'");
+echo getInputWithButton("Num herbier", "numHerbier0", "addHerbier();", $tooltips['numherbier'], false, "class='numHerbier'");
 
 
 echo getSubtitle("Suppléments");
@@ -95,18 +110,21 @@ echo getInput("Collaboration", "collaboration", $tooltips['collaboration']);
 echo getSelect("Type récolte", "typeRecolte", $tooltips['typerecolte']);
 echo getDateInput();
 echo getTextArea("Remarques", "remarques");
+echo getBiblioButton();
 
-//TODO : bouton bibliographie
 
 echo getSubtitle("Photos");
-echo "<div id='pics'>";
-echo "</div>";
+echo "<div class='row'>";
+echo "<div id='pics' class='col-xs-12'>";
+echo "<table id='table' class='table'><tbody id='tableBody'></tbody></table>";
+echo "</div></div>";
 
 echo "<div class='form-group col-xs-12 text-center'><button type='button' id='picButton' class='btn btn-success'>Ajouter une photo&nbsp;<span class='glyphicon glyphicon-camera'></span></button></div>";
+echo "<div class='form-group col-xs-12 text-center'><button type='button' id='submit' class='btn btn-success' onclick='submit();'>Soumettre la récolte&nbsp;<span class='glyphicon glyphicon-ok'></span></button></div>";
 
 echo "</div>\n"; //fermeture div form-inline
 
-echo "<script type='text/javascript'>init(".$recoltID.");</script>";
+echo "<script type='text/javascript'>init(".$recoltID.", ".$typeID.");</script>";
 
 //Génère un sous-titre
 function getSubtitle($text) {
@@ -145,7 +163,7 @@ function getInput($name, $inputName, $tooltip="", $hasError=false, $option="") {
 	return $str."</div>\n";
 }
 
-function getInputWithButton($name, $inputName, $buttonAction, $tooltip="", $hasError=false, $option="") {
+function getInputWithButton($name, $inputName, $function, $tooltip="", $hasError=false, $option="") {
 	if ($hasError)
 		$error = "has-error";
 	else
@@ -154,13 +172,13 @@ function getInputWithButton($name, $inputName, $buttonAction, $tooltip="", $hasE
 	$str = "<div id='group".$inputName."' class='form-group col-xs-6 ".$error."'>";
 	$str .= "<label for='".$inputName."' class='control-label col-xs-3'>".$name."</label>";
 	$str .= "<div class='col-xs-6'>";
-	$str .= "<input id='".$inputName."' class='legdet' style='width:100%;' ".$option."/>";
+	$str .= "<input id='".$inputName."' style='width:100%;' ".$option."/>";
 	$str .= "</div>";
 	$str .= getTooltip($tooltip);
 	$str .= "<div class='col-xs-2'>";
-	$str .= "<button type='button' class='btn btn-success btn-block' onclick='".$buttonAction."'>";
-	$str .= "<span class='glyphicon glyphicon-plus'></span>";
-	return $str."</button></div></div>\n";
+	$str .= "<button type='button' style='width: 100%;' class='btn btn-success' onclick='".$function."'>";
+	$str .= "<span class='glyphicon glyphicon-plus'></span></button>";
+	return $str."</div></div>\n";
 }
 
 //Génère un textarea
@@ -172,12 +190,22 @@ function getTextArea($name, $areaName) {
 	return $str."</div></div>";
 }
 
+function getBiblioButton() {
+	$text = "Ouvre un nouvel onglet menant à la création d'une nouvelle bibliographie.";
+	$text = str_replace("'", "&#39;", $text);
+
+	$str = "<div class='form-group col-xs-6 text-center'>";
+	$str .= "<button id='biblioButton' type='button' class='btn btn-success' data-toggle='tooltip' data-placement='top' title='".$text."'>";
+	$str .= "Ajouter un document à la bibliographie</button></div>";
+	return $str."</div>";
+}
+
 function getDateInput() {
 	$year=date("Y");
 
 	$str = "<div id='groupDate' class='form-group col-xs-6 has-success'>";
-	$str .= "<label class='control-label col-xs-3'>Date*</label>";
-	$str .= "<div class='col-xs-7'>";
+	$str .= "<label class='control-label col-xs-3'>Date récolte*</label>";
+	$str .= "<div class='col-xs-8'>";
 	$str .= "<select id='day' style='width:33.3%;' ></select>";
 	$str .= "<select id='month' style='width:33.3%;' ></select>";
 	$str .= "<input id='year' type='number' value='".$year."' style='width:33.3%;' ></input>";
@@ -215,6 +243,28 @@ function getChoixHabitat() {
 	$str .= "<div class='col-xs-9'>";
 	$str .= "<ul id='SELECTHABITAT'></ul>";
 	$str .= "</div></div>";
+
+	return $str;
+}
+
+function getCompletionButton() {
+	$text = "Pour compléter automatiquement les champs de position, renseignez au moins le genre et l'espèce, puis si possible le rang et le taxon.";
+	$text = str_replace("'", "&#39;", $text);
+	$str = "<div class='form-group col-xs-6 text-center'>";
+	$str .= "<button type='button' class='btn btn-success' data-toggle='tooltip' data-placement='top' title='".$text."' onclick='requestCompleteRecolte()'>";
+	$str .= "Compléter</button>";
+	$str .= "<img data-toggle='tooltip' data-placement='top' title='".$text."' src='/images/infobulle.png'>";
+	$str .= "</div>";
+	return $str;
+}
+
+function getRecalculatePositionButton() {
+	$text = "Recalcule le pays, département et commune en fonction de la latitude et de la longitude.";
+	$str = "<div class='form-group col-xs-12 text-center'>";
+	$str .= "<button type='button' id='mapButton' class='btn btn-success' data-toggle='tooltip' data-placement='top' title='".$text."' onclick='callPositionInformations()'>";
+	$str .= "Mettre à jour les informations de localisation&nbsp;<span class='glyphicon glyphicon-map-marker'></span></button>";
+	$str .= "<img data-toggle='tooltip' data-placement='top' title='".$text."' src='/images/infobulle.png'>";
+	$str .= "</div>";
 
 	return $str;
 }
