@@ -163,7 +163,6 @@ function populateFieldsFromRecolt(recolt) {
     populateSelect("listPhylum", phylumsArray, recolt.phylum);
     populateSelect("listModulation", modulationArray, recolt.modulation);
     populateSelect("listHostState", etatHoteArray, recolt.etatHote);
-    $("#listHost").val(recolt.hote);
 
     dom.hostData.val(decodeURIComponent(recolt.habitat));
     dom.range.val(decodeURIComponent(recolt.range));
@@ -176,6 +175,7 @@ function populateFieldsFromRecolt(recolt) {
     setUserFields(recolt);
     updateFields(0);
     getSubstrats(recolt.substrat);
+    getHotes(recolt.hote);
 
     loadPictures(recolt);
 

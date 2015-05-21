@@ -136,6 +136,25 @@ function getSubstrats(value) {
 	});
 }
 
+function getHotes(value) {
+	var query = "SELECT data FROM hotes;"
+	db.transaction(function (tx) {
+		tx.executeSql(query, [], function (tx, res) {
+			var array = [];
+
+			for (var i = 0; i < res.rows.length; ++i) {
+				var data = res.rows.item(i).data;
+				if (data)
+					array.push(data);
+			}
+			
+			populateSelect("listHost", array, value);		
+		})
+	}, function (e) {
+		alert("error getSubstrats " + e.message);
+	});
+}
+
 function getPossibleAuteurs(phylum, genre, epithete, rang, taxon, value) {
 	phylum = getPhylumTable(phylum);
 	var clause = buildWhereClause(genre, epithete, rang, taxon);

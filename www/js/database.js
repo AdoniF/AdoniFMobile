@@ -13,6 +13,8 @@ function openDB() {
 		if (!db)
 			db = window.sqlitePlugin.openDatabase({name: db_name});
 		checkConnection();
+	} else {
+		alert("no plugin");
 	}
 }
 
@@ -75,6 +77,7 @@ function dropTables(tx) {
 
 function dropReferentialTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS substrats");
+	tx.executeSql("DROP TABLE IF EXISTS hotes");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
 	}
@@ -93,6 +96,7 @@ function createTables(tx) {
 
 function createReferentialTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS substrats(data TEXT);");
+	tx.executeSql("CREATE TABLE IF NOT EXISTS hotes(data TEXT);");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("CREATE TABLE IF NOT EXISTS " + phylumsTables[i] +"("
 			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -127,6 +131,7 @@ function populateDB() {
 	populateCallsRunning = 0;
 	errorShown = false;
 
+	populateHotes();
 	populateSubstrats();
 	populateNamesInfos();
 }
@@ -140,7 +145,11 @@ function populateNamesInfos() {
 	});
 }
 
-function populateSubstrats(tx) {
+function populateHotes() {
+	populateCallsRunning++;
+	ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestHosts.php", insertHotesInfos, null, populateDBError);
+}
+function populateSubstrats() {
 	populateCallsRunning += 1;
 	ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
 }
@@ -158,6 +167,27 @@ function populateDBError() {
 function populateDBErrorCallback(buttonIndex) {
 	if (buttonIndex == 2)
 		populateDB();
+}
+
+function insertHotesInfos(data) {
+	var rows = data.split("\n");
+	db.transaction(function (tx) {
+		rows.forEach(function(entry) {
+			entry = entry.trim();
+			if (entry.isEmpty())
+				return;
+
+			var query = "INSERT INTO hotes VALUES ('" + entry + "');";
+			tx.executeSql(query);
+		});
+		populateCallsRunning--;
+		if (populateCallsRunning == 0 && !errorShown) {
+			hideSpinnerDialog();
+			shortBottomToast("Récupération des informations du référentiel réussie !");
+		} else {
+			errorShown = false;
+		}
+	});
 }
 
 function insertSubstratsInfos(data) {

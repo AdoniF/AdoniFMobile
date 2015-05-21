@@ -1,13 +1,17 @@
 //Fonction permettant de créer une nouvelle récolte et de lui associer une photo prise auparavant
 function beginRecolt() {
-	var picSrc = dom.cameraPicture.attr('src');
-	if (picSrc.valueOf() === "src")
-		picSrc = null;
+	try {
+		var picSrc = dom.cameraPicture.attr('src');
+		if (picSrc.valueOf() === "src")
+			picSrc = null;
 
-	dom.cameraPicture.hide();
-	generateNewForm(picSrc);
-	dom.cameraPicture.attr("src", "");
-	toAddRecolt();
+		dom.cameraPicture.hide();
+		generateNewForm(picSrc);
+		dom.cameraPicture.attr("src", "");
+		toAddRecolt();
+	}catch(e) {
+		alert(e.message);
+	}
 }
 
 //Fonction permettant de charger une récolte pour la modifier et aller sur la page de modification
@@ -49,7 +53,7 @@ function saveAndShowRecolts() {
 		saveRecolt();
 		toRecolts();
 	} else
-		alert("Vous devez au moins choisir le phylum pour sauvegarder une récolte", null, "Phylum requis", "OK");
+	alert("Vous devez au moins choisir le phylum pour sauvegarder une récolte", null, "Phylum requis", "OK");
 }
 
 /*

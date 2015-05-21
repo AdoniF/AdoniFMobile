@@ -34,3 +34,7 @@ input, select {
 button {
 	margin: 5px;
 }
+
+.page-header {
+	margin: 2px;
+}

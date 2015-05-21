@@ -23,7 +23,6 @@ var picID = -1;
 function init(recoltID, typeID) {
 	recolt_id = recoltID;
 	type_id = typeID;
-	addListeners();
 
 	if (type_id != 0)
 		ajaxCall("GET", "/ajax/getRecolte.php?id=" + recolt_id + "&type=" + type_id, getRecolt);
@@ -192,16 +191,13 @@ function populateProtectionStatus(data) {
 
 function populateAssos(data) {
 	var array = data.trim().split("\n");
-	populateSelect("asso", array, recolt.asso);
 
-	//TODO : Ajouter possibilité d'ajouter une nouvelle asso
+	populateSelect("asso", array, recolt.asso);
 }
 
 function populateHosts(data) {
 	var array = data.trim().split("\n");
 	populateSelect("hote", array, recolt.hote);
-
-	//TODO : Ajouter possibilité d'ajouter un nouvel hote
 }
 
 function populateDate(date) {
@@ -295,22 +291,28 @@ function populateDepartementsInfos(data) {
 }
 
 function finishInit() {
+	addListeners();
 	checkFields();
 }
 
 function loadPictures() {
-	ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestPictures.php?id=" + recolt_id + "&type=" + type_id, populatePictures);
+	if (type_id != 0)
+		ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestPictures.php?id=" + recolt_id + "&type=" + type_id, populatePictures);
+	else
+		populatePictures("");
 }
 
 function populatePictures(data) {
-	var array = data.split("\n");
-	array.forEach(function(entry) {
-		if (entry.trim().length > 0) {
-			var values = entry.split("$");
-			pictures.push("/wp-content/uploads/photos_recoltes/user" + recolt.user_id + "/recolte" + recolt_id + "/" + values[0]);
-			picturesAuthors.push(values[1]);
-		}
-	});
+	if (data.length > 0) {
+		var array = data.split("\n");
+		array.forEach(function(entry) {
+			if (entry.trim().length > 0) {
+				var values = entry.split("$");
+				pictures.push("/wp-content/uploads/photos_recoltes/user" + recolt.user_id + "/recolte" + recolt_id + "/" + values[0]);
+				picturesAuthors.push(values[1]);
+			}
+		});
+	}
 	showPicturesTab();
 }
 
@@ -438,6 +440,8 @@ function populateSelect(id, array, selected) {
 		selected = "";
 	list.empty();
 	var options = "<option selected>" + selected + "</option>";
+	if (id == "substrat" || id == "asso" || id == "hote")
+		options += "<option class='newValue'>Ajouter une nouvelle valeur</option>";
 	for (var i = 0; i < array.length; ++i) {
 		options += "<option>" + array[i] + "</option>";
 	}
@@ -523,9 +527,23 @@ function addListeners() {
 	$("#ref").bind("change", selectHabitat);
 
 	$("#biblioButton").bind("click", function() {
-		window.open("http://doc.dbmyco.fr/ajouter-un-document/");
+		var champi = $("#dataGenre").val() + "+" + $("#dataSpecies").val();
+		window.open("http://doc.dbmyco.fr/consultation-par-especes/resultat-de-recherche-par-especes/?nom_biblio=" + champi);
 		return false;
 	});
+
+	$(".newValue").bind("click", function() {
+		addNewValue($(this).parent());
+	});
+}
+
+function addNewValue(select) {
+	var value = window.prompt("Entrez la nouvelle valeur : ");
+
+	if (value) {
+		select.append("<option>" + value + "</option>");
+		select.val(value);
+	}
 }
 
 function getGenre(genre, base){
@@ -724,6 +742,39 @@ function submit() {
 
 function fieldsAreFilled() {
 	return $(".has-error").length == 0;
+}
+
+function reset() {
+	recolt = new Recolte();
+	populateFields();
+
+	$("#leg0").val("");
+	$("#groupleg0").trigger("change");
+	$("#det0").val("");
+	$("#groupdet0").trigger("change");
+
+	for (var i = 1; i < legDetRow; i++) {
+		var leg = $("#groupleg" + i);
+		var det = $("#groupdet" + i);
+
+		if (leg.length != 0) {
+			leg.remove();
+			det.remove();
+		}
+	}
+
+	$("#codeHerbier0").val("");
+	$("#numHerbier0").val("");
+
+	for (var i = 1; i < herbierRow; i++) {
+		var code = $("#groupcodeHerbier" + i);
+		var num = $("#groupnumHerbier" + i);
+
+		if (code.length != 0) {
+			code.remove();
+			num.remove();
+		}
+	}
 }
 
 function saveRecolt() {

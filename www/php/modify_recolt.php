@@ -9,7 +9,6 @@
 <script type="text/javascript" src="/ajax/listlist3.js"></script>
 
 <?php
-echo "<div class='row'><h3><span class='label label-success col-xs-offset-1'>Modification d'une récolte</span></h3></div>";
 
 //typeID = 0 => création
 //typeID = 1 => modification de récolte
@@ -45,13 +44,14 @@ require_once(ABSPATH.'wp-admin/includes/admin.php');
 $tooltips = getTooltips($id_connect);
 
 echo "<div class='form-inline'>\n";
+echo "<div class='page-header col-xs-12 text-center'><h2>Modification d'une récolte</h2></div>";
 
 echo getSubtitle("Taxonomie");
 
 echo getInput("Genre*", "dataGenre", $tooltips['genre'], true);
-echo getInput("Espèce*", "dataSpecies", $tooltips['espece'], true);
+echo getInput("Epithète*", "dataSpecies", $tooltips['espece'], true);
 echo getSelect("Rang", "listSVF", $tooltips['rang']);
-echo getInput("Taxon", "dataTaxon", $tooltips['epithete']);
+echo getInput("Epithète 2", "dataTaxon", $tooltips['epithete']);
 echo getSelect("Modulation", "listModulation");
 echo getInput("Autorités", "dataAuthor", $tooltips['auteur']);
 
@@ -102,7 +102,6 @@ echo getInputWithButton("Déterminateur(s)*", "det0", "addLegDet();", $tooltips[
 echo getInput("Code herbier", "codeHerbier0", $tooltips['codeherbier'], false, "class='codeHerbier'");
 echo getInputWithButton("Num herbier", "numHerbier0", "addHerbier();", $tooltips['numherbier'], false, "class='numHerbier'");
 
-
 echo getSubtitle("Suppléments");
 
 echo getSelect("Asso/Orga*", "asso", $tooltips['origine'], true);
@@ -120,7 +119,8 @@ echo "<table id='table' class='table'><tbody id='tableBody'></tbody></table>";
 echo "</div></div>";
 
 echo "<div class='form-group col-xs-12 text-center'><button type='button' id='picButton' class='btn btn-success'>Ajouter une photo&nbsp;<span class='glyphicon glyphicon-camera'></span></button></div>";
-echo "<div class='form-group col-xs-12 text-center'><button type='button' id='submit' class='btn btn-success' onclick='submit();'>Soumettre la récolte&nbsp;<span class='glyphicon glyphicon-ok'></span></button></div>";
+echo "<div class='form-group col-xs-6 text-center'><button type='button' id='reset' class='btn btn-success' onclick='reset();'>Réinitialiser le formulaire&nbsp;<span class='glyphicon glyphicon-refresh'></span></button></div>";
+echo "<div class='form-group col-xs-6 text-center'><button type='button' id='submit' class='btn btn-success' onclick='submit();'>Soumettre la récolte&nbsp;<span class='glyphicon glyphicon-ok'></span></button></div>";
 
 echo "</div>\n"; //fermeture div form-inline
 
@@ -128,7 +128,8 @@ echo "<script type='text/javascript'>init(".$recoltID.", ".$typeID.");</script>"
 
 //Génère un sous-titre
 function getSubtitle($text) {
-	return "<div class='col-xs-12'><h5><span class='label label-success col-xs-offset-3 col-xs-3'>".$text."</span></h5></div>\n";
+	return "<div class='page-header col-xs-offset-1 col-xs-11'><h3>".$text."</h3></div>";
+	//return "<div class='col-xs-12'><h5><span class='label label-success col-xs-offset-3 col-xs-3'>".$text."</span></h5></div>\n";
 }
 
 //Génère un champ de selection
@@ -191,12 +192,12 @@ function getTextArea($name, $areaName) {
 }
 
 function getBiblioButton() {
-	$text = "Ouvre un nouvel onglet menant à la création d'une nouvelle bibliographie.";
+	$text = "Ouvre un nouvel onglet menant à la consultation de la bibliographie de l'espèce renseignée.";
 	$text = str_replace("'", "&#39;", $text);
 
 	$str = "<div class='form-group col-xs-6 text-center'>";
 	$str .= "<button id='biblioButton' type='button' class='btn btn-success' data-toggle='tooltip' data-placement='top' title='".$text."'>";
-	$str .= "Ajouter un document à la bibliographie</button></div>";
+	$str .= "Consulter la bibliographie</button></div>";
 	return $str."</div>";
 }
 
@@ -248,7 +249,7 @@ function getChoixHabitat() {
 }
 
 function getCompletionButton() {
-	$text = "Pour compléter automatiquement les champs de position, renseignez au moins le genre et l'espèce, puis si possible le rang et le taxon.";
+	$text = "Pour compléter automatiquement les champs de position, renseignez au moins le genre et l'épithète, puis si possible le rang et l'épithète 2.";
 	$text = str_replace("'", "&#39;", $text);
 	$str = "<div class='form-group col-xs-6 text-center'>";
 	$str .= "<button type='button' class='btn btn-success' data-toggle='tooltip' data-placement='top' title='".$text."' onclick='requestCompleteRecolte()'>";

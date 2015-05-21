@@ -8,7 +8,7 @@ $espece = "%".$_GET['espece']."%";
 $rang = "%".$_GET['rang']."%";
 $taxon = "%".$_GET['taxon']."%";
 
-if (empty($genre) || empty($espece))
+if (strlen($genre) < 3 || strlen($espece) < 3)
 	return;
 
 $phylums = ["Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Mycetozoa", "Zygomycota"];
@@ -63,7 +63,7 @@ if (!$stmt->execute()) {
 } else {
 
 	$stmt->store_result();
-	if ($stmt->num_rows > 0) {
+	if ($stmt->num_rows == 1) {
 		$stmt->bind_result($phylum, $auteur, $famille, $classe, $regne, $ordre, $taxon, $rang);
 		$stmt->fetch();
 		echo $phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
