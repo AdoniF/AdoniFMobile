@@ -88,7 +88,7 @@ function initDomElements() {
 
 		popover: $("#popoverButton"),
 		pages: $(".page"),
-		tbody: $("#table").children("tbody")
+		tbody: $("#recolts_body")
 	}
 
 }

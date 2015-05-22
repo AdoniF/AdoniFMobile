@@ -1,5 +1,5 @@
 //Fonction permettant d'ajouter une récolte dans la table des récoltes
-function addRecolt(src, phylum, id) {
+function addRecolt(src, label, id) {
 	var deleteID = "delete:" + id;
 
 	if (src == null)
@@ -7,7 +7,7 @@ function addRecolt(src, phylum, id) {
 	
 	var newRow = "<tr id='entry" + id + "'><td><div class='row vertical-align'>"
 	+ "<span class='col-sm-5  hidden-xs'><img class='img-thumbnail' id='recolt' src='" + src + "' alt='picture'/></span>"
-	+ "<span class='col-xs-7 col-sm-4'>" + id + " : " + phylum + "</span>"
+	+ "<span class='col-xs-7 col-sm-4'>" + label + "</span>"
 	+ "<span class='col-xs-5 col-sm-3 text-right'>"
 	+ "<button type='button' class='btn btn-success row-button' onclick='uploadRecoltForId(" + id + ");'>Envoyer</button>"
 	+ "<button type='button' class='btn btn-success row-button' onclick='modifyRecolt(" + id + ");'>Modifier</button>"
@@ -38,7 +38,7 @@ function showGatherings(items) {
 
 		if (row.text() === "") {
 			var pictureSource = data.pictures && !data.pictures.isEmpty() ? data.pictures[0] : null;
-			addRecolt(pictureSource, data.phylum, items[i].id);
+			addRecolt(pictureSource, data.genre + " " + data.epithete, items[i].id);
 		}
 	}
 }

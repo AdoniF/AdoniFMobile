@@ -1,5 +1,4 @@
-var previousPages = [], currentPage, dom;
-var currentPage;
+var currentPage, dom;
 
 /*
 Fonction permettant d'initialiser un listener détectant
@@ -9,9 +8,7 @@ function init() {
 	document.addEventListener("deviceready",onDeviceReady,false);
 }
 
-/*
-Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
-*/
+//Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
 function onDeviceReady() {
 	addCustomFunctions();
 	
@@ -19,8 +16,7 @@ function onDeviceReady() {
 	initDomElements();
 	FastClick.attach(document.body);
 	showPage("index");
-	document.addEventListener("offline", onOffline, false);
-	document.addEventListener("online", onOnline, false);
+
 	document.addEventListener("backbutton", goBack, false);
 
 	dom.popover.popover();
@@ -33,25 +29,8 @@ function onDeviceReady() {
 	openDB();
 	initInputFields();
 	positionUl();
-}
-
-//Ajoute des fonctions utilitaires aux chaines et aux tableaux
-function addCustomFunctions() {
-	String.prototype.isEmpty = function() {
-		return this.length === 0;
-	}
-
-	String.prototype.contains = function (str) {
-		return this.indexOf(str) >= 0;
-	}
-
-	Array.prototype.contains = function (str) {
-		return this.indexOf(str) >= 0;
-	}
-
-	Array.prototype.isEmpty = function() {
-		return this.length == 0;
-	}
+	calculatePosition();
+	navigator.splashscreen.hide();
 }
 
 /*
@@ -101,6 +80,7 @@ function initDomElements() {
 		longitude: $("#longitude"),
 		latitude: $("#latitude"),
 		accuracy: $("#accuracy"),
+		altitude: $("#altitude"),
 		cameraPicture: $("#cameraPic"),
 		picturesDiv: $("#picturesDiv"),
 		date: $("#date"),
@@ -111,16 +91,6 @@ function initDomElements() {
 		tbody: $("#table").children("tbody")
 	}
 
-}
-
-//	Fonction appelée quand la connexion est coupée
-function onOffline() {
-	online = false;
-}
-
-// Fonction appelée quand la connexion est établie
-function onOnline() {
-	online = true;
 }
 
 var clicked = false;
@@ -156,14 +126,15 @@ function ajaxCall(method, url, toDo, param, toDoError) {
 				toDoError();
 		});
 	} else if (method == "POST") {
-		var parameters = {"param1": param.param1, "param2": param.param2};
+		var parameters = {data: param};
+
 		$.post(url, parameters)
 		.done(function (data) {
 			toDo(data, param);
 		})
-		.fail(function (err) {
+		.fail(function (xhr, textStatus, errorThrown) {
 			if (toDoError)
-				toDoError();
+				toDoError(xhr, textStatus, errorThrown);
 		});
 	}
 }

@@ -21,10 +21,13 @@
   <script src="cordova.js" charset="utf-8" ></script>
   <script src="js/libs/bootstrap.min.js" charset="utf-8" ></script>
   <script src="js/libs/fastclick.js" charset="utf-8"></script>
-  <script src="js/libs/awesomplete.min.js"></script>
+  <!--<script src="js/libs/awesomplete.min.js"></script>-->
+  <script src="js/libs/awesomplete.js"></script>
 
   <script src="js/all.js" charset="utf-8"></script>
+  <script src="js/utils.js" charset="utf-8"></script>
   <script src="js/database.js" charset="utf-8"></script>
+  <script src="js/server_requests.js" charset="utf-8"></script>
   <script src="js/form_queries.js" charset="utf-8"></script>
   <script src="js/plugins.js" charset="utf-8"></script>
   <script src="js/form.js" charset="utf-8"></script>
@@ -48,8 +51,8 @@
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="showPage('camera_screen');">Photographier un champignon</button>
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="beginRecolt();">Ajouter une récolte</button>
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="toRecolts();">Liste des récoltes</button>
-      <button type="button" class="btn btn-success btn-lg btn-block" onclick="refreshReferential();">Mettre à jour les infos</button>
-      <button type="button" class="btn btn-success btn-lg btn-block" onclick="">Test</button>
+      <button type="button" class="btn btn-success btn-lg btn-block" onclick="showRefreshAlert();">Mettre à jour les infos</button>
+
     </div>
   </div>
 </div>
@@ -103,13 +106,13 @@
       <div class="row">
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
-            <span class="input-group-addon">Epithète 2</span>
+            <span class="input-group-addon">Taxon</span>
             <input id="dataTaxon" type=text class="form-control" onblur="updateFields(3);"/>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
-            <span class="input-group-addon">Auteur</span>
+            <span class="input-group-addon">Autorités</span>
             <input id="dataAuthor" type=text class="form-control"/>
           </div>
         </div>
@@ -130,13 +133,13 @@
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Quantité trouvée</span>
-            <input id="nbFound" type="number" class="form-control"/>
+            <input id="nbFound" type="number" min='1' class="form-control"/>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Etendue (mètres)</span>
-            <input id="range" type="number" class="form-control"/>
+            <input id="range" type="number" min='1' class="form-control"/>
           </div>
         </div>
       </div>
@@ -153,12 +156,19 @@
           <p id="accuracy"></p>
         </div>
         <div class = "col-xs-12 col-sm-6">
-          <p id="date"></p>
+          <p id="altitude"></p>
         </div>         
       </div>
       <div class="row">
+        <div class = "col-xs-12 col-sm-6">
+          <p id="date"></p>
+        </div>
+      </div>
+      <div class="row">
         <div class= "col-xs-12">
-          <button type="button" class="btn btn-success btn-lg btn-block" onclick="setLocationAndDate();">Actualiser <span class="glyphicon glyphicon-map-marker"></span></button>
+          <button type="button" class="btn btn-success btn-lg btn-block" onclick="setLocationAndDate();">
+            Actualiser <span class="glyphicon glyphicon-map-marker"></span>
+          </button>
         </div>
       </div>
 
@@ -196,7 +206,7 @@
       <div class = "col-xs-12 col-sm-6">
         <div class="input-group">
           <span class="input-group-addon">Hôte</span>
-          <input id = "listHost" class="form-control"></select>
+          <select id = "listHost" class="form-control"></select>
         </div>
       </div>
     </div>
@@ -243,10 +253,14 @@
 
     <div class="page-header"><h3>Photo(s)</h3></div>
     <div id="picturesDiv">
-      <!--Les éléments HTML des photos prises seront ajoutés ici -->
+      <table id="table" class="table"><tbody id="tableBody">
+        <!--Les éléments HTML des photos prises seront ajoutés ici -->
+      </tbody></table>
     </div>
     <div>
-      <button type="button" class="btn btn-success btn-lg btn-block" onclick="launchCamera();">Ajouter une photo (4 max)</button>
+      <button type="button" class="btn btn-success btn-lg btn-block" onclick="launchCamera();">
+        Ajouter une photo <span class="glyphicon glyphicon-camera"></span>
+      </button>
     </div>
   </div>
   <div class="panel-footer">
@@ -280,7 +294,9 @@
       <div id="CameraScreenPicture" style="text-align:center;margin:20px;">
         <img class="img-thumbnail" style="display:none" id="cameraPic" src="src" alt="picture" />
       </div>
-      <button class="btn btn-success btn-lg btn-block" type="button" onclick="launchCamera();">Prendre une photo</button>
+      <button class="btn btn-success btn-lg btn-block" type="button" onclick="launchCamera();">
+        Prendre une photo <span class="glyphicon glyphicon-camera"></span>
+      </button>
     </div>
     <div class="panel-footer" >
       <div class="row footer">
@@ -346,8 +362,7 @@
     <div class="panel-footer">
       <div class="row footer">
         <button type="button" class="btn btn-success btn-lg pull-left" onclick="goBack();">Retour</button>
-        <button type="button" class="btn btn-success btn-lg pull-left" onclick="initDB();refreshGatheringsList();">Reset</button>
-        <button type="button" class="btn btn-success btn-lg pull-right" onclick="addFakeGathering();updateGatheringsList();">Ajouter</button>
+        <button type="button" class="btn btn-success btn-lg pull-right" onclick="uploadAllRecolts();">Envoyer toutes les récoltes</button>
       </div>
     </div>
   </div>

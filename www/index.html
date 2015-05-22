@@ -73,41 +73,42 @@
       </div></div>
 
       <div class="page-header"><h3>Nom</h3> </div>
+      <em>Pour accéder aux fonctions d'autocomplétion, veuillez entrer un phylum.</em>
       <div class="row">
-        <div class = "col-xs-12 col-sm-6">
-          <div id="phylumDiv" class="input-group has-error">
-            <span class="input-group-addon">Phylum*</span>
-            <select id="listPhylum" class="form-control" onchange="checkPhylumValidity()" onblur="updateFields(0);"></select>
-          </div>
-        </div>
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Genre</span>
             <input id="dataGenre" class="form-control" type=text onblur="updateFields(1);"/>
           </div>
         </div>
-      </div>
-
-      <div class="row">
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Epithète</span>
             <input id="dataSpecies" type=text class="form-control" onblur="updateFields(2);"/>
           </div>
         </div>
+      </div>
+
+      <div class="row">
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
             <span class="input-group-addon">Rang</span>
             <select id = "listSVF" class="form-control" onblur="updateFields(2);"></select>
           </div>
         </div>
+        <div class = "col-xs-12 col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon">Epithète 2</span>
+            <input id="dataTaxon" type=text class="form-control" onblur="updateFields(3);"/>
+          </div>
+        </div>
       </div>
 
       <div class="row">
         <div class = "col-xs-12 col-sm-6">
-          <div class="input-group">
-            <span class="input-group-addon">Taxon</span>
-            <input id="dataTaxon" type=text class="form-control" onblur="updateFields(3);"/>
+          <div id="phylumDiv" class="input-group has-error">
+            <span class="input-group-addon">Phylum*</span>
+            <select id="listPhylum" class="form-control" onchange="checkPhylumValidity()" onblur="updateFields(0);"></select>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
@@ -252,9 +253,9 @@
 
 
     <div class="page-header"><h3>Photo(s)</h3></div>
-    <div id="picturesDiv">
+    <table id="table" class="table"><tbody id="tableBody">
       <!--Les éléments HTML des photos prises seront ajoutés ici -->
-    </div>
+    </tbody></table>
     <div>
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="launchCamera();">
         Ajouter une photo <span class="glyphicon glyphicon-camera"></span>
@@ -353,14 +354,14 @@
           <thead>
             <tr><th>Récoltes en attente</th></tr>
           </thead>
-          <tbody> </tbody>
+          <tbody id="recolts_body"> </tbody>
         </table>
       </div>
     </div>
     <div class="panel-footer">
       <div class="row footer">
         <button type="button" class="btn btn-success btn-lg pull-left" onclick="goBack();">Retour</button>
-        <button type="button" class="btn btn-success btn-lg pull-right" onclick="uploadAllRecolts();">Envoyer toutes les récoltes</button>
+        <button type="button" class="btn btn-success btn-lg pull-right" onclick="uploadAllRecolts();">Upload des récoltes</button>
       </div>
     </div>
   </div>

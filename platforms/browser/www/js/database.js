@@ -9,11 +9,13 @@ var db_name = "smnf.db";
 
 // Ouvre la base de données
 function openDB() {
-	if (window.sqlitePlugin) {
+	/*if (window.sqlitePlugin) {
 		if (!db)
 			db = window.sqlitePlugin.openDatabase({name: db_name});
 		checkConnection();
-	}
+	} else {
+		alert("no plugin");
+	}*/
 }
 
 function getPhylumTable(phylumName) {
@@ -46,12 +48,8 @@ function connectUser() {
 		if (!dbCreated)
 			initDB();
 		
-		navigator.notification.alert(
-			"Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
-			showConnectionPage,
-			"Connexion requise",
-			"Connexion"
-			);
+		alert("Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
+			showConnectionPage, "Connexion requise", "Connexion");
 	}
 }
 
@@ -79,6 +77,7 @@ function dropTables(tx) {
 
 function dropReferentialTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS substrats");
+	tx.executeSql("DROP TABLE IF EXISTS hotes");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("DROP TABLE IF EXISTS " + phylumsTables[i] + ";");
 	}
@@ -97,6 +96,7 @@ function createTables(tx) {
 
 function createReferentialTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS substrats(data TEXT);");
+	tx.executeSql("CREATE TABLE IF NOT EXISTS hotes(data TEXT);");
 	for (var i = 0; i < phylumsTables.length; ++i) {
 		tx.executeSql("CREATE TABLE IF NOT EXISTS " + phylumsTables[i] +"("
 			+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -109,47 +109,57 @@ function createReferentialTables(tx) {
 	}	
 }
 
-function refreshReferential() {
-	db.transaction(function (tx) {
-		dropReferentialTables(tx);
-		createReferentialTables(tx);
-	}, function (e) {
-		alert("error refreshReferential " + e.message);
-	});
-	populateDB();
+function showRefreshAlert() {
+	confirm("Etes vous sur de vouloir rafraichir les informations du référentiel ? Cette opération peut prendre plusieurs minutes"
+		+ " et nécessite une connexion internet.", refreshReferential, "Attention", ["Annuler", "Valider"]);
+}
+
+function refreshReferential(buttonIndex) {
+	if (buttonIndex == 2) {
+		db.transaction(function (tx) {
+			dropReferentialTables(tx);
+			createReferentialTables(tx);
+			populateDB();
+		}, function (e) {
+			alert("error refreshReferential " + e.message);
+		});
+	}
 }
 
 function populateDB() {
+	showSpinnerDialog("Chargement", "Chargement des informations du référentiel...", true);
 	populateCallsRunning = 0;
-	populateNamesInfos();
-	populateSubstrats();
 	errorShown = false;
+
+	populateHotes();
+	populateSubstrats();
+	populateNamesInfos();
 }
 
 var populateCallsRunning = 0;
 function populateNamesInfos() {
+	populateCallsRunning += phylumsTables.length;
 	phylumsTables.forEach(function (phylum) {
-		//ajaxCall("GET", "http://smnf-db.fr/ajax/requestNameData.php?base=" + phylum, insertNameInfo, phylum, populateDBError);
 		ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestNameData.php?base=" + phylum,
 			insertNameInfo, phylum, populateDBError);
-		populateCallsRunning++;
 	});
 }
 
-function populateSubstrats(tx) {
+function populateHotes() {
+	populateCallsRunning++;
+	ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestHosts.php", insertHotesInfos, null, populateDBError);
+}
+function populateSubstrats() {
+	populateCallsRunning += 1;
 	ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
 }
 
 var errorShown = false;
 function populateDBError() {
+	hideSpinnerDialog();
 	if (!errorShown) {
-		navigator.notification.confirm(
-			"Echec de la récupération des informations du référentiel. Veuillez vérifier votre connexion internet"
-			+ " ou réessayer ultérieurement.",
-			populateDBErrorCallback,
-			"Erreur",
-			["Annuler", "Réessayer"]
-			);
+		confirm("Echec de la récupération des informations du référentiel. Veuillez vérifier votre connexion internet"
+			+ " ou réessayer ultérieurement.", populateDBErrorCallback, "Erreur", ["Annuler", "Réessayer"]);
 		errorShown = true;
 	}
 }
@@ -157,6 +167,27 @@ function populateDBError() {
 function populateDBErrorCallback(buttonIndex) {
 	if (buttonIndex == 2)
 		populateDB();
+}
+
+function insertHotesInfos(data) {
+	var rows = data.split("\n");
+	db.transaction(function (tx) {
+		rows.forEach(function(entry) {
+			entry = entry.trim();
+			if (entry.isEmpty())
+				return;
+
+			var query = "INSERT INTO hotes VALUES ('" + entry + "');";
+			tx.executeSql(query);
+		});
+		populateCallsRunning--;
+		if (populateCallsRunning == 0 && !errorShown) {
+			hideSpinnerDialog();
+			shortBottomToast("Récupération des informations du référentiel réussie !");
+		} else {
+			errorShown = false;
+		}
+	});
 }
 
 function insertSubstratsInfos(data) {
@@ -171,12 +202,12 @@ function insertSubstratsInfos(data) {
 			tx.executeSql(query);
 		});
 		populateCallsRunning--;
-		if (populateCallsRunning == 0 && !errorShown)
-			window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
-		else
+		if (populateCallsRunning == 0 && !errorShown) {
+			hideSpinnerDialog();
+			shortBottomToast("Récupération des informations du référentiel réussie !");
+		} else {
 			errorShown = false;
-
-
+		}
 	}, function (e) {
 		alert("error insertNameInfo " + e.message);
 	});
@@ -196,13 +227,15 @@ function insertNameInfo(data, phylum) {
 
 			if (query)
 				tx.executeSql(query);
-
-			populateCallsRunning--;
-			if (populateCallsRunning == 0 && !errorShown)
-				window.plugins.toast.showShortBottom("Récupération des informations du référentiel réussie !");
-			else
-				errorShown = false;
 		});
+
+		populateCallsRunning--;
+		if (populateCallsRunning == 0 && !errorShown) {
+			hideSpinnerDialog();
+			shortBottomToast("Récupération des informations du référentiel réussie !");
+		} else {
+			errorShown = false;
+		}
 	}, function (e) {
 		alert("error insertNameInfo " + e.message);
 	});
@@ -245,7 +278,8 @@ function tryToConnect() {
 	var param = {};
 	param.param1 = email.val();
 	param.param2 = password.val();
-	ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/connexion.php", getConnectionResult, param, connectionError);
+	ajaxCall("POST", "http://referentiel.dbmyco.fr/ajax/connexionMobile.php", getConnectionResult, JSON.stringify(param),
+		connectionError);
 }
 
 function connectionError() {
@@ -254,13 +288,13 @@ function connectionError() {
 
 function getConnectionResult(data, param) {
 	if (data.contains("OK")) {
-		window.plugins.toast.showShortBottom("Connexion réussie !");
+		shortBottomToast("Connexion réussie !");
 		toIndex();
 
 		createUser(param.param1, param.param2, data);
 		addUser(user);
 	} else {
-		window.plugins.toast.showShortBottom("Echec de la connexion. Veuillez réessayer");
+		shortBottomToast("Echec de la connexion. Veuillez réessayer");
 	}
 }
 
@@ -271,6 +305,7 @@ function createUser(email, password, userData) {
 	user.password = password;
 	user.prenom = values[1];
 	user.nom = values[2];
+	user.id = values[3];
 }
 
 // Ajoute l'utilisateur à la base de données
@@ -314,18 +349,11 @@ function updateGathering(gathering, id) {
 	});
 }
 
-function addFakeGathering() {
-	var gathering = new Recolte();
-	gathering.phylum = "myPhylum" + Math.round(Math.random() * 1000);
-	addGathering(gathering);
-}
-
 // Récupère la récolte correspondant à l'id en paramètre
-function getGathering(id) {
+function getGathering(id, toDo) {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT data from gatherings WHERE id = ?;", [id], function(tx, res) {
-			populateFormFromGathering(JSON.parse(res.rows.item(0).data), id);
-			toAddRecolt();
+			toDo(JSON.parse(res.rows.item(0).data), id);
 		});
 	}, function (e) {
 		alert("error getGathering " + e.message);
@@ -364,15 +392,19 @@ function deleteGathering(id) {
 	});
 }
 
+//Fonction de débug
 function checkTablesSizes() {
+	var idx = 0;
 	db.transaction(function (tx) {
 		for (var i = 0; i < phylumsTables.length; i++) {
 			var phylum = phylumsTables[i];
 			tx.executeSql("SELECT COUNT(*) as cpt FROM " + phylum, [], function (tx, res) {
-				alert(phylum + " " + res.rows.item(0).cpt);
+				alert("phylum n°" + idx + " " + phylumsTables[idx] + " : " + res.rows.item(0).cpt);
+				idx++;
 			});
 		}
 	}, function (e) {
-		alert("error delete gathering " + e.message);
+		alert("error check tables " + e.message);
 	});
 }
+

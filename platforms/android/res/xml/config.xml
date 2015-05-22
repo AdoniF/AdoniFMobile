@@ -30,15 +30,16 @@
     <feature name="SpinnerDialog">
         <param name="android-package" value="hu.dpal.phonegap.plugins.SpinnerDialog" />
     </feature>
-    <icon density="mdpi" src="img/icons/icon_mdpi.png" />
-    <icon density="hdpi" src="img/icons/icon_hdpi.png" />
-    <icon density="xhdpi" src="img/icons/icon_xhdpi.png" />
-    <splash density="land-hdpi" src="img/screen/splash_land_hdpi.png" />
-    <splash density="land-mdpi" src="img/screen/splash_land_mdpi.png" />
-    <splash density="land-xhdpi" src="img/screen/splash_land_xhdpi.png" />
-    <splash density="port-hdpi" src="img/screen/splash_port_hdpi.png" />
-    <splash density="port-mdpi" src="img/screen/splash_port_mdpi.png" />
-    <splash density="port-xhdpi" src="img/screen/splash_port_xhdpi.png" />
+    <icon density="ldpi" src="img/icons/android/icon_ldpi.png" />
+    <icon density="mdpi" src="img/icons/android/icon_mdpi.png" />
+    <icon density="hdpi" src="img/icons/android/icon_hdpi.png" />
+    <icon density="xhdpi" src="img/icons/android/icon_xhdpi.png" />
+    <splash density="land-hdpi" src="img/screen/android/splash_land_hdpi.png" />
+    <splash density="land-mdpi" src="img/screen/android/splash_land_mdpi.png" />
+    <splash density="land-xhdpi" src="img/screen/android/splash_land_xhdpi.png" />
+    <splash density="port-hdpi" src="img/screen/android/splash_port_hdpi.png" />
+    <splash density="port-mdpi" src="img/screen/android/splash_port_mdpi.png" />
+    <splash density="port-xhdpi" src="img/screen/android/splash_port_xhdpi.png" />
     <name>Adonif</name>
     <description>
 		Application permettant d'entrer des récoltes dans la base de données mycologique de l'Adonif.
@@ -48,6 +49,7 @@
 	</author>
     <content src="index.html" />
     <access origin="*" />
+    <preference name="android-targetSdkVersion" value="8" />
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="3000" />
     <preference name="SplashMaintainAspectRatio" value="false" />

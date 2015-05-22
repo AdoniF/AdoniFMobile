@@ -1,0 +1,40 @@
+.control-label {
+	text-align: right;
+	padding-top:5px;
+} 
+
+.label-success {
+	margin-bottom: 5px;
+}
+
+.btn { 
+	margin-bottom: 1px;
+}
+
+#SELECTHABITAT {
+	overflow: scroll;
+	display: block; 
+	cursor: default; 
+	width: 600px; 
+	height: 300px;
+}
+
+#mapButton {
+	padding-top: 3px; 
+	padding-bottom: 5px;
+}
+
+input, select {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+button {
+	margin: 5px;
+}
+
+.page-header {
+	margin: 2px;
+}

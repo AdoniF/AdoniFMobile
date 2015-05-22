@@ -5,6 +5,8 @@ var firstTry;
 var timeoutExpired = 3;
 var nbPictures = 0;
 
+var pictures = [];
+
 var position = {
 	coords : {
 		longitude: "en cours...",
@@ -116,8 +118,8 @@ var nb = 0;
 //Fonction permettant d'ajouter une photo
 function addPicture(src) {
 	try {
-		var picturesDiv = document.getElementById("picturesDiv");
-		picturesDiv.innerHTML = picturesDiv.innerHTML + getPictureRow(src);
+		pictures.push(src);
+		showPicturesTab();
 	} catch (err) {
 		alert("add picture " + err.message);
 	}
@@ -150,4 +152,38 @@ function deletePicture(id) {
 	div.remove();
 	
 	--nbPictures;
+}
+
+function showPicturesTab() {
+	var pics = "<tr>", deletes = "<tr>";
+
+	var picMaxWidth;
+	if (pictures.length == 1)
+		picMaxWidth = "30%";
+	else if (pictures.length == 2)
+		picMaxWidth = "75%";
+	else
+		picMaxWidth = "100%";
+
+	var div = "";
+	for (var i = 0; i < pictures.length; i++) {
+		pics += "<td class='text-center'><img style='max-width: " + picMaxWidth + ";' class='picture' src='" + pictures[i] + "' alt='photo'/></td>";
+		deletes += "<td class='text-center'><button type='button' class='btn btn-success delete' onclick='removePicture(" + i + ")'>"
+		+ "<span class='glyphicon glyphicon-trash'></span></button></td>";
+
+		if ((i - 2)%3 == 0 && i != (pictures.length - 1)) {
+			pics += "</tr>", deletes += "</tr>";
+			div += pics + deletes; 
+			pics = "<tr>", deletes = "<tr>";
+		}
+	}
+	pics += "</tr>", deletes += "</tr>";
+	div += pics + deletes;
+
+	document.getElementById("tableBody").innerHTML = div;
+}
+
+function removePicture(id) {
+	pictures.splice(id, 1);
+	showPicturesTab();
 }

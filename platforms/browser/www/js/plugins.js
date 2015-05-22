@@ -1,87 +1,110 @@
-var pictureSource;
-var destinationType;
 var currentPicNumber = -1;
-var online = false;
 var cameraOptions;
 var firstTry;
 
 var timeoutExpired = 3;
-
 var nbPictures = 0;
 
+var pictures = [];
+
+var position = {
+	coords : {
+		longitude: "en cours...",
+		latitude: "en cours...",
+		accuracy: "en cours....",
+		altitude: "en cours..."
+	}
+};
+
 // Fonction appellée lors de la réussite d'une géolocalisation
-function onGeolocationSuccess(pos) {
-	recolt.longitude = pos.coords.longitude;
-	recolt.latitude = pos.coords.latitude;
-	recolt.accuracy = Math.round(pos.coords.accuracy);
-	setLocationFields(recolt.longitude, recolt.latitude, recolt.accuracy + " (mètres)");
+function updatePosition() {
+	recolt.longitude = position.coords.longitude;
+	recolt.latitude = position.coords.latitude;
+	recolt.accuracy = Math.round(position.coords.accuracy);
+	recolt.altitude = position.coords.altitude;
+
+	var altitude = recolt.altitude ? recolt.altitude + " (mètres)" : "indisponible";
+	var accuracy = recolt.accuracy ? recolt.accuracy + " (mètres)" : "indisponible"
+	setLocationFields(recolt.longitude, recolt.latitude, accuracy, altitude);
+}
+
+function onGeolocationSuccess (pos) {
+	position = pos;
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
-	if (firstTry) {
-		window.plugins.toast.showShortBottom("Echec de la localisation GPS. Tentative de localisation par le réseau");
-		firstTry = false;
-		calculatePosition(true);
-	} else {
-		recolt.longitude = "";
-		recolt.latitude = "";
-		recolt.accuracy = "";
-		setLocationFields("échec", "échec", "échec");
-	}
-
+	shortBottomToast("Echec de la localisation GPS.");
 }
 
+var watchID;
 // Lance la géolocalisation de l'utilisateur
-function calculatePosition(lowAccuracy) {
-	var timeout, highAccuracy;
-	try {
-		setLocationFields("calcul en cours...", "calcul en cours...", "calcul en cours...");
-		if (lowAccuracy) {
-			timeout = 30000;
-			highAccuracy = false;
-		} else {
-			firstTry = true;
-			timeout = 10000;
-			highAccuracy = true;
-		}
-
-		var locationOptions = {enableHighAccuracy: highAccuracy, timeout: timeout};
-		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, locationOptions);
-	} catch (err) {
-		alert("error calculate position " + err.message);
-	}
+function calculatePosition() {
+	var options = {enableHighAccuracy: true, timeout: 20000, maximumAge: 5000};
+	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
 }
 
 //	Initialisation de la source de l'image et de la destination au lancement de la page
 function initCamera() {
 	nbPictures = 0;
 	if (navigator.camera) {
-		cameraOptions = {quality: 50, destinationType: Camera.DestinationType.FILE_URI, correctOrientation: true, encodingType: Camera.EncodingType.JPEG};
-		pictureSource=navigator.camera.PictureSourceType;
-		destinationType=navigator.camera.DestinationType;
+		cameraOptions = {
+			quality: 50, 
+			destinationType: Camera.DestinationType.FILE_URI, 
+			correctOrientation: true, 
+			encodingType: Camera.EncodingType.JPEG
+		};
 	}
 }
 //	Fonction qui démarre l'appareil photo
 function launchCamera() {
-	if (nbPictures < 4) {
-		navigator.camera.getPicture(cameraSuccess, cameraFailure, cameraOptions);
-	} else {
-		navigator.notification.alert(
-			"Vous avez atteint la limite du nombre de photos. Veuillez en supprimer une pour en prendre une nouvelle.",
-			function (){},
-			"Trop de photos",
-			"Ok"
-			);
-	}
+	canvas = document.createElement("canvas");
+	navigator.camera.getPicture(cameraSuccess, cameraFailure, cameraOptions);
 }
 
 //	Fonction appelée suite à la réussite de la prise d'une photo
-function cameraSuccess(data) {
+function cameraSuccess(src) {
+	showSpinnerDialog("Sauvegarde", "Sauvegarde de l'image en cours...", true);
+	savePictureToGallery(src);
+
 	if (currentPage == "camera_screen")
-		addPictureToCameraScreen(data);
+		addPictureToCameraScreen(src);
 	else
-		addPicture(data);
+		addPicture(src);
+}
+
+var canvas;
+function savePictureToGallery(src) {
+	var context, imageDataUrl, imageData;
+	var img = new Image();
+	img.onload = function() {
+		canvas = document.createElement('canvas');
+		canvas.width = img.width;
+		canvas.height = img.height;
+		context = canvas.getContext('2d');
+		context.drawImage(img, 0, 0);
+		
+		imageDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+		imageData = imageDataUrl.replace(/data:image\/jpeg;base64,/, '');
+		cordova.exec(
+			onSaveSuccess,
+			onSaveFailure,
+			'Canvas2ImagePlugin',
+			'saveImageDataToLibrary',
+			[imageData]
+			);
+	};
+
+	img.src = src;
+}
+
+function onSaveSuccess() {
+	window.plugins.spinnerDialog.hide();
+	shortBottomToast("Sauvegarde réussie !")
+}
+function onSaveFailure() {
+	alert("La sauvegarde de la photo a échoué. Vous pourrez l'utiliser dans l'application, mais vous ne pourrez pas la retrouver"
+		+ "dans votre gallerie.", null, "Echec de la sauvegarde", "Ok");
 }
 
 // Ajoute l'image photographiée à l'écran de prise de photo
@@ -95,8 +118,10 @@ var nb = 0;
 //Fonction permettant d'ajouter une photo
 function addPicture(src) {
 	try {
-		var picturesDiv = document.getElementById("picturesDiv");
-		picturesDiv.innerHTML = picturesDiv.innerHTML + getPictureRow(src);
+		/*var picturesDiv = document.getElementById("picturesDiv");
+		picturesDiv.innerHTML = picturesDiv.innerHTML + getPictureRow(src);*/
+		pictures.push(src);
+		showPicturesTab();
 	} catch (err) {
 		alert("add picture " + err.message);
 	}
@@ -131,24 +156,40 @@ function deletePicture(id) {
 	--nbPictures;
 }
 
-function uploadPicture(fileURI) {
-	var options = new FileUploadOptions();
-	options.fileKey = "file";
-	options.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
-	options.mimeType = "image/jpeg";
+function showPicturesTab() {
+	var pics = "<tr>", deletes = "<tr>";
 
-	var ft = new FileTransfer();
-	ft.upload(fileURI, encodeURI("http://smnf-db.fr/ajax/uploadPicture.php"), onUploadSuccess, onUploadFailure, options);
+	var picMaxWidth;
+	if (pictures.length == 1)
+		picMaxWidth = "30%";
+	else if (pictures.length == 2)
+		picMaxWidth = "75%";
+	else
+		picMaxWidth = "100%";
+
+	var div = "";
+	for (var i = 0; i < pictures.length; i++) {
+		pics += "<td class='text-center'><img style='max-width: " + picMaxWidth + ";' class='picture' src='" + pictures[i] + "' alt='photo'/></td>";
+		deletes += "<td class='text-center'><button type='button' class='btn btn-success delete' onclick='removePicture(" + i + ")'>"
+		+ "<span class='glyphicon glyphicon-trash'></span></button></td>";
+
+		if ((i - 2)%3 == 0 && i != (pictures.length - 1)) {
+			pics += "</tr>", deletes += "</tr>";
+			div += pics + deletes; 
+			pics = "<tr>", deletes = "<tr>";
+		}
+	}
+	pics += "</tr>", deletes += "</tr>";
+	div += pics + deletes;
+
+	/*$("#tableBody").empty();
+	$("#tableBody").append(div);*/
+	alert(document.getElementById("add_recolt").innerHTML);
+	document.getElementById("tableBody").innerHTML = div;
+	alert(document.getElementById("tableBody").innerHTML);
 }
 
-function onUploadSuccess (r) {
-	alert("Code = " + r.responseCode);
-	alert("Response = " + r.response);
-	alert("Sent = " + r.bytesSent);
-}
-
-function onUploadFailure (error) {
-	alert("An error has occurred: Code = " + error.code);
-	alert("upload error source " + error.source);
-	alert("upload error target " + error.target);
+function removePicture(id) {
+	pictures.splice(id, 1);
+	showPicturesTab();
 }
