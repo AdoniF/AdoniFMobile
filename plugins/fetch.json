@@ -55,5 +55,12 @@
             "type": "registry",
             "id": "hu.dpal.phonegap.plugins.spinnerdialog"
         }
+    },
+    "cordova-sqlite-common": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/litehelpers/cordova-sqlite-common",
+            "subdir": "."
+        }
     }
 }

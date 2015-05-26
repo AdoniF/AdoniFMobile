@@ -1,13 +1,6 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "file": "plugins/com.brodysoft.sqliteStorage/www/SQLitePlugin.js",
-        "id": "com.brodysoft.sqliteStorage.SQLitePlugin",
-        "clobbers": [
-            "SQLitePlugin"
-        ]
-    },
-    {
         "file": "plugins/nl.x-services.plugins.toast/www/Toast.js",
         "id": "nl.x-services.plugins.toast.Toast",
         "clobbers": [
@@ -96,6 +89,13 @@ module.exports = [
         "id": "hu.dpal.phonegap.plugins.SpinnerDialog.SpinnerDialog",
         "merges": [
             "window.plugins.spinnerDialog"
+        ]
+    },
+    {
+        "file": "plugins/cordova-sqlite-common/www/SQLitePlugin.js",
+        "id": "cordova-sqlite-common.SQLitePlugin",
+        "clobbers": [
+            "SQLitePlugin"
         ]
     },
     {
@@ -229,7 +229,6 @@ module.exports.metadata =
 // TOP OF METADATA
 {
     "org.apache.cordova.geolocation": "0.3.12",
-    "com.brodysoft.sqliteStorage": "0.7.3",
     "nl.x-services.plugins.toast": "2.0.4",
     "org.apache.cordova.file-transfer": "0.5.0",
     "org.apache.cordova.camera": "0.3.6",
@@ -237,6 +236,7 @@ module.exports.metadata =
     "cordova-plugin-splashscreen": "2.0.1-dev",
     "org.devgeeks.Canvas2ImagePlugin": "0.6.0",
     "hu.dpal.phonegap.plugins.SpinnerDialog": "1.3.1",
+    "cordova-sqlite-common": "0.7.0-dev",
     "org.apache.cordova.file": "1.3.3"
 }
 // BOTTOM OF METADATA
