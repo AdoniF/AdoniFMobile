@@ -1,0 +1,119 @@
+<?php 
+/**
+ * Main Page template file
+**/
+get_header(); ?>
+<section class="blog-bg">  
+<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+  <div class="gg_menu_bg">
+    <div class="webpage-container container">
+      <div class="gg_menu clearfix">
+		  <div class="col-md-6 col-sm-6">  
+        <h1><?php the_title(); ?></h1>
+		  </div>
+		  <div class="col-md-6 col-sm-6">  
+        <ol class="breadcrumb site-breadcumb">
+          <?php if (function_exists('gardenia_custom_breadcrumbs')) gardenia_custom_breadcrumbs(); ?>
+        </ol>
+		  </div>
+   
+<?php  //MMMMMMMMMMMMMMMMMMMMMMMMMMMMMEEEEEEEEEEEEEEEEEEEENNNNNNNNNNNNNNNNNNNNNNNNNNNNNUUUUUUUUUUUUUU ?>
+<div id = "menu">
+<h4>
+<div class="col-md-12 col-sm-12">
+<div class = "row">
+<div class="col-sm-3 col-md-3"  ><a href="/recherche/">Recherche par champs</a></div>
+<div class="col-sm-3 col-md-3"  ><a href="/consultation-fiches/">Recherche alphabétique</a></div>
+<div class="col-sm-3 col-md-3"  ><a href="/cartographie">Cartographie</a></div>
+<!-- <div class="col-sm-3 col-md-3"  ><a href="/se-connecter/" >Connexion</a></div> -->
+</div>
+</div>
+<!-- <div clas="col-sm-3 col-md-3"  ><a href="/se-connecter/" >S'identifier</a></div> -->
+<!-- <div clas="col-sm-3 col-md-3"  ><a href="http://dbmyco.fr" target="_blank" >Retour</a></div> -->
+
+<?php
+if (isset($_SESSION['id'])){
+/* echo '<div class="row">';
+echo '<div class="col-sm-3 col-md-3"  ><a href="/se-connecter/profil/">Modifier mon profil </a></div>';
+           */  
+/* goood */
+echo '<div class="col-sm-3 col-md-3"  ><a href="/se-connecter/profil/">Modifier mon profil </a></div>';
+if ($_SESSION['superAdmin']==1) {
+/* echo '
+<div class="col-sm-3 col-md-3"><a href="/se-connecter/gestioninfobulles/">Gérer les infobulles </a> 
+         </div> */ 
+
+
+
+if (($_SESSION['droitSaisie']==1)|| ($_SESSION['droitAdmin']== 1)){
+  
+ echo '<div class = "row">';
+echo '<div class="col-sm-3 col-md-3"  ><a href ="/creation"> Création/Modification</a></div>';
+echo '<div class="col-sm-3 col-md-3"><a href ="/se-connecter/importationdonnees"> ImportationExcel</a></div>';
+echo '<div class="col-sm-3 col-md-3"><a href ="/se-connecter/importationfiches"> ImportationFiches</a></div>';
+echo '</div>';
+}
+if($_SESSION['droitSaisie']== 1)  
+{ 
+   if ($_SESSION['superAdmin']== 1 || $_SESSION['droitAdmin']== 1) 
+              {
+
+          echo '  <div class = "row">';
+          echo '<div class="col-sm-3 col-md-3"><a href="/se-connecter/validation/gestion-des-droits/">Gérer les droits  </a></div>';
+          echo '<div class="col-sm-3 col-md-3"><a href="/se-connecter/gestioninfobulles/">Gérer les infobulles </a></div>';
+          echo '<div class="col-sm-3 col-md-3"><a href ="/se-connecter/validation"> Validations</a></div> ';
+         echo '  </div>  ';
+         echo '  <div class = "row">';
+          echo '<div class="col-sm-3 col-md-3"><a href="/se-connecter/administration/">Administration </a></div>';
+         echo '</div>';
+                         }
+}
+echo '<div class = "row">';
+ echo '<div class="col-sm-3 col-md-3"  ><a href="/se-connecter/profil/">Modifier mon profil </a></div>';
+echo '</div>';
+echo '</div>';}
+}
+?>
+
+
+</h4>
+    </div> 
+</div> <!-- ici -->
+</div>
+  </div>
+  
+  <div class="container">
+    <article class="blog-article clearfix">		
+                
+      <div class="col-md-12 blog-right-page col-sm-12">		
+	<?php while ( have_posts() ) : the_post();  ?>	
+        <div class="blog-main blog_1 ">
+			<div class="blog-rightsidebar-img">
+			<?php if ( has_post_thumbnail() ) : ?>
+					<?php the_post_thumbnail( 'gardenia-sidebar-image-size', array( 'alt' => get_the_title(), 'class' => 'img-responsive gardenia-featured-image') ); ?>
+				<?php endif; ?>   						
+			</div>
+          <div class="blog-data">
+            <div class="clearfix"></div>
+            <div class="blog-content">
+              <?php the_content();
+			  		wp_link_pages( array(
+		            'before'      => '<div class="col-md-6 col-xs-6 no-padding-lr prev-next-btn">' . __( 'Pages', 'gardenia' ) . ':',
+		            'after'       => '</div>',
+		            'link_before' => '<span>',
+		            'link_after'  => '</span>',
+		            ) ); ?>         
+            </div>
+          </div>
+        </div> 
+    <div class="comments">
+		<?php comments_template( '', true ); ?>
+	</div>     
+    <?php endwhile; ?>                
+      </div>
+ 
+    </article>
+  </div>
+</div>  
+</section>
+<?php get_footer(); ?>

@@ -91,24 +91,24 @@
 
       <div class="row">
         <div class = "col-xs-12 col-sm-6">
-          <div id="phylumDiv" class="input-group has-error">
-            <span class="input-group-addon">Phylum*</span>
-            <select id="listPhylum" class="form-control" onchange="checkPhylumValidity()" onblur="updateFields(0);"></select>
+          <div class="input-group">
+            <span class="input-group-addon">Rang</span>
+            <select id = "listSVF" class="form-control" onblur="updateFields(2);"></select>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
           <div class="input-group">
-            <span class="input-group-addon">Rang</span>
-            <select id = "listSVF" class="form-control" onblur="updateFields(2);"></select>
+            <span class="input-group-addon">Epithète 2</span>
+            <input id="dataTaxon" type=text class="form-control" onblur="updateFields(3);"/>
           </div>
         </div>
       </div>
 
       <div class="row">
         <div class = "col-xs-12 col-sm-6">
-          <div class="input-group">
-            <span class="input-group-addon">Epithète 2</span>
-            <input id="dataTaxon" type=text class="form-control" onblur="updateFields(3);"/>
+          <div id="phylumDiv" class="input-group has-error">
+            <span class="input-group-addon">Phylum*</span>
+            <select id="listPhylum" class="form-control" onchange="checkPhylumValidity()" onblur="updateFields(0);"></select>
           </div>
         </div>
         <div class = "col-xs-12 col-sm-6">
@@ -167,7 +167,7 @@
       </div>
       <div class="row">
         <div class= "col-xs-12">
-          <button type="button" class="btn btn-success btn-lg btn-block" onclick="setLocationAndDate();">
+          <button type="button" class="btn btn-success btn-lg btn-block" onclick="updatePosition(); setLocationAndDate();">
             Actualiser <span class="glyphicon glyphicon-map-marker"></span>
           </button>
         </div>
@@ -253,9 +253,9 @@
 
 
     <div class="page-header"><h3>Photo(s)</h3></div>
-      <table id="table" class="table"><tbody id="tableBody">
-        <!--Les éléments HTML des photos prises seront ajoutés ici -->
-      </tbody></table>
+    <table id="table" class="table"><tbody id="tableBody">
+      <!--Les éléments HTML des photos prises seront ajoutés ici -->
+    </tbody></table>
     <div>
       <button type="button" class="btn btn-success btn-lg btn-block" onclick="launchCamera();">
         Ajouter une photo <span class="glyphicon glyphicon-camera"></span>

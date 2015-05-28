@@ -1,11 +1,11 @@
-var currentPage, dom;
+var dom;
 
 /*
 Fonction permettant d'initialiser un listener détectant
-le moment où les fonctionnalités de phonegap sont prêtes
+le moment où les fonctionnalités de phonegap/cordova sont prêtes
 */
 function init() {
-	document.addEventListener("deviceready",onDeviceReady,false);
+	document.addEventListener("deviceready", onDeviceReady, false);
 }
 
 //Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
@@ -25,6 +25,7 @@ function onDeviceReady() {
 		if ($('.popover').hasClass('in'))
 			showPopover(false);
 	});
+
 	initCamera();
 	openDB();
 	initInputFields();
@@ -35,7 +36,6 @@ function onDeviceReady() {
 
 /*
 Initialise l'affichage des divs au lancement de l'application.
-Appelée dans la fonction onLoad du body d'index.html
 */
 function initDivs() {
 	$(".hidden").each(function(i, div) {
@@ -44,6 +44,11 @@ function initDivs() {
 }
 
 var inputCompletions;
+
+/*
+Initialise les champs bénéficiant d'une autocomplétion en leur assignant un
+objet Awesomplete.
+*/
 function initInputFields() {
 	var genre = document.getElementById("dataGenre");
 	var epithete = document.getElementById("dataSpecies");
@@ -90,7 +95,6 @@ function initDomElements() {
 		pages: $(".page"),
 		tbody: $("#recolts_body")
 	}
-
 }
 
 var clicked = false;
@@ -103,7 +107,7 @@ function showPopover(show) {
 		else
 			dom.popover.popover("hide");		
 	} else
-	dom.popover.popover();
+		dom.popover.popover();
 }
 
 /*
@@ -114,7 +118,6 @@ Fonction permettant de faire un appel ajax sur une ressource
 @param param : paramètre que l'on peut passer à la méthode toDo si besoin d'infos
 @param toDoError : fonction appelée en cas d'échec de l'appel ajax
 */
-
 function ajaxCall(method, url, toDo, param, toDoError) {
 	if (method == "GET") {
 		$.get(url)

@@ -1,3 +1,5 @@
+var currentPage;
+
 //Fonction permettant de créer une nouvelle récolte et de lui associer une photo prise auparavant
 function beginRecolt() {
 	try {

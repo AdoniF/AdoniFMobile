@@ -1,10 +1,8 @@
 body {
-	padding-top: 1px;/*
-	padding-bottom: 10px;
-	padding-left: 5px;
-	padding-right: 5px;*/
+	padding-top: 1px;
 }
 
+/* Retire l'effet de 'clic' sur les boutons qui ne fait pas naturel pour une appli mobile */
 .btn {
   -webkit-tap-highlight-color: rgba(0,0,0,0);
   -webkit-tap-highlight-color: transparent;
@@ -25,7 +23,7 @@ body {
 	text-align: center;
 }
 
-/* Centre les textes h1, utilisés pour les entêtes de pages */
+/* Centre les textes h2, utilisés pour les entêtes de pages */
 h2 {
   text-align: center;
   padding-top: 0px;
@@ -51,4 +49,32 @@ h2 {
 
 .footer {
   margin: 0px 2px;
+}
+
+/* Ajoute un peu d'espace sous les champs et entêtes de catégorie */
+.input-group {
+  margin-top: 1px;
+  margin-bottom: 2px;
+}
+
+/* Crée un séparateur horizontal */
+.divider {
+  height: 1px;
+  width: 100%;
+  display: block;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
+
+/* Permet de mettre une taille max à la photo prise pour que la page ne soit pas trop grande */
+.img-thumbnail {
+  max-height: 30%;
+}
+
+/* Ajoute un espace entre les boutons */
+.row-button {
+  margin-left: 1px;
+  margin-bottom: 1px;
+  width: 100%;
 }

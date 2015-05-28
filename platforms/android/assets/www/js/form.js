@@ -200,7 +200,6 @@ function loadPictures(recolt) {
 
         if (phylum.isEmpty())
             return;
-        alert("update " + rank);
         if (rank < 1)
             getPossibleGenres(phylum, genre);
         if (rank < 2)

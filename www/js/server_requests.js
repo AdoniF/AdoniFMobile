@@ -1,3 +1,4 @@
+// Objet permettant de gérer l'upload d'une récolte
 function RecoltBean (data, picturesUrls, localID) {
 	this.data = data;
 	this.picturesUrls = picturesUrls;
@@ -92,6 +93,7 @@ function RecoltBean (data, picturesUrls, localID) {
 	}
 }
 
+// Fonction permettant de déclencher l'upload d'une récolte
 function uploadRecolt(recolt, id) {
 	var data = {};
 

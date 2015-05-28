@@ -18,11 +18,13 @@ var recolt_id;
 //typeID = 2 => complétion d'une récolte faite sur mobile
 var type_id;
 var picID = -1;
+var username;
 
 
-function init(recoltID, typeID) {
+function init(recoltID, typeID, name) {
 	recolt_id = recoltID;
 	type_id = typeID;
+	username = name;
 
 	if (type_id != 0)
 		ajaxCall("GET", "/ajax/getRecolte.php?id=" + recolt_id + "&type=" + type_id, getRecolt);
@@ -30,6 +32,18 @@ function init(recoltID, typeID) {
 		getRecolt("");
 		recolt.user_id = recoltID;
 	}
+	var modal = "<div id='modal' class='modal fade in' tabindex='-1' role='dialog'>"
+	+ "<div class='modal-dialog modal-lg'><div class='modal-content'><div class='modal-header'>Choix de l'espèce"
+	+ "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>"
+	+ "</div><div class='modal-body'><center>"
+	+ "Choisissez parmi les valeurs proposées celle correspondant à l'espèce que vous souhaitez compléter."
+	+ "<select id='modalSelect'></select></center>"
+	+ "</div><div class='modal-footer'><button type='button' class='btn btn-success btn-block' data-dismiss='modal' id='validateModalButton' onclick='choseSpecie();'>Ok"
+	+ "</button></div></div></div></div>";
+	$("body").append(modal);
+
+	var button = "<button id='modalButton' style='display: none;' type='button' class='btn btn-primary btn-lg' data-toggle='modal' data-target='#modal'>Button</button>";
+	$("body").append(button);
 }
 /*
 Fonction permettant de faire un appel ajax sur une ressource
@@ -100,6 +114,15 @@ function populateHerbiers(data) {
 }
 
 function populateFields() {
+	populateOfflineFields();
+	populateElementsFromReferential();
+
+	callPositionInformations();
+	requestCompleteRecolte();
+	loadPictures();
+}
+
+function populateOfflineFields() {
 	populateSelect('listSVF', rangArray, recolt.rang);
 	populateSelect("listPhylum", phylumsArray, "");
 	populateSelect("listModulation", modulationArray, recolt.modulation);
@@ -107,37 +130,25 @@ function populateFields() {
 	populateSelect("typeRecolte", recoltTypeArray, recolt.type_recolte);
 	populateSelect("ref", referentielHabitatArray, recolt.ref);
 	populateSelect("listRegne", reignArray);
-
-	populateElementsFromReferential();
-
 	populateInput("dataGenre", recolt.genre);
 	populateInput("dataSpecies", recolt.epithete);
 	populateInput("dataTaxon", recolt.taxon);
 	populateInput("dataAuthor", recolt.autorites);
-
 	populateDate(recolt.date);
-
 	populateInput("latitude", recolt.latitude);
 	populateInput("longitude", recolt.longitude);
 	populateInput("altitude", recolt.altitude);
 	populateInput("precision", recolt.precision);
 	populateInput("range", recolt.rayon);
 	populateInput("nbFound", recolt.quantite);
-	
 	populateLegsDets();
-
 	populateInput("lieu-dit", recolt.lieu_dit);
 	populateInput("domain", recolt.domaine);
 	populateInput("subdomain", recolt.sous_domaine);
 	populateInput("mailles", recolt.mer + "/" + recolt.men);
 	populateInput("ecologie", recolt.ecologie);
-
 	populateInput("collaboration", recolt.collaboration);
 	populateInput("remarques", recolt.remarque);
-
-	callPositionInformations();
-	requestCompleteRecolte();
-	loadPictures();
 }
 
 function populateLegsDets() {
@@ -247,6 +258,8 @@ function callPositionInformations() {
 			}
 		});
 	} else {
+		if (recolt.pays.length == 0)
+			recolt.pays = "France";
 		populateInput("country", recolt.pays);
 		dpt = recolt.departement;
 		populateDepartements();
@@ -309,7 +322,8 @@ function populatePictures(data) {
 			if (entry.trim().length > 0) {
 				var values = entry.split("$");
 				pictures.push("/wp-content/uploads/photos_recoltes/user" + recolt.user_id + "/recolte" + recolt_id + "/" + values[0]);
-				picturesAuthors.push(values[1]);
+				var name = values[1].length > 0 ? values[1] : username;
+				picturesAuthors.push(name);
 			}
 		});
 	}
@@ -345,7 +359,7 @@ function readURL(input) {
 		var reader = new FileReader();
 		reader.onload = function(e) {
 			pictures.push(e.target.result);
-			picturesAuthors.push("");
+			picturesAuthors.push(username);
 			savePicturesAuthors();
 			showPicturesTab();
 		}
@@ -494,6 +508,9 @@ function Recolte(user_id, genre, epithete, rang, taxon, modulation, autorites, d
 
 function checkFields() {
 	$(".has-error").each(function() {
+		$(this).trigger("change");
+	});
+	$(".has-success").each(function() {
 		$(this).trigger("change");
 	});
 }
@@ -711,17 +728,53 @@ function requestCompleteRecolte() {
 
 	var url = "/ajax/completeInfosRecolte.php?phylum=" + phylum + "&genre=" + genre + "&espece=" + espece + "&rang=" + rang
 	+ "&taxon=" + taxon;
+
+	if (genre.length == 0 || espece.length == 0)
+		return;
+	
 	ajaxCall("GET", url, completeRecolte);
 }
 
+var modalOptions;
 function completeRecolte(data) {
 	var response;
 	if (data.length == 0) {
-		response = ["", "", "", "", "", "", "", ""];
-	} else {
-		response = data.split("||");
+		alert("Aucun résultat trouvé dans le référentiel.");
+		return;
 	}
+	modalOptions = data.split("\n");
+	if (modalOptions.length == 1)
+		completeRecolteFields(modalOptions[0].split("||"));
+	else if (modalOptions.length > 100)
+		alert("Trop de résultats possibles, veuillez affiner votre recherche.");
+	else
+		showCompleteModal(modalOptions);
+}
 
+function showCompleteModal(array) {
+	/*var modal = "<div id='toto' class='modal fade in' tabindex='-1' role='dialog'>"
+	+ "<div class='modal-dialog'><div class='modal-content'><div class='modal-header'>A nice header</div><div class='modal-body'>"
+	+ "Choisissez parmi les valeurs proposées celle correspondant à l'espèce que vous souhaitez compléter."
+	+ "<select id='modalSelect'></select>"
+	+ "</div><div class='modal-footer'>Ow, a footer !</div></div></div></div>";
+	$("body").append(modal);
+	*/
+	var select = $("#modalSelect");
+	select.text("");
+	for (var i = 0; i < array.length; i++) {
+		var response = array[i].split("||");
+		select.append("<option>" + response[0] + " " + $("#dataGenre").val() + " " + $("#dataSpecies").val() + " " + response[7] + " "
+			+ response[6] + " " + response[1] + "</option>");
+	}
+	$("#modalButton").trigger("click");
+}
+
+function choseSpecie() {
+	var array = modalOptions;
+	completeRecolteFields(modalOptions[document.getElementById("modalSelect").selectedIndex].split("||"));
+}
+
+function completeRecolteFields(response) {
 	$("#listPhylum").val(response[0]);
 	$("#dataAuthor").val(response[1]);
 	$("#dataFamille").val(response[2]);
@@ -744,9 +797,35 @@ function fieldsAreFilled() {
 	return $(".has-error").length == 0;
 }
 
+function resetSelects() {
+	var array = ["#substrat", "#asso", "#protectionStatus", "#hote"];
+
+	for (var i = 0; i < array.length; i++) {
+		var entry = array[i];
+		var hasEmptyStr = false;
+
+		$(entry + " option").each(function() {
+			if ($(this).val().length == 0)
+				hasEmptyStr = true;
+		});
+
+		if (!hasEmptyStr) {
+			$(entry).append("<option></option>");
+		}
+		$(entry).val("");
+	}
+
+}
+
 function reset() {
 	recolt = new Recolte();
-	populateFields();
+	populateOfflineFields();
+
+	populateInput("dataClasse", "");
+	populateInput("dataOrdre", "");
+	populateInput("dataFamille", "");
+
+	resetSelects();
 
 	$("#leg0").val("");
 	$("#groupleg0").trigger("change");
@@ -775,6 +854,12 @@ function reset() {
 			num.remove();
 		}
 	}
+
+	pictures = [];
+	picturesAuthors = [];
+	showPicturesTab();
+	callPositionInformations();
+	checkFields();
 }
 
 function saveRecolt() {
@@ -849,6 +934,7 @@ function saveRecolt() {
 }
 
 function recoltSaved(data) {
+	console.log(data);
 	if (data.contains("OK")) {
 		alert("Sauvegarde réussie !");
 		document.location.href="http://inventaire.dbmyco.fr/";

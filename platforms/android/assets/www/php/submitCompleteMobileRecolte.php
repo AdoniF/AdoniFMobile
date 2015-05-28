@@ -4,8 +4,10 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 $data = json_decode($_POST['data']);
 
-if (!$data || empty($data->user_id))
+if (!$data || empty($data->user_id)) {
+	echo "Pas de données ou id utilisateur vide.";
 	return;
+}
 
 $recolt_ID = executeRequest($data);
 if ($recolt_ID == -1) {
@@ -14,6 +16,8 @@ if ($recolt_ID == -1) {
 }
 
 savePictures($recolt_ID, $data);
+
+echo "OK";
 
 function executeRequest($data) {
 	//typeID = 0 => création

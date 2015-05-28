@@ -61,12 +61,12 @@ if (strlen($params) == 2) {
 if (!$stmt->execute()) {
 	echo "echec de l'execution ".$stmt->errno." : ".$stmt->error;
 } else {
+	$stmt->bind_result($phylum, $auteur, $famille, $classe, $regne, $ordre, $taxon, $rang);
+	$stmt->fetch();
+	echo $phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
 
-	$stmt->store_result();
-	if ($stmt->num_rows == 1) {
-		$stmt->bind_result($phylum, $auteur, $famille, $classe, $regne, $ordre, $taxon, $rang);
-		$stmt->fetch();
-		echo $phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
+	while ($stmt->fetch()) {
+		echo "\n".$phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
 	}
 }
 ?>
