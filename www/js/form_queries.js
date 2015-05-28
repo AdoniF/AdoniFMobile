@@ -1,9 +1,12 @@
+// Remplit les suggestions de genre selon le phylum après avoir vérifié la validité de celui-ci
 function getPossibleGenres(phylum, value) {
 	phylum = getPhylumTable(phylum);
 
 	if (phylum)
 		getGenresForPhylum(phylum, value);
 }
+
+// Récupère les suggestions de genre et remplit le champ correspondant
 function getGenresForPhylum(phylum, value) {
 	db.transaction(function (tx) {
 		tx.executeSql("SELECT DISTINCT genre FROM " + phylum, [], function(tx, res) {
@@ -20,6 +23,7 @@ function getGenresForPhylum(phylum, value) {
 	});
 }
 
+// Remplit les suggestions d'épithètes selon le phylum et le genre
 function getPossibleEpithetes(phylum, genre, value) {
 	phylum = getPhylumTable(phylum);
 
@@ -27,6 +31,7 @@ function getPossibleEpithetes(phylum, genre, value) {
 		getPossibleEpithetesForPhylum(phylum, genre, value);
 }
 
+// Récupère les suggestions d'épithètes et remplit le champ correspondant
 function getPossibleEpithetesForPhylum(phylum, genre, value) {
 	var query = "SELECT DISTINCT epithete FROM " + phylum;
 	var whereArg = [];
@@ -52,6 +57,7 @@ function getPossibleEpithetesForPhylum(phylum, genre, value) {
 	});
 }
 
+// Remplit les suggestions de taxons selon le phylum, le genre et l'épithète
 function getPossibleTaxons(phylum, genre, epithete, rang, value) {
 	phylum = getPhylumTable(phylum);
 	var clause = buildWhereClause(genre, epithete, rang);
@@ -60,6 +66,7 @@ function getPossibleTaxons(phylum, genre, epithete, rang, value) {
 		getPossibleTaxonsForPhylum(phylum, clause, value);
 }
 
+// Récupère les suggestions de taxons et remplit le champ correspondant
 function getPossibleTaxonsForPhylum(phylum, clause, value) {
 	var query = "SELECT DISTINCT taxon FROM " + phylum;
 	query += clause.where;
@@ -82,6 +89,7 @@ function getPossibleTaxonsForPhylum(phylum, clause, value) {
 	});
 }
 
+// Permet de construire dynamiquement une requête selon les champs disponibles
 function buildWhereClause(genre, epithete, rang, taxon) {
 	var clause = {};
 	var values = [];
@@ -117,6 +125,7 @@ function buildWhereClause(genre, epithete, rang, taxon) {
 	return clause;
 }
 
+// Remplit les suggestions de subtrats
 function getSubstrats(value) {
 	var query = "SELECT data FROM substrats;"
 	db.transaction(function (tx) {
@@ -136,6 +145,7 @@ function getSubstrats(value) {
 	});
 }
 
+// Remplit les suggestions d'hôtes'
 function getHotes(value) {
 	var query = "SELECT data FROM hotes;"
 	db.transaction(function (tx) {
@@ -155,6 +165,7 @@ function getHotes(value) {
 	});
 }
 
+// Remplit les suggestions d'autorités selon le phylum, le genre, le rang, le taxon et l'épithète
 function getPossibleAuteurs(phylum, genre, epithete, rang, taxon, value) {
 	phylum = getPhylumTable(phylum);
 	var clause = buildWhereClause(genre, epithete, rang, taxon);
@@ -163,6 +174,7 @@ function getPossibleAuteurs(phylum, genre, epithete, rang, taxon, value) {
 		getPossibleAuteursForPhylum(phylum, clause, value);
 }
 
+// Récupère les suggestions d'auteurs et remplit le champ correspondant
 function getPossibleAuteursForPhylum(phylum, clause, value) {
 	var query = "SELECT DISTINCT auteur FROM " + phylum;
 	query += clause.where;
