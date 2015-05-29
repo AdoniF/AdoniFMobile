@@ -30,8 +30,13 @@ function onDeviceReady() {
 	openDB();
 	initInputFields();
 	positionUl();
-	calculatePosition();
+	//calculatePosition();
 	navigator.splashscreen.hide();
+	if (navigator.geolocation) {
+		alert("ok geoloc");
+	} else {
+		alert("no geoloc :'(");
+	}
 }
 
 /*

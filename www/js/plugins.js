@@ -38,6 +38,8 @@ function onGeolocationSuccess (pos) {
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
 	alert("Echec de la localisation GPS. Votre GPS est désactivé ou ne parvient pas à capter un signal.");
+	var options = {enableHighAccuracy: true, timeout: 15000, maximumAge: 5000};
+	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, options);
 	/*navigator.geolocation.clearWatch(watchID);
 	var options = {enableHighAccuracy: true, timeout: 20000, maximumAge: 3000};
 	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);*/

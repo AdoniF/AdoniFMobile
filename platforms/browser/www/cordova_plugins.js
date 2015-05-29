@@ -228,7 +228,6 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "org.apache.cordova.geolocation": "0.3.12",
     "nl.x-services.plugins.toast": "2.0.4",
     "org.apache.cordova.file-transfer": "0.5.0",
     "org.apache.cordova.camera": "0.3.6",
