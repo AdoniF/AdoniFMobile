@@ -1,3 +1,4 @@
+// Objet permettant de gérer l'upload d'une récolte
 function RecoltBean (data, picturesUrls, localID) {
 	this.data = data;
 	this.picturesUrls = picturesUrls;
@@ -8,11 +9,13 @@ function RecoltBean (data, picturesUrls, localID) {
 	var nbUploaded = 0;
 	var ftPictures = [];
 
+	// Exécute l'upload de ce bean
 	this.upload = function () {
 		ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/createTemporaryRecolt.php", onDataUploadSuccess, JSON.stringify(data),
 			onDataUploadError);
 	}
 
+	// Fonction appellée lorsque l'upload d'une récolte est réussi
 	function onDataUploadSuccess(data) {
 		if (data.contains("OK")) {
 			var message = "Envoi de la récolte " + localID + " réussi.";
@@ -29,11 +32,13 @@ function RecoltBean (data, picturesUrls, localID) {
 		}
 	}
 
+	// Fonction appellée lorsque l'upload d'une récolte a échoué
 	function onDataUploadError() {
 		hideSpinnerDialog();
 		alert("Echec de la connexion au serveur. Vérifiez votre connexion internet.");
 	}
 
+	// Fonction permettant d'uploader les images liées à une récolte
 	function uploadPictures(recoltID) {
 		for (var i = 0; i < picturesUrls.length; ++i) {
 			var fileURI = picturesUrls[i];
@@ -52,28 +57,32 @@ function RecoltBean (data, picturesUrls, localID) {
 			var ft = new FileTransfer();
 			ftPictures.push(ft);
 			ft.upload(fileURI, encodeURI("http://inventaire.dbmyco.fr/ajax/uploadPicture.php"), 
-				onUploadSuccess, onUploadFailure, options);
+				onPicturesUploadSuccess, onPicturesUploadFailure, options);
 		}
 		
 	}
 
-	function onUploadSuccess (r) {
+	// Fonction appellée lors de la réussite de l'upload d'une image
+	function onPicturesUploadSuccess (r) {
 		nbUploaded++;
 		checkUploadCompletion();
 	}
-
-	function onUploadFailure (error) {
+	
+	// Fonction appellée lors de l'échec de l'upload d'une image
+	function onPicturesUploadFailure (error) {
 		if (error.code != 4)
 			abortPicturesUpload();
 		uploadFailed = true;
 	}
 
+	// Fonction permettant d'annuler l'upload de photos
 	function abortPicturesUpload() {
 		ftPictures.forEach(function (entry) {
 			entry.abort();
 		});
 	}
 
+	// Fonction vérifiant si l'upload des photos est terminé
 	function checkUploadCompletion() {
 		if (nbUploaded !== picturesUrls.length)
 			return;
@@ -86,12 +95,14 @@ function RecoltBean (data, picturesUrls, localID) {
 			shortBottomToast("Envoi de la récolte " + localID + " et des photos réussi !");
 	}
 
+	// Fonction appellée à la fin de l'upload 
 	function uploadFinished() {
 		hideSpinnerDialog();
 		removeGathering(2, localID);		
 	}
 }
 
+// Fonction permettant de déclencher l'upload d'une récolte
 function uploadRecolt(recolt, id) {
 	var data = {};
 

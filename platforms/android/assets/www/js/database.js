@@ -5,7 +5,7 @@ var phylumsArray = ["Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromy
 var loggedIn;
 var dbCreated = false;
 var user = {};
-var db_name = "smnf.db";
+var db_name = "adonif.db";
 
 // Ouvre la base de données
 function openDB() {
@@ -14,14 +14,16 @@ function openDB() {
 			db = window.sqlitePlugin.openDatabase({name: db_name});
 		checkConnection();
 	} else {
-		alert("no plugin");
+		alert("Erreur : impossible d'utiliser la base de données. Votre appareil n'est pas compatible avec cette application.");
 	}
 }
 
+// Donne le nom de la table correspondant au phylum passé en paramètre
 function getPhylumTable(phylumName) {
 	return phylumsTables[phylumsArray.indexOf(phylumName)];
 }
 
+// Donne le nom du phylum correspondant à la table passée en paramètre
 function getPhylumName(phylumTable) {
 	return phylumsArray[phylumsTables.indexOf(phylumTable)];
 }
@@ -53,6 +55,7 @@ function connectUser() {
 	}
 }
 
+// Initialise la base en la créant et la remplissant.
 function initDB() {
 	createDB();
 	populateDB();
@@ -68,13 +71,14 @@ function createDB() {
 	});
 }
 
-//Détruit les tables présentes dans la base
+// Détruit les tables présentes dans la base
 function dropTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS users;");
 	tx.executeSql("DROP TABLE IF EXISTS gatherings;");
 	dropReferentialTables(tx);
 }
 
+// Détruit les tables correspondant aux informations issues du référentiel
 function dropReferentialTables(tx) {
 	tx.executeSql("DROP TABLE IF EXISTS substrats");
 	tx.executeSql("DROP TABLE IF EXISTS hotes");
@@ -83,7 +87,7 @@ function dropReferentialTables(tx) {
 	}
 }
 
-//Crée les tables de la base. Les tables qui n'ont qu'un champ data contiennent des objets JSON
+// Crée les tables de la base. Les tables qui n'ont qu'un champ data contiennent des objets JSON.
 function createTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS users("
 		+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -94,6 +98,7 @@ function createTables(tx) {
 	createReferentialTables(tx);
 }
 
+// Crée les tables correspondant aux informations issues du référentiel
 function createReferentialTables(tx) {
 	tx.executeSql("CREATE TABLE IF NOT EXISTS substrats(data TEXT);");
 	tx.executeSql("CREATE TABLE IF NOT EXISTS hotes(data TEXT);");
@@ -109,11 +114,13 @@ function createReferentialTables(tx) {
 	}	
 }
 
+// Affiche une alerte vérifiant que l'utilisateur souhaite bien mettre à jour le référentiel.
 function showRefreshAlert() {
 	confirm("Etes vous sur de vouloir rafraichir les informations du référentiel ? Cette opération peut prendre plusieurs minutes"
 		+ " et nécessite une connexion internet.", refreshReferential, "Attention", ["Annuler", "Valider"]);
 }
 
+// Met à jour les informations du référentiel si l'utilisateur a choisi le bouton "Valider" de la popup d'avertissement
 function refreshReferential(buttonIndex) {
 	if (buttonIndex == 2) {
 		db.transaction(function (tx) {
@@ -126,6 +133,7 @@ function refreshReferential(buttonIndex) {
 	}
 }
 
+// Remplit la DB en allant chercher les informations du référentiel.
 function populateDB() {
 	showSpinnerDialog("Chargement", "Chargement des informations du référentiel...", true);
 	populateCallsRunning = 0;
@@ -136,7 +144,9 @@ function populateDB() {
 	populateNamesInfos();
 }
 
+// Variable permettant de vérifier si tous les appels Ajax sont terminés (ou non)
 var populateCallsRunning = 0;
+// Fonction lançant les appels Ajax remplissant les tables des phylums
 function populateNamesInfos() {
 	populateCallsRunning += phylumsTables.length;
 	phylumsTables.forEach(function (phylum) {
@@ -145,16 +155,20 @@ function populateNamesInfos() {
 	});
 }
 
+// Fonction lançant l'appel Ajax remplissant la table des hôtes
 function populateHotes() {
 	populateCallsRunning++;
 	ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestHosts.php", insertHotesInfos, null, populateDBError);
 }
+
+// Fonction lançant l'appel Ajax remplissant la table des substrats
 function populateSubstrats() {
 	populateCallsRunning += 1;
 	ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
 }
 
 var errorShown = false;
+// Fonction appellée si une erreur survient lors du chargement des informations du référentiel 
 function populateDBError() {
 	hideSpinnerDialog();
 	if (!errorShown) {
@@ -164,11 +178,13 @@ function populateDBError() {
 	}
 }
 
+// Fonction permettant de relancer les appels de remplissage de la base depuis le référentiel en cas d'erreur
 function populateDBErrorCallback(buttonIndex) {
 	if (buttonIndex == 2)
 		populateDB();
 }
 
+// Insère dans la base les informations concernant les hôtes possibles
 function insertHotesInfos(data) {
 	var rows = data.split("\n");
 	db.transaction(function (tx) {
@@ -190,6 +206,7 @@ function insertHotesInfos(data) {
 	});
 }
 
+// Insère dans la base les informations concernant les substrats possibles
 function insertSubstratsInfos(data) {
 	var rows = data.split("\n");
 	db.transaction(function (tx) {
@@ -213,6 +230,7 @@ function insertSubstratsInfos(data) {
 	});
 }
 
+// Insère dans la base les informations concernant les lb noms possibles
 function insertNameInfo(data, phylum) {
 	var rows = data.split("\n");
 	db.transaction(function (tx) {
@@ -240,7 +258,10 @@ function insertNameInfo(data, phylum) {
 		alert("error insertNameInfo " + e.message);
 	});
 }
-
+/*
+Fonction permettant de construire dynamiquement une requête d'insertion de champignon dans les bases
+phylums en n'insérant que les champs disponibles
+*/
 function buildInsertQuery(table, values, columns) {
 	var validValues = [];
 	values.forEach(function (entry, i) {
@@ -270,7 +291,7 @@ function buildInsertQuery(table, values, columns) {
 		return query + ");";
 }
 
-// Tente de se connecter sur le serveur de l'inventaire
+// Vérifie que la connexion sur la base des utilisateurs est possible grâce aux champs entrés par l'utilisateur
 function tryToConnect() {
 	var email = $("#inputMail");
 	var password = $("#inputPassword");
@@ -282,10 +303,12 @@ function tryToConnect() {
 		connectionError);
 }
 
+// Fonction appellée lors de l'échec d'un appel Ajax de connexion
 function connectionError() {
 	alert("Echec de la connexion au serveur. Vérifiez votre connexion internet.");
 }
 
+// Récupère le résultat de la tentative de connexion de l'utilisateur
 function getConnectionResult(data, param) {
 	if (data.contains("OK")) {
 		shortBottomToast("Connexion réussie !");
@@ -298,6 +321,7 @@ function getConnectionResult(data, param) {
 	}
 }
 
+// Crée un objet user à partir des informations de l'utilisateur
 function createUser(email, password, userData) {
 	var values = userData.split("$");
 	user = {};
@@ -339,6 +363,7 @@ function addGathering(gathering) {
 	});
 }
 
+// Met à jour une récolte effectuée par l'utilisateur
 function updateGathering(gathering, id) {
 	var data = JSON.stringify(gathering);
 	var query = "UPDATE gatherings SET data = ? WHERE id = ?;";
@@ -389,22 +414,6 @@ function deleteGathering(id) {
 		tx.executeSql("DELETE FROM gatherings WHERE id = ?", [id], function () {});
 	}, function (e) {
 		alert("error delete gathering " + e.message);
-	});
-}
-
-//Fonction de débug
-function checkTablesSizes() {
-	var idx = 0;
-	db.transaction(function (tx) {
-		for (var i = 0; i < phylumsTables.length; i++) {
-			var phylum = phylumsTables[i];
-			tx.executeSql("SELECT COUNT(*) as cpt FROM " + phylum, [], function (tx, res) {
-				alert("phylum n°" + idx + " " + phylumsTables[idx] + " : " + res.rows.item(0).cpt);
-				idx++;
-			});
-		}
-	}, function (e) {
-		alert("error check tables " + e.message);
 	});
 }
 

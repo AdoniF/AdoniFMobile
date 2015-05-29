@@ -1,3 +1,5 @@
+var currentPage;
+
 //Fonction permettant de créer une nouvelle récolte et de lui associer une photo prise auparavant
 function beginRecolt() {
 	try {
@@ -44,16 +46,19 @@ function toAddRecolt() {
 	showPage('add_recolt');
 }
 
+// Permet de se rendre sur l'index
 function toIndex() {
 	showPage('index');
 }
 
+// Sauvegarde la récolte et passe à l'écran de liste des récoltes
 function saveAndShowRecolts() {
 	if (phylumIsChosen()) {
 		saveRecolt();
 		toRecolts();
-	} else
-	alert("Vous devez au moins choisir le phylum pour sauvegarder une récolte", null, "Phylum requis", "OK");
+	} else {
+		alert("Vous devez au moins choisir le phylum pour sauvegarder une récolte", null, "Phylum requis", "OK");
+	}
 }
 
 /*

@@ -1,4 +1,4 @@
-//Fonction permettant d'ajouter une récolte dans la table des récoltes
+//Fonction permettant d'ajouter une récolte dans la table html listant les récoltes
 function addRecolt(src, label, id) {
 	var deleteID = "delete:" + id;
 
@@ -17,15 +17,13 @@ function addRecolt(src, label, id) {
 	dom.tbody.append(newRow);
 }
 
+// Exécute l'upload d'une récolte
 function uploadRecoltForId(id) {
 	showSpinnerDialog("Upload", "Envoi de la récolte au serveur...", true);
 	getGathering(id, uploadRecolt);
 }
 
-function uploadAllRecolts() {
-	
-}
-
+// Charge la récolte choisie dans le formulaire de modification de récolte
 function modifyRecolt(id) {
 	getGathering(id, modifyAndShowRecolt);
 }
@@ -55,10 +53,12 @@ function refreshGatheringsList() {
 }
 
 var toRemove = null;
+// Fonction vérifiant que l'utilisateur veut bien supprimer cette récolte
 function tryRemovingGathering(button) {
 	toRemove = button;
 	confirm("Etes vous sur de vouloir supprimer cette récolte ?", removeGathering, "Supprimer une récolte", ["Annuler", "Valider"]);
 }
+
 // Supprime l'entrée associée au bouton en paramètre de la liste des récoltes
 function removeGathering(buttonIndex, id) {
 	if (buttonIndex == 2) {
@@ -69,6 +69,7 @@ function removeGathering(buttonIndex, id) {
 	toRemove = null;
 }
 
+// Upload toutes les récoltes de la table
 function uploadAllRecolts() {
 	try {
 		dom.tbody.children().each(function (idx, row) {

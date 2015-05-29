@@ -30,24 +30,30 @@ function updatePosition() {
 
 // Fonction appellée lors de la réussite d'une géolocalisation
 function onGeolocationSuccess (pos) {
-	//alert("Localisation gps détectée");
+	alert("Localisation gps détectée");
 	position = pos;
+	updatePosition();
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
-	//alert("Echec de la localisation GPS. Votre GPS est désactivé ou ne parvient pas à capter un signal.");
-	navigator.geolocation.clearWatch(watchID);
+	alert("Echec de la localisation GPS. Votre GPS est désactivé ou ne parvient pas à capter un signal.");
+	/*navigator.geolocation.clearWatch(watchID);
 	var options = {enableHighAccuracy: true, timeout: 20000, maximumAge: 3000};
-	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
+	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);*/
 }
 
 var watchID;
 // Lance la géolocalisation de l'utilisateur
 function calculatePosition() {
 	shortBottomToast("Calculate position");
+	/*var options = {enableHighAccuracy: true, timeout: 15000, maximumAge: 5000};
+	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);*/
+}
+
+function launchPosition() {
 	var options = {enableHighAccuracy: true, timeout: 15000, maximumAge: 5000};
-	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
+	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, options);
 }
 
 //	Initialisation de la source de l'image et de la destination au lancement de la page

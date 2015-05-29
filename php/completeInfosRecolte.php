@@ -1,7 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-// Reporte toutes les erreurs PHP (Voir l'historique des modifications)
-error_reporting(E_ALL);
+// Fichier renvoyant les informations complémentaires concernant l'espèce passée à la requête
+
 $phylum = $_GET['phylum'];
 $genre = "%".$_GET['genre']."%";
 $espece = "%".$_GET['espece']."%";

@@ -28,27 +28,32 @@ function updatePosition() {
 	setLocationFields(recolt.longitude, recolt.latitude, accuracy, altitude);
 }
 
-
+// Fonction appellée lors de la réussite d'une géolocalisation
 function onGeolocationSuccess (pos) {
 	alert("Localisation gps détectée");
-	mustShow = false;
 	position = pos;
+	updatePosition();
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
 	alert("Echec de la localisation GPS. Votre GPS est désactivé ou ne parvient pas à capter un signal.");
-	navigator.geolocation.clearWatch(watchID);
+	/*navigator.geolocation.clearWatch(watchID);
 	var options = {enableHighAccuracy: true, timeout: 20000, maximumAge: 3000};
-	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
+	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);*/
 }
 
 var watchID;
 // Lance la géolocalisation de l'utilisateur
 function calculatePosition() {
 	shortBottomToast("Calculate position");
+	/*var options = {enableHighAccuracy: true, timeout: 15000, maximumAge: 5000};
+	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);*/
+}
+
+function launchPosition() {
 	var options = {enableHighAccuracy: true, timeout: 15000, maximumAge: 5000};
-	watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
+	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, options);
 }
 
 //	Initialisation de la source de l'image et de la destination au lancement de la page
@@ -63,6 +68,7 @@ function initCamera() {
 		};
 	}
 }
+
 //	Fonction qui démarre l'appareil photo
 function launchCamera() {
 	canvas = document.createElement("canvas");
@@ -81,6 +87,7 @@ function cameraSuccess(src) {
 }
 
 var canvas;
+// Sauvegarde les images dans la gallerie du smartphone
 function savePictureToGallery(src) {
 	var context, imageDataUrl, imageData;
 	var img = new Image();
@@ -105,10 +112,13 @@ function savePictureToGallery(src) {
 	img.src = src;
 }
 
+// Fonction appellée lors de la réussite de la sauvegarde
 function onSaveSuccess() {
 	window.plugins.spinnerDialog.hide();
 	shortBottomToast("Sauvegarde réussie !")
 }
+
+// Fonction appellée lors de l'échec de la sauvegarde
 function onSaveFailure() {
 	alert("La sauvegarde de la photo a échoué. Vous pourrez l'utiliser dans l'application, mais vous ne pourrez pas la retrouver"
 		+ "dans votre gallerie.", null, "Echec de la sauvegarde", "Ok");
@@ -132,22 +142,6 @@ function addPicture(src) {
 	}
 }
 
-function getPictureRow(src) {
-	var idButton = nb + "delete";
-	var idRow = nb + "row";
-	var idPic = nb + "pic";
-
-	var pictureRow = "<div id='" + idRow + "'>"+"<div class='row vertical-align'>"+"<span class='col-xs-6'><img id='"
-	+ idPic + "'class='img-thumbnail picture' src=" + src + " alt='picture'/></span>"
-	+"<span class='col-xs-6'><button type='button' class='btn btn-success btn-lg delete pull-right' id='" + idButton 
-	+ "' onclick='deletePicture(this.id);'>"+"<span class='glyphicon glyphicon-trash'></span></button></span>"
-	+"</div>"+"<div class='divider'></div></div>";
-
-	++nb;
-	++nbPictures
-	return pictureRow;
-}
-
 //	Fonction appelée suite à l'échec de la prise d'une photo
 function cameraFailure(data) {
 	alert("camera failure " + data);
@@ -161,6 +155,7 @@ function deletePicture(id) {
 	--nbPictures;
 }
 
+// Crée un tableau contenant les images de la récolte en cours
 function showPicturesTab() {
 	var pics = "<tr>", deletes = "<tr>";
 
@@ -190,6 +185,7 @@ function showPicturesTab() {
 	document.getElementById("tableBody").innerHTML = div;
 }
 
+// Supprime une photo de la récolte en cours
 function removePicture(id) {
 	pictures.splice(id, 1);
 	showPicturesTab();
