@@ -5,20 +5,18 @@
 Pour utiliser cordova, il faut installer les outils en ligne de commande. Ces outils permettent d'installer des plugins,
 compiler l'application et l'envoyer sur le mobile...
 
-Tutoriel sur la documentation officielle :
-http://docs.phonegap.com/en/edge/guide_cli_index.md.html#The%20Command-Line%20Interface
+[Tutoriel sur la documentation officielle](http://docs.phonegap.com/en/edge/guide_cli_index.md.html#The%20Command-Line%20Interface)
 
-Configuration pour compiler vers Android :
-http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide
+[Configuration pour compiler vers Android](http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide)
 
-Configuration pour compiler vers iOS (sur mac seulement) :
-http://docs.phonegap.com/en/edge/guide_platforms_ios_index.md.html#iOS%20Platform%20Guide
+[Configuration pour compiler vers iOS (sur mac seulement)](http://docs.phonegap.com/en/edge/guide_platforms_ios_index.md.html#iOS%20Platform%20Guide)
 
 Commandes pratiques (à exécuter depuis la racine du projet) :
+
 - Pour voir les plugins installés : cordova plugins ls
 - Plateformes disponibles et installées : cordova platform ls
 - Lancer sur une plateforme : cordova run [platform]
-	ex: cordova run android
+- ex: cordova run android
 
 Parfois, la compilation retourne une erreur de timeout. Vérifiez que votre appareil est bien branché, et relancez la commande de compilation, ça arrive parfois sans raison apparente.
 
