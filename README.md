@@ -1,6 +1,6 @@
 # Documentation Technique Application Adonif #
 
-### Configurer Cordova sur son ordinateur ### 
+### Configurer Cordova sur son ordinateur
 
 Pour utiliser cordova, il faut installer les outils en ligne de commande. Ces outils permettent d'installer des plugins,
 compiler l'application et l'envoyer sur le mobile...
@@ -22,7 +22,7 @@ Commandes pratiques (à exécuter depuis la racine du projet) :
 
 Parfois, la compilation retourne une erreur de timeout. Vérifiez que votre appareil est bien branché, et relancez la commande de compilation, ça arrive parfois sans raison apparente.
 
-### Fonctionnement du projet ### 
+### Fonctionnement du projet
 Le projet est une SPA (Single Page App). Ainsi, on a un seul fichier HTML contenant plusieurs DIVS, chacune correspondant à une page. Au premier lancement de l'application, on requiert une connexion par l'utilisateur car l'inscription sur adonif est 
 obligatoire pour utiliser l'application. Au même moment, on charge les informations du référentiel pour l'autocomplétion.
 Ces informations sont stockées dans une base de données sqlite. Ensuite, l'utilisateur peut créer ses récoltes, qui seront
@@ -30,7 +30,7 @@ stockées dans la base au format JSON (étant donné que l'on n'a pas besoin de 
 
 L'utilisateur peut ensuite lister ses récoltes et les uploader. Les photos sont copiées dans la galerie de l'utilisateur via un plugin pour qu'il puisse les récupérer facilement. 
 
-### Arborescence du projet ### 
+### Arborescence du projet
 
 Adonif
 |
@@ -67,7 +67,7 @@ Adonif
 	|- index.html: Unique fichier HTML du projet. Le fichier contient plusieurs divs correspondant à chaque page, et lors d'un changement de page on cache les divs et on affiche celle de la page que l'on souhaite.
 |- config.xml : configuration du projet.
 
-### Liens ### 
+### Liens
 
 Documentation de phonegap/cordova : http://docs.phonegap.com/en/edge/guide_overview_index.md.html#Overview
 
@@ -82,7 +82,7 @@ Librairies :
 	- JQuery
 		https://jquery.com/
 
-### Astuces ### 
+### Astuces
 
 Etant donné que l'on n'a pas de console, on ne peut pas voir les erreurs qui surviennent. Si l'application ne réagit pas comme prévu, c'est sans doute qu'ne exception s'est produite. Il faut donc mettre des try catch autour du code suspect, comme ceci:
 
@@ -94,7 +94,7 @@ try {
 
 On pourra obtenir les messages d'erreur dans une alerte.
 
-### Contact ### 
+### Contact
 
 Si problème, vous pouvez me contacter sur mon mail :
 	jonathan.lecointe@gmail.com
