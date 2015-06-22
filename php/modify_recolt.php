@@ -49,7 +49,7 @@ $tooltips = getTooltips($id_connect);
 echo "<div class='form-inline'>\n";
 echo "<div class='row'><h3><span class='label label-success col-xs-offset-1'>Modification d&rsquo;une récolte</span></h3></div>";
 
-echo getSubtitle("Taxonomie");
+echo getSubtitle("Taxinomie");
 
 echo getInput("Genre*", "dataGenre", $tooltips['genre'], true);
 echo getInput("Epithète*", "dataSpecies", $tooltips['espece'], true);
@@ -66,7 +66,7 @@ echo getSelect("Phylum", "listPhylum", $tooltips['phylum']);
 echo getInput("Classe", "dataClasse", $tooltips['classe']);
 echo getInput("Ordre", "dataOrdre", $tooltips['ordre']);
 echo getInput("Famille", "dataFamille", $tooltips['famille']);
-echo getSpecialButton("completeButton", "Compléter", "6", "Pour compléter automatiquement les champs de position, renseignez au moins le genre et l'épithète, puis si possible le rang et l'épithète 2.");
+echo getSpecialButton("completeButton", "Compléter&nbsp;<span class='glyphicon glyphicon-pencil'></span>", "6", "Pour compléter automatiquement les champs de position, renseignez au moins le genre et l'épithète, puis si possible le rang et l'épithète 2.");
 
 echo getSubtitle("Informations et localisation");
 
@@ -96,13 +96,15 @@ echo getSelect("Hôte", "hote", $tooltips['hote']);
 echo getSelect("Etat hôte", "hostState");
 echo getSelect("Substrat", "substrat", $tooltips['substrat']);
 
+echo "<div class='col-xs-6'><ul id='substratUl'></ul></div>";
+
 
 echo getSubtitle("Propriétaires");
 
-echo getInput("Légataire(s)*", "leg0", $tooltips['leg'], false, "class='legataire'");
-echo getInputWithButton("Déterminateur(s)*", "det0", "addLegDet();", $tooltips['det'], false, "class='determinateur'");
+echo "<div id='legDetDiv' class='col-xs-12' style='padding: 0px'></div>";
+echo "<script>initTooltips('".$tooltips['leg']."', '".$tooltips['det']."');</script>";
 echo getInput("Code herbier", "codeHerbier0", $tooltips['codeherbier'], false, "class='codeHerbier'");
-echo getInputWithButton("Num herbier", "numHerbier0", "addHerbier();", $tooltips['numherbier'], false, "class='numHerbier'");
+echo getNumHerbierInput("Num herbier", "numHerbier0", "addHerbier();", $tooltips['numherbier'], false, "class='numHerbier'");
 
 echo getSubtitle("Suppléments");
 
@@ -111,7 +113,7 @@ echo getInput("Collaboration", "collaboration", $tooltips['collaboration']);
 echo getSelect("Type récolte", "typeRecolte", $tooltips['typerecolte']);
 echo getDateInput();
 echo getTextArea("Remarques", "remarques");
-echo getSpecialButton("biblioButton", "Consulter la bibliographie", "6", "Ouvre un nouvel onglet menant à la consultation de la bibliographie de l'espèce renseignée.");
+echo getSpecialButton("biblioButton", "Consulter la bibliographie&nbsp;<span class='glyphicon glyphicon-book'></span>", "6", "Ouvre un nouvel onglet menant à la consultation de la bibliographie de l'espèce renseignée.");
 
 
 echo getSubtitle("Photos");
@@ -130,7 +132,7 @@ echo "<script type='text/javascript'>init(".$recoltID.", ".$typeID.", '".$name."
 
 //Génère un sous-titre
 function getSubtitle($text) {
-	return "<div class='col-xs-12'><h5><span class='label label-success col-xs-offset-3 col-xs-3'>".$text."</span></h5></div>\n";
+	return "<div class='col-xs-12'><h4 style='color: #5CB85C; font-weight: bold;'>".$text."</h4></div>\n";
 }
 
 //Génère un champ de selection
@@ -165,8 +167,7 @@ function getInput($name, $inputName, $tooltip="", $hasError=false, $option="") {
 	return $str."</div>\n";
 }
 
-//Génère un champ d'input avec un boutton + en bout de ligne
-function getInputWithButton($name, $inputName, $function, $tooltip="", $hasError=false, $option="") {
+function getNumHerbierInput($name, $inputName, $function, $tooltip="", $hasError=false, $option="") {
 	if ($hasError)
 		$error = "has-error";
 	else
@@ -179,8 +180,10 @@ function getInputWithButton($name, $inputName, $function, $tooltip="", $hasError
 	$str .= "</div>";
 	$str .= getTooltip($tooltip);
 	$str .= "<div class='col-xs-2'>";
-	$str .= "<button type='button' style='width: 100%;' class='btn btn-success' onclick='".$function."'>";
+	$str .= "<button type='button' class='btn btn-success btn-sm pull-left' style='width: 45%;' onclick='".$function."'>";
 	$str .= "<span class='glyphicon glyphicon-plus'></span></button>";
+	$str .= "<button type='button' class='btn btn-success btn-sm pull-right' style='width: 45%;' onclick='resetHerbier();'>";
+	$str .= "<span class='glyphicon glyphicon-minus'></span></button>";
 	return $str."</div></div>\n";
 }
 

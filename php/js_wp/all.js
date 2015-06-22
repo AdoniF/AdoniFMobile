@@ -1,5 +1,5 @@
 var phylumsArray = ["Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Mycetozoa", "Zygomycota"];
-var rangArray = ["var.", "f.", "subsp."];
+var rangArray = ["", "var.", "f.", "subsp."];
 var modulationArray = ["aff.", "(cf.)", "ad int.", "sp.", "ss.lat", "ss.str", "(gr.)", "?"];
 var etatHoteArray = ["vivant", "moribond", "mort"];
 var substratArray = [];
@@ -10,17 +10,23 @@ var pictures = [];
 var picturesAuthors = [];
 var reignArray = ["Fungi", "Mycetozoa", "Chromista"];
 
+var legInfo = "";
+var detInfo = "";
+
 var recolt = null;
 var recolt_id;
 
-//typeID = 0 => création
-//typeID = 1 => modification de récolte
-//typeID = 2 => complétion d'une récolte faite sur mobile
+//type_id = 0 => création
+//type_id = 1 => modification de récolte
+//type_id = 2 => complétion d'une récolte faite sur mobile
 var type_id;
 var picID = -1;
 var username;
 
-
+function initTooltips(legTip, detTip) {
+	legInfo = legTip;
+	detInfo = detTip;
+}
 function init(recoltID, typeID, name) {
 	recolt_id = recoltID;
 	type_id = typeID;
@@ -44,6 +50,16 @@ function init(recoltID, typeID, name) {
 
 	var button = "<button id='modalButton' style='display: none;' type='button' class='btn btn-primary btn-lg' data-toggle='modal' data-target='#modal'>Button</button>";
 	$("body").append(button);
+
+	var waitModal = "<div id='waitmodal' class='modal fade in' tabindex='-1' role='dialog' data-backdrop='static' data-keyboard='false'>"
+	+ "<div class='modal-dialog modal-lg'><div class='modal-content'><div class='modal-header'><h2>Sauvegarde en cours...</h2>"
+	+ "</div><div class='modal-body'><center>"
+	+ "<div class='progress'><div role='progressbar' class='progress-bar progress-bar-success progress-bar-striped active' style='width: 100%;'></div></div>"
+	+ "</center>"
+	+ "</div></div></div></div>";
+	$("body").append(waitModal);
+	var waitButton = "<button id='waitModalButton' style='display: none;' type='button' class='btn btn-primary btn-lg' data-toggle='modal' data-target='#waitmodal'>Button</button>";
+	$("body").append(waitButton);
 }
 /*
 Fonction permettant de faire un appel ajax sur une ressource
@@ -155,15 +171,19 @@ function populateLegsDets() {
 	var legs = recolt.leg.split("/");
 	var dets = recolt.det.split("/");
 
-	populateInput("leg0", legs[0]);
-	populateInput("det0", dets[0]);
+	legs.forEach(function(element) {
+		legsArray.push(element);
+	});
 
-	if (legs.length > 1 || dets.length > 1) {
-		var max = Math.max(legs.length, dets.length);
-		for (var i = 1; i < max; i++) {
-			addLegDet(legs[i], dets[i]);
-		}
-	}
+	dets.forEach(function(element) {
+		detsArray.push(element);
+	});
+	if (legsArray.length == 0)
+		legsArray.push("");
+	if (detsArray.length == 0)
+		detsArray.push("");
+
+	makeLegDetFields();
 }
 
 function populateHerbierFields() {
@@ -192,6 +212,7 @@ function populateElementsFromReferential() {
 
 function populateSubstrats(data) {
 	var array = data.trim().split("\n");
+	populateSubstratUl(array);
 	populateSelect("substrat", array, recolt.substrat);
 }
 
@@ -235,7 +256,8 @@ function populateDate(date) {
 }
 
 var geocoder;
-var dpt;
+var dpt = "";
+var firstGeoloc = true;
 function callPositionInformations() {
 	geocoder = new google.maps.Geocoder();
 	var lat = $("#latitude").val(), lon = $("#longitude").val();
@@ -249,10 +271,24 @@ function callPositionInformations() {
 		geocoder.geocode({'latLng': latlng}, function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
 				var position = getPositionInformations(results);
-				populateInput("country", position.country);
-				dpt = position.dpt;
+
+				if (!firstGeoloc || recolt.pays.length == 0)
+					populateInput("country", position.country);
+				else
+					populateInput("country", recolt.pays);
+				if (!firstGeoloc || recolt.departement.length == 0)
+					dpt = position.dpt;
+				else
+					dpt = recolt.departement;
+
 				populateDepartements();
-				populateInput("city", position.city);
+
+				if (!firstGeoloc ||	recolt.ville.length == 0) 
+					populateInput("city", position.city);
+				else
+					populateInput("city", recolt.ville);
+
+				firstGeoloc = false;
 			} else {
 				alert('Geocoder failed due to: ' + status);
 			}
@@ -260,12 +296,12 @@ function callPositionInformations() {
 	} else {
 		if (recolt.pays.length == 0)
 			recolt.pays = "France";
+
 		populateInput("country", recolt.pays);
 		dpt = recolt.departement;
 		populateDepartements();
 		populateInput("city", recolt.ville);
 	}
-
 }
 
 function getPositionInformations(position) {
@@ -293,19 +329,25 @@ function populateDepartements() {
 
 function populateDepartementsInfos(data) {
 	var array = data.split("\n");
-	for (var i = 0; i < array.length; i++) {
-		if (array[i].indexOf(dpt) > -1) {
-			dpt = array[i];
-			break;
+	if (dpt.length > 0) {
+		for (var i = 0; i < array.length; i++) {
+			if (array[i].indexOf(dpt) > -1) {
+				dpt = array[i];
+				break;
+			}
 		}
 	}
+
 	populateSelect("dpt", array, dpt);
+	dpt = "";
 	finishInit();
 }
 
 function finishInit() {
 	addListeners();
 	checkFields();
+	if (type_id == 0)
+		window.atTheEndOfAllScripts();
 }
 
 function loadPictures() {
@@ -380,17 +422,17 @@ function savePicturesAuthors() {
 function showPicturesTab() {
 	var pics = "<tr>", authors = "<tr>", deletes = "<tr>";
 
-	var picMaxWidth;
+	var picMaxDimension;
 	if (pictures.length == 1)
-		picMaxWidth = "30%";
+		picMaxDimension = "20%";
 	else if (pictures.length == 2)
-		picMaxWidth = "75%";
+		picMaxDimension = "50%";
 	else
-		picMaxWidth = "100%";
+		picMaxDimension = "75%";
 
 	var div = "";
 	for (var i = 0; i < pictures.length; i++) {
-		pics += "<td class='text-center'><img style='max-width: " + picMaxWidth + ";' class='picture' src='" + pictures[i] + "' alt='photo'/></td>";
+		pics += "<td class='text-center'><img style='max-width: " + picMaxDimension + "; max-height: " + picMaxDimension + ";' class='picture' src='" + pictures[i] + "' alt='photo'/></td>";
 		authors += "<td class='text-center'>Auteur : <input id='picAuthorInput" + i + "' value='" + picturesAuthors[i] + "'></input></td>";
 		deletes += "<td class='text-center'><button type='button' class='btn btn-success delete' onclick='removePicture(" + i + ")'>"
 		+ "<span class='glyphicon glyphicon-trash'></span></button></td>";
@@ -457,10 +499,10 @@ function populateSelect(id, array, selected) {
 	if (id == "substrat" || id == "asso" || id == "hote")
 		options += "<option class='newValue'>Ajouter une nouvelle valeur</option>";
 	for (var i = 0; i < array.length; ++i) {
-		options += "<option>" + array[i] + "</option>";
+		if (array[i] != selected)
+			options += "<option>" + array[i] + "</option>";
 	}
 	list.val(selected);
-
 	list.append(options);
 }
 
@@ -545,13 +587,26 @@ function addListeners() {
 
 	$("#biblioButton").bind("click", function() {
 		var champi = $("#dataGenre").val() + "+" + $("#dataSpecies").val();
+		if (champi.length == 1)
+			champi = "";
 		window.open("http://doc.dbmyco.fr/consultation-par-especes/resultat-de-recherche-par-especes/?nom_biblio=" + champi);
 		return false;
 	});
 
-	$(".newValue").bind("click", function() {
-		addNewValue($(this).parent());
+	$("#asso").bind("change", function() {
+		if ($("#asso").val() == "Ajouter une nouvelle valeur")
+			addNewValue($(this));
 	});
+	$("#hote").bind("change", function() {
+		if ($("#hote").val() == "Ajouter une nouvelle valeur")
+			addNewValue($(this));
+	})
+	$("#substrat").bind("change", function() {
+		if ($("#substrat").val() == "Ajouter une nouvelle valeur")
+			addNewValue($(this));
+	})
+	$("#completeButton").bind("click", requestCompleteRecolte);
+	$("#mapButton").bind("click", callPositionInformations);
 }
 
 function addNewValue(select) {
@@ -560,6 +615,9 @@ function addNewValue(select) {
 	if (value) {
 		select.append("<option>" + value + "</option>");
 		select.val(value);
+
+		var url = "http://inventaire.dbmyco.fr/ajax/insertAsso.php?asso=" + value;
+		ajaxCall("GET", url);
 	}
 }
 
@@ -611,41 +669,103 @@ function selectHabitat() {
 	}
 }
 
-var legDetRow = 1;
-function addLegDet(leg, det) {
-	var legInfo = $("#groupleg0").find("img").attr("title").replace("'", "&#39;");
-	var detInfo = $("#groupdet0").find("img").attr("title").replace("'", "&#39;");
+function makeLegDetFields() {
+	legInfo = legInfo.replace("'", "&#39;");
+	detInfo = detInfo.replace("'", "&#39;");
+	var max = Math.max(legsArray.length, detsArray.length);
 
-	if (!leg)
-		leg = "";
-	if (!det)
-		det = "";
+	var legDetDiv = $("#legDetDiv");
+	legDetDiv.text("");
+	for (var i = 0; i < max; i++) {
+		var leg = legsArray[i], det = detsArray[i];
+		var optionLeg = "", optionDet = "";
+		var legClass = "", detClass = "";
 
-	var div = "<div id='groupleg" + legDetRow + "'class='form-group col-xs-6'>"
-	+ "<label for='leg' class='control-label col-xs-3'>Légataire</label>"
-	+ "<div class='col-xs-8'>"
-	+ "<input id='leg" + legDetRow + "' value='" + leg + "' class='legataire' style='width:100%;'></input>"
-	+ "</div>"
-	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + legInfo + "' src='/images/infobulle.png'></span>"
-	+ "</div>";
+		if (leg === undefined) {
+			optionLeg = "style='visibility: hidden'";
+			legClass = "hidden";
+			leg = "";
+		} else if (det === undefined) {
+			optionDet = "style='visibility: hidden'";
+			detClass = "hidden";
+			det = "";
+		}
 
-	div += "<div id='groupdet" + legDetRow + "'class='form-group col-xs-6'>"
-	+ "<label for='det' class='control-label col-xs-3'>Déterminateur</label>"
-	+ "<div class='col-xs-6'>"
-	+ "<input id='det" + legDetRow + "' value='" + det + "' class='determinateur' style='width:100%;'></input>"
-	+ "</div>"
-	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + detInfo + "' src='/images/infobulle.png'></span>"
-	+ "<div class='col-xs-1'>"
-	+ "<button type='button' class='btn btn-success' onclick='addLegDet()'>"
-	+ "<span class='glyphicon glyphicon-plus'></span></div>"
-	+ "<div class='col-xs-1'>"
-	+ "<button type='button' class='btn btn-success' onclick='removeLegDet(" + legDetRow + ");'>"
-	+ "<span class='glyphicon glyphicon-minus'></span></button>"
-	+ "</div></div>";
+		var removeLeg = "removeLeg(\'" + i + "\');";
+		var removeDet = "removeDet(\'" + i + "\');";
+		var div = "<div class='form-group col-xs-6' " + optionLeg + ">"
+		+ "<label for='leg' class='control-label col-xs-3'>Légataire</label>"
+		+ "<div class='col-xs-6'>"
+		+ "<input value='" + leg + "' class='legataire " + legClass + "' style='width:100%;'></input>"
+		+ "</div>"
+		+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + legInfo + "' src='/images/infobulle.png'></span>"
+		+ "<div class='col-xs-2'>"
+		+ "<button type='button' class='btn btn-success btn-sm pull-left' style='width: 45%;' onclick='addLeg()'>"
+		+ "<span class='glyphicon glyphicon-plus'></span></button>"
+		+ "<button type='button' class='btn btn-success btn-sm pull-right' style='width: 45%;' onclick=" + removeLeg + ">"
+		+ "<span class='glyphicon glyphicon-minus'></span></button>"
+		+ "</div></div>";
 
-	var row = getLastLegDetRow();
-	$("#groupdet" + row).after(div);
-	legDetRow++;
+		div += "<div class='form-group col-xs-6' " + optionDet + ">"
+		+ "<label for='det' class='control-label col-xs-3'>Déterminateur</label>"
+		+ "<div class='col-xs-6'>"
+		+ "<input value='" + det + "' class='determinateur" + detClass + "' style='width:100%;'></input>"
+		+ "</div>"
+		+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + detInfo + "' src='/images/infobulle.png'></span>"
+		+ "<div class='col-xs-2'>"
+		+ "<button type='button' class='btn btn-success btn-sm pull-left' style='width: 45%;' onclick='addDet()'>"
+		+ "<span class='glyphicon glyphicon-plus'></span></button>"
+		+ "<button type='button' class='btn btn-success btn-sm pull-right' style='width: 45%;' onclick=" + removeDet + ">"
+		+ "<span class='glyphicon glyphicon-minus'></span></button>"
+		+ "</div></div>";
+
+		legDetDiv.append(div);
+	}
+}
+
+var legsArray = [], detsArray = [];
+function addLeg() {
+	saveLegDetsArrays();
+	legsArray.push("");
+
+	makeLegDetFields();
+}
+
+function removeLeg(legIdx) {
+	saveLegDetsArrays();
+	legsArray.splice(legIdx, 1);
+	if (legsArray.length == 0)
+		legsArray.push("");
+
+	makeLegDetFields();
+}
+
+function addDet() {
+	saveLegDetsArrays();
+	detsArray.push("");
+
+	makeLegDetFields();
+}
+
+function removeDet(detIdx) {
+	saveLegDetsArrays();
+	detsArray.splice(detIdx, 1);
+	if (detsArray.length == 0)
+		detsArray.push("");
+	
+	makeLegDetFields();
+}
+
+function saveLegDetsArrays() {
+	legsArray = [], detsArray = [];
+	$(".legataire").each(function () {
+		if (!$(this).hasClass("hidden"))
+			legsArray.push($(this).val());
+	});
+	$(".determinateur").each(function () {
+		if (!$(this).hasClass("hidden"))
+			detsArray.push($(this).val());
+	});
 }
 
 var herbierRow = 1;
@@ -673,12 +793,12 @@ function addHerbier(codeHerbier, numHerbier) {
 	+ "<input id='numHerbier" + herbierRow + "' value='" + numHerbier + "' class='numHerbier' style='width:100%;'></input>"
 	+ "</div>"
 	+ "<span class='col-xs-1'><img class='data-toggle='tooltip' data-placement='top' title='" + numInfo + "' src='/images/infobulle.png'></span>"
-	+ "<div class='col-xs-1'>"
-	+ "<button type='button' class='btn btn-success' onclick='addHerbier()'>"
-	+ "<span class='glyphicon glyphicon-plus'></span></button></div>"
-	+ "<div class='col-xs-1'>"
-	+ "<button type='button' class='btn btn-success' onclick='removeHerbier(" + herbierRow + ");'>"
+	+ "<div class='col-xs-2'>"
+	+ "<button type='button' class='btn btn-success btn-sm pull-left' style='width: 45%;' onclick='addHerbier()'>"
+	+ "<span class='glyphicon glyphicon-plus'></span></button>"
+	+ "<button type='button' class='btn btn-success btn-sm pull-right' style='width: 45%;' onclick='removeHerbier(" + herbierRow + ");'>"
 	+ "<span class='glyphicon glyphicon-minus'></span></button>"
+
 	+ "</div></div>";
 
 	var row = getLastHerbierRow();
@@ -686,17 +806,6 @@ function addHerbier(codeHerbier, numHerbier) {
 	herbierRow++;
 }
 
-function getLastLegDetRow() {
-	var max = 0;
-	$("div").filter(function() {
-		return this.id.match("groupleg.*");
-	}).each(function() {
-		var id = parseInt(this.id.split("groupleg")[1]);
-		if (id > max)
-			max = id;
-	});
-	return max;
-}
 function getLastHerbierRow() {
 	var max = 0;
 	$("div").filter(function() {
@@ -714,11 +823,7 @@ function removeHerbier(id) {
 	$("#groupnumHerbier" + id).remove();
 }
 
-function removeLegDet(id) {
-	$("#groupleg" + id).remove();
-	$("#groupdet" + id).remove();
-}
-
+var firstTime = true;
 function requestCompleteRecolte() {
 	var phylum = $("#listPhylum").find(":selected").text();
 	var genre = $("#dataGenre").val();
@@ -738,27 +843,22 @@ function requestCompleteRecolte() {
 var modalOptions;
 function completeRecolte(data) {
 	var response;
-	if (data.length == 0) {
-		alert("Aucun résultat trouvé dans le référentiel.");
+	if (data.length == 0 && !firstTime) {
+		alert("Aucun résultat trouvé dans le référentiel correspondant aux informations proposées.");
 		return;
 	}
+
 	modalOptions = data.split("\n");
 	if (modalOptions.length == 1)
 		completeRecolteFields(modalOptions[0].split("||"));
 	else if (modalOptions.length > 100)
 		alert("Trop de résultats possibles, veuillez affiner votre recherche.");
-	else
+	else if (!firstTime)
 		showCompleteModal(modalOptions);
+	firstTime = false;
 }
 
 function showCompleteModal(array) {
-	/*var modal = "<div id='toto' class='modal fade in' tabindex='-1' role='dialog'>"
-	+ "<div class='modal-dialog'><div class='modal-content'><div class='modal-header'>A nice header</div><div class='modal-body'>"
-	+ "Choisissez parmi les valeurs proposées celle correspondant à l'espèce que vous souhaitez compléter."
-	+ "<select id='modalSelect'></select>"
-	+ "</div><div class='modal-footer'>Ow, a footer !</div></div></div></div>";
-	$("body").append(modal);
-	*/
 	var select = $("#modalSelect");
 	select.text("");
 	for (var i = 0; i < array.length; i++) {
@@ -827,20 +927,9 @@ function reset() {
 
 	resetSelects();
 
-	$("#leg0").val("");
-	$("#groupleg0").trigger("change");
-	$("#det0").val("");
-	$("#groupdet0").trigger("change");
-
-	for (var i = 1; i < legDetRow; i++) {
-		var leg = $("#groupleg" + i);
-		var det = $("#groupdet" + i);
-
-		if (leg.length != 0) {
-			leg.remove();
-			det.remove();
-		}
-	}
+	legsArray = [""];
+	detsArray = [""];
+	makeLegDetFields();
 
 	$("#codeHerbier0").val("");
 	$("#numHerbier0").val("");
@@ -868,24 +957,24 @@ function saveRecolt() {
 	recolt.user_id = user_id;
 	recolt.genre = $("#dataGenre").val();
 	recolt.espece = $("#dataSpecies").val();
-	recolt.rang = $("#listSVF option:selected").text();
+	recolt.rang = $("#listSVF").val();
 	recolt.taxon = $("#dataTaxon").val();
-	recolt.modulation = $("#listModulation option:selected").text();
+	recolt.modulation = $("#listModulation").val();
 	recolt.autorites = $("#dataAuthor").val();
 
-	recolt.regne = $("#listRegne option:selected").text();
-	recolt.phylum = $("#listPhylum option:selected").text();
+	recolt.regne = $("#listRegne").val();
+	recolt.phylum = $("#listPhylum").val();
 	recolt.classe = $("#dataClasse").val();
 	recolt.ordre = $("#dataOrdre").val();
 	recolt.famille = $("#dataFamille").val();
 
 	recolt.pays = $("#country").val();
-	recolt.departement = $("#dpt option:selected").text().split("-")[0];
+	recolt.departement = $("#dpt").val();
 	recolt.ville = $("#city").val();
 	recolt.lieu_dit = $("#lieu-dit").val();
 	recolt.domaine = $("#domain").val();
 	recolt.sous_domaine = $("#subdomain").val();
-	recolt.statut_protection = $("#protectionStatus option:selected").text();
+	recolt.statut_protection = $("#protectionStatus").val();
 
 	var mailles = $("#mailles").val();
 	if (mailles.length > 0) {
@@ -903,18 +992,22 @@ function saveRecolt() {
 	recolt.quantite = $("#nbFound").val();
 	recolt.etendue = $("#range").val();
 
-	recolt.referentiel = $("#ref option:selected").text();
+	recolt.referentiel = $("#ref").val();
 	recolt.habitat = $("#ecologie").val();
-	recolt.hote = $("#hote option:selected").text();
-	recolt.etat_hote = $("#hostState option:selected").text();
-	recolt.substrat = $("#substrat option:selected").text();
+	recolt.hote = $("#hote").val();
+	recolt.etat_hote = $("#hostState").val();
+	recolt.substrat = $("#substrat").val();
 
 	saveLegsDets();
-	saveHerbiers();
+	
+	if (!saveHerbiers()) {
+		alert("Erreur: vérifiez que vous avez bien rentré autant de numéros d'herbiers que de codes herbiers.");
+		return;
+	}
 
-	recolt.asso = $("#asso option:selected").text();
+	recolt.asso = $("#asso").val();
 	recolt.collaboration = $("#collaboration").val();
-	recolt.type_recolte = $("#typeRecolte option:selected").text();
+	recolt.type_recolte = $("#typeRecolte").val();
 	recolt.remarques = $("#remarques").val();
 	recolt.pictures = pictures;
 	savePicturesAuthors();
@@ -929,18 +1022,32 @@ function saveRecolt() {
 		return;
 	}
 
+	if (!isValidRankAndTaxon(recolt.rang, recolt.taxon)) {
+		alert("Erreur : veuillez entrer le rang ET l'épithète 2 ou aucun des deux.");
+		return;
+	}
+
+	$("#waitModalButton").trigger("click");
+
 	ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/submitCompleteMobileRecolte.php", 
 		recoltSaved, JSON.stringify(recolt), saveFailed);
+	
+	var url = "http://inventaire.dbmyco.fr/ajax/insertTmpPosition.php?regne=" + recolt.regne + "&phylum=" + recolt.phylum
+	+ "&classe=" + recolt.classe + "&ordre=" + recolt.ordre + "&famille=" + recolt.famille + "&genre=" + recolt.genre
+	+ "&epithete=" + recolt.espece + "&rang=" + recolt.rang + "&taxon=" + recolt.taxon + "&autorites=" + recolt.autorites;
+
+	ajaxCall("GET", url);
 }
 
 function recoltSaved(data) {
 	console.log(data);
-	if (data.contains("OK")) {
+	$("#waitModalButton").trigger("click");
+	if (data.indexOf("OK") >= 0) {
 		alert("Sauvegarde réussie !");
 		document.location.href="http://inventaire.dbmyco.fr/";
 		return false;
 	} else
-	alert("echec côté serveur");
+	alert("echec côté serveur : " + data);
 }
 
 function saveFailed(a, b, c) {
@@ -950,8 +1057,6 @@ function saveFailed(a, b, c) {
 	console.log(c);
 }
 function saveLegsDets() {
-	recolt.legs = $("#leg").val();
-	recolt.dets = $("#det").val();
 	var legs = "", dets = "";
 	$(".legataire").each(function () {
 		var val = $(this).val();
@@ -985,12 +1090,18 @@ function saveHerbiers() {
 
 	recolt.numsHerbier = numsHerbier;
 	recolt.codesHerbier = codesHerbier;
+
+	return recolt.numsHerbier.length == recolt.codesHerbier.length;
 }
 
 function saveDate() {
 	var day, month, year;
 	day = $("#day option:selected").text();
+	if (day.length == 1)
+		day = "0" + day;
 	month = (months.indexOf($("#month option:selected").text()) + 1) + "";
+	if (month.length == 1)
+		month = "0" + month;
 	year = $("#year").val();
 
 	if (month.length == 1)
@@ -1007,5 +1118,65 @@ function isValidDate(d) {
 		return true;
 	} catch (e) {
 		return false;
+	}
+}
+
+function isValidRankAndTaxon(rang, taxon) {
+	var rankEmpty = rang.length == 0;
+	var taxonEmpty = taxon.length == 0;
+	if ((rankEmpty && taxonEmpty) || (!rankEmpty && !taxonEmpty))
+		return true
+	return false;
+}
+
+function resetHerbier() {
+	$("#codeHerbier0").val("");
+	$("#numHerbier0").val("");
+}
+
+function populateSubstratUl(array) {
+	var treeLevel = 0;
+	var tree = new Tree();
+	var currentTree = tree;
+	array.forEach(function(entry) {
+		processSubstratEntry(entry, tree, currentTree, treeLevel);
+	});
+	buildSubstratsUI(tree);
+}
+
+function processSubstratEntry(entry, originalTree, currentTree, treeLevel) {
+	var nbIndent = entry.split("&nbsp;&nbsp;").length - 1;
+	if (nbIndent === treeLevel)
+		currentTree.addChild(new Tree(entry, currentTree));
+	else if (nbIndent > treeLevel) {
+		currentTree = currentTree.children[currentTree.children.length - 1];
+		treeLevel ++;
+		processSubstratEntry(entry, originalTree, currentTree, treeLevel);
+	} else {
+		treeLevel --;
+		currentTree = currentTree.father;
+		processSubstratEntry(entry, originalTree, currentTree, treeLevel);
+	}
+}
+
+function buildSubstratsUI(tree) {
+	var ui = "";
+	tree.children.forEach(function(subtree) {
+		if (subtree.hasChildren)
+			buildSubtratRow(subtree);
+	});
+}
+
+function Tree (content, father) {
+	this.children = [];
+	this.content = content || "";
+	this.father = father;
+
+	this.addChild = function(child) {
+		this.children.push(child);
+	}
+
+	this.hasChildren = function() {
+		this.children.length != 0;
 	}
 }

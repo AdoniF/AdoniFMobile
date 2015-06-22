@@ -62,5 +62,11 @@
             "url": "https://github.com/litehelpers/cordova-sqlite-common",
             "subdir": "."
         }
+    },
+    "org.apache.cordova.geolocation": {
+        "source": {
+            "type": "registry",
+            "id": "org.apache.cordova.geolocation"
+        }
     }
 }

@@ -253,6 +253,7 @@ module.exports.metadata =
     "org.devgeeks.Canvas2ImagePlugin": "0.6.0",
     "hu.dpal.phonegap.plugins.SpinnerDialog": "1.3.1",
     "cordova-sqlite-common": "0.7.0-dev",
+    "org.apache.cordova.geolocation": "0.3.12",
     "org.apache.cordova.file": "1.3.3"
 }
 // BOTTOM OF METADATA

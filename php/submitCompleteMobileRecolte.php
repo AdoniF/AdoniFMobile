@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-// Reporte toutes les erreurs PHP (Voir l'historique des modifications)
-error_reporting(E_ALL);
 $data = json_decode($_POST['data']);
 
 if (!$data || empty($data->user_id)) {
@@ -44,8 +41,9 @@ if (!($stmt = $id_connect->prepare($query))) {
 }
 
 $codeSubstrat = getCodeSubstrat($data->substrat);
-
+echo $codeSubstrat;
 if ($type_id === 0 || $type_id === 2) {
+	$data->departement = explode("-", $data->departement)[0];
 	if (!$stmt->bind_param("issssssssssssssssddiiississsssssss", $data->user_id, $data->genre, $data->espece, $data->rang, $data->taxon
 		, $data->modulation, $data->autorites, $data->date, $data->pays, $data->departement, $data->ville, $data->lieu_dit, $data->domaine
 		, $data->sous_domaine, $data->statut_protection, $data->men, $data->mer, $data->latitude, $data->longitude, $data->etendue
@@ -74,6 +72,18 @@ if (!$stmt->execute()) {
 		$id = mysqli_insert_id($id_connect);
 	else
 		$id = $data->former_id;
+
+	$query = "DELETE FROM herbier WHERE id_recolte=?";
+
+	if (!($stmt = $id_connect->prepare($query))) {
+		echo "Echec de la préparation : (" . $id_connect->errno . ") " . $id_connect->error;
+		return -1;
+	}
+	if (!$stmt->bind_param("s", $id)) {
+		echo "Echec lors du liage des paramètres : (" . $stmt->errno . ") " . $stmt->error;
+		return -1;
+	}
+	$stmt->execute();
 
 	$numsHerbier = $data->numsHerbier;
 	$codesHerbier = $data->codesHerbier;
@@ -132,7 +142,8 @@ function savePictures($recolt_id, $data) {
 			echo "Echec de la préparation : (" . $id_connect->errno . ") " . $id_connect->error;
 			return;
 		}
-		if (!$stmt->bind_param("iiss", intval($data->user_id), $recolt_id, $image_name, $picturesAuthors[$i])) {
+		$id = intval($data->user_id);
+		if (!$stmt->bind_param("iiss", $id, $recolt_id, $image_name, $picturesAuthors[$i])) {
 			echo "Echec lors du liage des paramètres : (" . $stmt->errno . ") " . $stmt->error;
 			return;
 		}
@@ -143,7 +154,6 @@ function savePictures($recolt_id, $data) {
 			if (strstr($src, "wp-content")) {
 				//Le fichier est déjà sur le serveur, on le déplace dans le bon dossier
 				$src = "/home/dbmycofrhu/www/inventaire/".$src;
-				echo $src."\n";
 				if (!copy($src, $path.$image_name))
 					echo "echec copie\n";
 			} else {
@@ -173,14 +183,17 @@ function makeRecoltDir($user_id, $recolt_id) {
 
 //Fonction permettant de récupérer le code du substrat textuel passé en paramètre
 function getCodeSubstrat($code) {
+	$code = htmlentities($code);
+	$code = str_replace("&nbsp;", "", $code);
+	$code = trim($code);
 	include('../connexionBdd/bddReferentielMobile.php');
+
 	$query = "SELECT code FROM substrat WHERE libelle = ?";
 
 	if (! ($stmt = $id_connect->prepare($query))) {
 		echo "Echec de la préparation : (" . $id_connect->errno . ") " . $id_connect->error;
 	}
-	$code = trim(str_replace("&nbsp", "", $code));
-
+	
 	if (!$stmt->bind_param("s", $code)) {
 		echo "Echec lors du liage des paramètres : (" . $stmt->errno . ") " . $stmt->error;
 	}

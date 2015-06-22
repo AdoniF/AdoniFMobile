@@ -16,6 +16,7 @@ var position = {
 	}
 };
 
+var nbTries = 0;
 // Fonction appellée lors de la réussite d'une géolocalisation
 function updatePosition() {
 	recolt.longitude = position.coords.longitude;
@@ -30,14 +31,17 @@ function updatePosition() {
 
 // Fonction appellée lors de la réussite d'une géolocalisation
 function onGeolocationSuccess (pos) {
-	alert("Localisation gps détectée");
+	shortBottomToast("Localisation détectée !");
+	//alert("Localisation gps détectée");
 	position = pos;
 	updatePosition();
+	nbTries = 0;
 }
 
 // Fonction appellée lors de l'échec d'une géolocalisation
 function onGeolocationError(error) {
-	alert("Echec de la localisation GPS. Votre GPS est désactivé ou ne parvient pas à capter un signal.");
+	alert("Echec de la localisation GPS, votre GPS est désactivé ou ne parvient pas à capter un signal. Un nouvel essai va se déclencher.");
+	nbTries++;
 	var options = {enableHighAccuracy: true, timeout: 15000, maximumAge: 5000};
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, options);
 	/*navigator.geolocation.clearWatch(watchID);
@@ -54,8 +58,29 @@ function calculatePosition() {
 }
 
 function launchPosition() {
-	var options = {enableHighAccuracy: true, timeout: 15000, maximumAge: 5000};
+	nbTries++;
+	var options = {enableHighAccuracy: true, timeout: 5000, maximumAge: 5000};
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, options);
+	/*navigator.geolocation.getCurrentPosition(function(pos){
+		alert('suc')
+		alert(JSON.stringify(pos))
+	},function(errMsg){
+		alert(JSON.stringify(errMsg))
+		navigator.geolocation.getCurrentPosition(function(pos){  
+			alert('suc')
+			alert(JSON.stringify(pos))
+		},function(errMsg){
+			alert(JSON.stringify(errMsg))
+		}, {
+			enableHighAccuracy: true,
+			timeout: 60*1000*2,
+			maximumAge: 1000*60*10
+		});
+	}, {
+		enableHighAccuracy: false,
+		timeout: 60*1000,
+		maximumAge: 1000*60*10
+	});*/
 }
 
 //	Initialisation de la source de l'image et de la destination au lancement de la page

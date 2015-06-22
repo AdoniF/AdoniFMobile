@@ -47,8 +47,8 @@ function connectUser() {
 	if (loggedIn) {
 		initUser();
 	} else {
-		if (!dbCreated)
-			initDB();
+		/*if (!dbCreated)
+			initDB();*/
 		
 		alert("Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
 			showConnectionPage, "Connexion requise", "Connexion");
@@ -311,9 +311,9 @@ function connectionError() {
 // Récupère le résultat de la tentative de connexion de l'utilisateur
 function getConnectionResult(data, param) {
 	if (data.contains("OK")) {
-		shortBottomToast("Connexion réussie !");
+		shortBottomToast("Connexion réussie ! Chargement des informations du référentiel...");
 		toIndex();
-
+		initDB();
 		createUser(param.param1, param.param2, data);
 		addUser(user);
 	} else {

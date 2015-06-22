@@ -14,16 +14,16 @@ if (!isset($recolt_id) || !isset($type_id) || $type_id === 0) {
 include("../connexionBdd/bddInventaireMobile.php"); 
 
 $table = $type_id === "1" ? "recolte_photos" : "recolte_photos_mobile";
-$query = "SELECT nom, auteur FROM ".$table." WHERE recolt_id = ?";
+$query = "SELECT nom, auteur, user_id FROM ".$table." WHERE recolt_id = ?";
 
 $stmt = $id_connect->prepare($query);
 $stmt->bind_param("i", $recolt_id);
 $stmt->execute();
 
-$stmt->bind_result($nom, $auteur);
+$stmt->bind_result($nom, $auteur, $user_id);
 
 while ($stmt->fetch()) {
-	echo $nom."$".$auteur."\n";
+	echo $nom."$".$auteur."$".$user_id."\n";
 }
 
 $stmt->close();

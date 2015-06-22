@@ -21,7 +21,7 @@ else
 	$table = "champignon";
 
 $query = "SELECT PHYLUM, LB_AUTEUR, FAMILLE, CLASSE, REGNE, ORDRE, TAXINTRASPECIFIQUE, RANGINTRASPECIFIQUE FROM ".$table
-." WHERE GENRE LIKE ? AND EPITHETE LIKE ?";
+." WHERE GENRE LIKE ? AND EPITHETE LIKE ? AND CD_NOM = CD_REF";
 $params = "ss";
 
 if (strlen($rang) > 2) {
@@ -61,8 +61,8 @@ if (!$stmt->execute()) {
 	echo "echec de l'execution ".$stmt->errno." : ".$stmt->error;
 } else {
 	$stmt->bind_result($phylum, $auteur, $famille, $classe, $regne, $ordre, $taxon, $rang);
-	$stmt->fetch();
-	echo $phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
+	if ($stmt->fetch())
+		echo $phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;
 
 	while ($stmt->fetch()) {
 		echo "\n".$phylum.'||'.$auteur.'||'.$famille.'||'.$classe.'||'.$regne.'||'.$ordre.'||'.$taxon.'||'.$rang;

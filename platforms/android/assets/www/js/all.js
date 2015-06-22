@@ -32,11 +32,6 @@ function onDeviceReady() {
 	positionUl();
 	//calculatePosition();
 	navigator.splashscreen.hide();
-	if (navigator.geolocation) {
-		alert("ok geoloc");
-	} else {
-		alert("no geoloc :'(");
-	}
 }
 
 /*
