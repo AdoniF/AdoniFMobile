@@ -1,7 +1,4 @@
 # Documentation Technique Application Adonif #
-* Red
-+ Green
-- Blue
 
 ### Configurer Cordova sur son ordinateur
 
@@ -91,9 +88,9 @@ Adonif
 
 Documentation de phonegap/cordova : http://docs.phonegap.com/en/edge/guide_overview_index.md.html#Overview
 
-* Red
-+ Green
-- Blue
+* [Bootstrap](http://getbootstrap.com/)
++ [Awesomplete](https://leaverou.github.io/awesomplete/)
+- [FastClick](https://github.com/ftlabs/fastclick)
 
 Librairies :
 *	[Bootstrap](http://getbootstrap.com/)
