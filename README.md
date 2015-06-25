@@ -32,19 +32,23 @@ L'utilisateur peut ensuite lister ses récoltes et les uploader. Les photos sont
 
 Adonif
 |
-| - hooks : permet de customiser les commandes de cordova, inutile dans ce projet à ce jour
-| - img : contient les images des splashscreen et des icones, elles sont ajoutées dans les projets des plateformes à la compilation. L'emplacement des images est configuré dans le fichier config.xml
-|
-| - php : dossier contenant tous les fichiers php ayant un rapport avec ce projet -> script appelés par l'application ou par le formulaire de gestion des récoltes mobiles sur le site de l'inventaire.
-|
-| - platforms : dossier contenant les applications compilées pour chaque plateforme disponible.
-| - plugins : dossier oÃ¹ sont stockés les sources des plugins de l'application
-| - www : dossier contenant les sources du projet. Toutes les sources doivent Ãªtre placées dans ce dossier.
+
+|- hooks : permet de customiser les commandes de cordova, inutile dans ce projet à ce jour
+
+|- img : contient les images des splashscreen et des icones, elles sont ajoutées dans les projets des plateformes à la compilation. L'emplacement des images est configuré dans le fichier config.xml
+
+|- php : dossier contenant tous les fichiers php ayant un rapport avec ce projet -> script appelés par l'application ou par le formulaire de gestion des récoltes mobiles sur le site de l'inventaire.
+
+|- platforms : dossier contenant les applications compilées pour chaque plateforme disponible.
+
+|- plugins : dossier oÃ¹ sont stockés les sources des plugins de l'application
+
+|- www : dossier contenant les sources du projet. Toutes les sources doivent Ãªtre placées dans ce dossier.
 	|
-	| - css : contient les feuilles css concernant le projet
-	| - fonts : contient les polices associées au projet. Utile pour avoir les glyphicons de bootstrap
-	| - img: contient les images du projet (logo d'adonif notamment).
-	| - js: contient le javascript associé au projet.
+	|- css : contient les feuilles css concernant le projet
+	|- fonts : contient les polices associées au projet. Utile pour avoir les glyphicons de bootstrap
+	|- img: contient les images du projet (logo d'adonif notamment).
+	|- js: contient le javascript associé au projet.
 		|
 		|- libs: dossier contenant les librairies javascript
 			|
