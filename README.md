@@ -1,4 +1,7 @@
 # Documentation Technique Application Adonif #
+* Red
++ Green
+- Blue
 
 ### Configurer Cordova sur son ordinateur
 
