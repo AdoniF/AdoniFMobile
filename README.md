@@ -87,16 +87,12 @@ Adonif
 ### Liens
 
 Documentation de phonegap/cordova : http://docs.phonegap.com/en/edge/guide_overview_index.md.html#Overview
+Librairies 
 
 * [Bootstrap](http://getbootstrap.com/)
 + [Awesomplete](https://leaverou.github.io/awesomplete/)
 - [FastClick](https://github.com/ftlabs/fastclick)
-
-Librairies :
-*	[Bootstrap](http://getbootstrap.com/)
-*	[Awesomplete](https://leaverou.github.io/awesomplete/)
-*	[FastClick](https://github.com/ftlabs/fastclick)
-*	[JQuery](https://jquery.com/)
+- [JQuery](https://jquery.com/)
 
 ### Astuces
 
