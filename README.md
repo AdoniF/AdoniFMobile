@@ -89,10 +89,10 @@ Adonif
 Documentation de phonegap/cordova : http://docs.phonegap.com/en/edge/guide_overview_index.md.html#Overview
 
 Librairies :
-1. [Bootstrap](http://getbootstrap.com/)
-2. [Awesomplete](https://leaverou.github.io/awesomplete/)
-3. [FastClick](https://github.com/ftlabs/fastclick)
-4. [JQuery](https://jquery.com/)
+*[Bootstrap](http://getbootstrap.com/)
+*[Awesomplete](https://leaverou.github.io/awesomplete/)
+*[FastClick](https://github.com/ftlabs/fastclick)
+*[JQuery](https://jquery.com/)
 
 ### Astuces
 
