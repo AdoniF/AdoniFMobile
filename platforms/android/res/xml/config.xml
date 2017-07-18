@@ -1,12 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="fr.app.adonif" version="1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <preference name="loglevel" value="DEBUG" />
     <feature name="Toast">
         <param name="android-package" value="nl.xservices.plugins.Toast" />
-    </feature>
-    <feature name="File">
-        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
-        <param name="onload" value="true" />
     </feature>
     <feature name="FileTransfer">
         <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
@@ -30,6 +25,19 @@
     <feature name="SQLitePlugin">
         <param name="android-package" value="io.liteglue.SQLitePlugin" />
     </feature>
+    <feature name="File">
+        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
+        <param name="onload" value="true" />
+    </feature>
+    <name>Adonif</name>
+    <description>
+		Application permettant d'entrer des récoltes dans la base de données mycologique de l'Adonif.
+	</description>
+    <author email="" href="">
+		Adonif
+	</author>
+    <content src="index.html" />
+    <access origin="*" />
     <icon density="ldpi" src="img/icons/android/icon_ldpi.png" />
     <icon density="mdpi" src="img/icons/android/icon_mdpi.png" />
     <icon density="hdpi" src="img/icons/android/icon_hdpi.png" />
@@ -40,15 +48,7 @@
     <splash density="port-hdpi" src="img/screen/android/splash_port_hdpi.png" />
     <splash density="port-mdpi" src="img/screen/android/splash_port_mdpi.png" />
     <splash density="port-xhdpi" src="img/screen/android/splash_port_xhdpi.png" />
-    <name>Adonif</name>
-    <description>
-		Application permettant d'entrer des récoltes dans la base de données mycologique de l'Adonif.
-	</description>
-    <author email="" href="">
-		Adonif
-	</author>
-    <content src="index.html" />
-    <access origin="*" />
+    <preference name="loglevel" value="DEBUG" />
     <preference name="android-targetSdkVersion" value="10" />
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="3000" />

@@ -1,0 +1,17 @@
+{
+    "name": "fr.app.adonif",
+    "version": "1.0",
+    "displayName": "Adonif",
+    "cordova": {
+        "platforms": [
+            "android",
+            "ios",
+            "windows"
+        ]
+    },
+    "dependencies": {
+        "cordova-android": "~6.2.3",
+        "cordova-ios": "^4.4.0",
+        "cordova-windows": "^5.0.0"
+    }
+}
