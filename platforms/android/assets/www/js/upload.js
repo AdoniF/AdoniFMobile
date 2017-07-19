@@ -11,7 +11,7 @@ function RecoltBean (data, picturesUrls, localID) {
 
 	// Exécute l'upload de ce bean
 	this.upload = function () {
-		ajaxCall("POST", "http://inventaire.dbmyco.fr/ajax/createTemporaryRecolt.php", onDataUploadSuccess, JSON.stringify(data),
+		ajaxCall("POST", "http://fongibase.adonif.fr/ajax/createTemporaryRecolt.php", onDataUploadSuccess, JSON.stringify(data),
 			onDataUploadError);
 	}
 
