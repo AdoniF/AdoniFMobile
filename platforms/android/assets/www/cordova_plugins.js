@@ -1,20 +1,6 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "file": "plugins/cordova-plugin-geolocation/www/android/geolocation.js",
-        "id": "cordova-plugin-geolocation.geolocation",
-        "pluginId": "cordova-plugin-geolocation",
-        "clobbers": [
-            "navigator.geolocation"
-        ]
-    },
-    {
-        "file": "plugins/cordova-plugin-geolocation/www/PositionError.js",
-        "id": "cordova-plugin-geolocation.PositionError",
-        "pluginId": "cordova-plugin-geolocation",
-        "runs": true
-    },
-    {
         "file": "plugins/nl.x-services.plugins.toast/www/Toast.js",
         "id": "nl.x-services.plugins.toast.Toast",
         "pluginId": "nl.x-services.plugins.toast",
@@ -294,9 +280,6 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "cordova-plugin-toast": "1.0.1",
-    "cordova-plugin-geolocation": "2.4.3",
-    "cordova-plugin-compat": "1.1.0",
     "nl.x-services.plugins.toast": "2.0.4",
     "org.apache.cordova.file-transfer": "0.5.0",
     "org.apache.cordova.camera": "0.3.6",
@@ -305,6 +288,7 @@ module.exports.metadata =
     "org.devgeeks.Canvas2ImagePlugin": "0.6.0",
     "hu.dpal.phonegap.plugins.SpinnerDialog": "1.3.1",
     "cordova-sqlite-common": "0.7.0-dev",
+    "org.apache.cordova.geolocation": "0.3.12",
     "org.apache.cordova.file": "1.3.3"
 }
 // BOTTOM OF METADATA

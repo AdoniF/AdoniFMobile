@@ -20,8 +20,11 @@ package org.apache.cordova;
 
 import java.security.SecureRandom;
 
+import org.apache.cordova.PluginManager;
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import android.util.Log;
 
 /**
  * Contains APIs that the JS can call. All functions in here should also have
@@ -33,10 +36,13 @@ public class CordovaBridge {
     private PluginManager pluginManager;
     private NativeToJsMessageQueue jsMessageQueue;
     private volatile int expectedBridgeSecret = -1; // written by UI thread, read by JS thread.
+    private String loadedUrl;
+    private String appContentUrlPrefix;
 
-    public CordovaBridge(PluginManager pluginManager, NativeToJsMessageQueue jsMessageQueue) {
+    public CordovaBridge(PluginManager pluginManager, NativeToJsMessageQueue jsMessageQueue, String packageName) {
         this.pluginManager = pluginManager;
         this.jsMessageQueue = jsMessageQueue;
+        this.appContentUrlPrefix = "content://" + packageName + ".";
     }
 
     public String jsExec(int bridgeSecret, String service, String action, String callbackId, String arguments) throws JSONException, IllegalAccessException {
@@ -85,15 +91,15 @@ public class CordovaBridge {
     private boolean verifySecret(String action, int bridgeSecret) throws IllegalAccessException {
         if (!jsMessageQueue.isBridgeEnabled()) {
             if (bridgeSecret == -1) {
-                LOG.d(LOG_TAG, action + " call made before bridge was enabled.");
+                Log.d(LOG_TAG, action + " call made before bridge was enabled.");
             } else {
-                LOG.d(LOG_TAG, "Ignoring " + action + " from previous page load.");
+                Log.d(LOG_TAG, "Ignoring " + action + " from previous page load.");
             }
             return false;
         }
         // Bridge secret wrong and bridge not due to it being from the previous page.
         if (expectedBridgeSecret < 0 || bridgeSecret != expectedBridgeSecret) {
-            LOG.e(LOG_TAG, "Bridge access attempt with wrong secret token, possibly from malicious code. Disabling exec() bridge!");
+            Log.e(LOG_TAG, "Bridge access attempt with wrong secret token, possibly from malicious code. Disabling exec() bridge!");
             clearBridgeSecret();
             throw new IllegalAccessException();
         }
@@ -105,10 +111,6 @@ public class CordovaBridge {
         expectedBridgeSecret = -1;
     }
 
-    public boolean isSecretEstablished() {
-        return expectedBridgeSecret != -1;
-    }
-
     /** Called by cordova.js to initialize the bridge. */
     int generateBridgeSecret() {
         SecureRandom randGen = new SecureRandom();
@@ -116,9 +118,10 @@ public class CordovaBridge {
         return expectedBridgeSecret;
     }
 
-    public void reset() {
+    public void reset(String loadedUrl) {
         jsMessageQueue.reset();
-        clearBridgeSecret();
+        clearBridgeSecret();        
+        this.loadedUrl = loadedUrl;
     }
 
     public String promptOnJsPrompt(String origin, String message, String defaultValue) {
@@ -139,7 +142,7 @@ public class CordovaBridge {
             }
             return "";
         }
-        // Sets the native->JS bridge mode.
+        // Sets the native->JS bridge mode. 
         else if (defaultValue != null && defaultValue.startsWith("gap_bridge_mode:")) {
             try {
                 int bridgeSecret = Integer.parseInt(defaultValue.substring(16));
@@ -151,7 +154,7 @@ public class CordovaBridge {
             }
             return "";
         }
-        // Polling for JavaScript messages
+        // Polling for JavaScript messages 
         else if (defaultValue != null && defaultValue.startsWith("gap_poll:")) {
             int bridgeSecret = Integer.parseInt(defaultValue.substring(9));
             try {
@@ -164,8 +167,11 @@ public class CordovaBridge {
         }
         else if (defaultValue != null && defaultValue.startsWith("gap_init:")) {
             // Protect against random iframes being able to talk through the bridge.
-            // Trust only pages which the app would have been allowed to navigate to anyway.
-            if (pluginManager.shouldAllowBridgeAccess(origin)) {
+            // Trust only file URLs and the start URL's domain.
+            // The extra origin.startsWith("http") is to protect against iframes with data: having "" as origin.
+            if (origin.startsWith("file:") ||
+                origin.startsWith(this.appContentUrlPrefix) ||
+                (origin.startsWith("http") && loadedUrl.startsWith(origin))) {
                 // Enable the bridge
                 int bridgeMode = Integer.parseInt(defaultValue.substring(9));
                 jsMessageQueue.setBridgeMode(bridgeMode);
@@ -173,10 +179,14 @@ public class CordovaBridge {
                 int secret = generateBridgeSecret();
                 return ""+secret;
             } else {
-                LOG.e(LOG_TAG, "gap_init called from restricted origin: " + origin);
+                Log.e(LOG_TAG, "gap_init called from restricted origin: " + origin);
             }
             return "";
         }
         return null;
+    }
+    
+    public NativeToJsMessageQueue getMessageQueue() {
+        return jsMessageQueue;
     }
 }

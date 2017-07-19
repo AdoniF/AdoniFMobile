@@ -261,9 +261,6 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "cordova-plugin-toast": "1.0.1",
-    "cordova-plugin-geolocation": "2.4.3",
-    "cordova-plugin-compat": "1.1.0",
     "cordova-plugin-splashscreen": "2.0.1-dev",
     "cordova-sqlite-common": "0.7.0-dev",
     "hu.dpal.phonegap.plugins.SpinnerDialog": "1.3.1",
@@ -272,6 +269,7 @@ module.exports.metadata =
     "org.apache.cordova.dialogs": "0.3.0",
     "org.apache.cordova.file": "1.3.3",
     "org.apache.cordova.file-transfer": "0.5.0",
+    "org.apache.cordova.geolocation": "0.3.12",
     "org.devgeeks.Canvas2ImagePlugin": "0.6.0"
 }
 // BOTTOM OF METADATA
