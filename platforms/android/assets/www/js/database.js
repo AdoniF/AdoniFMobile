@@ -9,9 +9,9 @@ var db_name = "adonif.db";
 
 // Ouvre la base de données
 function openDB() {
-	if (window.sqlitePlugin) {
+	if (window.localStorage) {
 		if (!db)
-			db = window.sqlitePlugin.openDatabase({name: db_name});
+			db = window.openDatabase(db_name,'1.0','espoir',2*1024*1024);
 		checkConnection();
 	} else {
 		alert("Erreur : impossible d'utiliser la base de données. Votre appareil n'est pas compatible avec cette application.");
@@ -47,10 +47,10 @@ function connectUser() {
 	if (loggedIn) {
 		initUser();
 	} else {
-		/*if (!dbCreated)
-			initDB();*/
+		if (!dbCreated)
+			initDB();
 		
-		alert("Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
+		navigator.notification.alert("Un compte sur le site de récolte est requis pour utiliser cette application. Veuillez vous connecter.",
 			showConnectionPage, "Connexion requise", "Connexion");
 	}
 }
@@ -150,7 +150,7 @@ var populateCallsRunning = 0;
 function populateNamesInfos() {
 	populateCallsRunning += phylumsTables.length;
 	phylumsTables.forEach(function (phylum) {
-		ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestNameData.php?base=" + phylum,
+		ajaxCall("GET", "http://fongiref.adonif.fr/ajax/requestNameData.php?base=" + phylum,
 			insertNameInfo, phylum, populateDBError);
 	});
 }
@@ -158,13 +158,13 @@ function populateNamesInfos() {
 // Fonction lançant l'appel Ajax remplissant la table des hôtes
 function populateHotes() {
 	populateCallsRunning++;
-	ajaxCall("GET", "http://inventaire.dbmyco.fr/ajax/requestHosts.php", insertHotesInfos, null, populateDBError);
+	ajaxCall("GET", "http://fongibase.adonif.fr/ajax/requestHosts.php", insertHotesInfos, null, populateDBError);
 }
 
 // Fonction lançant l'appel Ajax remplissant la table des substrats
 function populateSubstrats() {
 	populateCallsRunning += 1;
-	ajaxCall("GET", "http://referentiel.dbmyco.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
+	ajaxCall("GET", "http://fongiref.adonif.fr/ajax/requestSubstrats.php", insertSubstratsInfos, null, populateDBError);
 }
 
 var errorShown = false;
@@ -199,7 +199,7 @@ function insertHotesInfos(data) {
 		populateCallsRunning--;
 		if (populateCallsRunning == 0 && !errorShown) {
 			hideSpinnerDialog();
-			shortBottomToast("Récupération des informations du référentiel réussie !");
+			// shortBottomToast("Récupération des informations du référentiel réussie !");
 		} else {
 			errorShown = false;
 		}
@@ -221,7 +221,7 @@ function insertSubstratsInfos(data) {
 		populateCallsRunning--;
 		if (populateCallsRunning == 0 && !errorShown) {
 			hideSpinnerDialog();
-			shortBottomToast("Récupération des informations du référentiel réussie !");
+			// shortBottomToast("Récupération des informations du référentiel réussie !");
 		} else {
 			errorShown = false;
 		}
@@ -250,7 +250,7 @@ function insertNameInfo(data, phylum) {
 		populateCallsRunning--;
 		if (populateCallsRunning == 0 && !errorShown) {
 			hideSpinnerDialog();
-			shortBottomToast("Récupération des informations du référentiel réussie !");
+			// shortBottomToast("Récupération des informations du référentiel réussie !");
 		} else {
 			errorShown = false;
 		}
@@ -295,12 +295,14 @@ function buildInsertQuery(table, values, columns) {
 function tryToConnect() {
 	var email = $("#inputMail");
 	var password = $("#inputPassword");
-
+	var donnees;
 	var param = {};
 	param.param1 = email.val();
 	param.param2 = password.val();
-	ajaxCall("POST", "http://referentiel.dbmyco.fr/ajax/connexionMobile.php", getConnectionResult, JSON.stringify(param),
+	alert(param.param1);
+	ajaxCall("POST", "http://fongiref.adonif.fr/ajax/connexionMobile.php", getConnectionResult, JSON.stringify(param),
 		connectionError);
+
 }
 
 // Fonction appellée lors de l'échec d'un appel Ajax de connexion
@@ -311,13 +313,13 @@ function connectionError() {
 // Récupère le résultat de la tentative de connexion de l'utilisateur
 function getConnectionResult(data, param) {
 	if (data.contains("OK")) {
-		shortBottomToast("Connexion réussie ! Chargement des informations du référentiel...");
+		console.log("Connexion réussie ! Chargement des informations du référentiel...");
 		toIndex();
 		initDB();
 		createUser(param.param1, param.param2, data);
 		addUser(user);
 	} else {
-		shortBottomToast("Echec de la connexion. Veuillez réessayer");
+		 console.log("Echec de la connexion. Veuillez réessayer");
 	}
 }
 
