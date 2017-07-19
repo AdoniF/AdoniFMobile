@@ -11,10 +11,7 @@
         </activity>
     </application>
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="10" />
-<<<<<<< HEAD
-=======
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
->>>>>>> parent of 0d5b9c9... ajout plateforme ios et windows
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>
