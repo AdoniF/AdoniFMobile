@@ -6,7 +6,6 @@ le moment où les fonctionnalités de phonegap/cordova sont prêtes
 */
 function init() {
 	document.addEventListener("deviceready", onDeviceReady, false);
-	navigator.notification.alert('Your Alert Message', null, 'Alert', 'OK');
 }
 
 //Fonction gérant les évènements à réaliser lorsque l'appareil est prêt
