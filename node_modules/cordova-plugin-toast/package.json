@@ -1,0 +1,92 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "cordova-plugin-toast",
+        "scope": null,
+        "escapedName": "cordova-plugin-toast",
+        "name": "cordova-plugin-toast",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\Béatrice\\Desktop\\AdoniFMobile\\node_modules"
+    ]
+  ],
+  "_from": "cordova-plugin-toast@latest",
+  "_id": "cordova-plugin-toast@1.0.1",
+  "_inCache": true,
+  "_location": "/cordova-plugin-toast",
+  "_nodeVersion": "0.12.1",
+  "_npmUser": {
+    "name": "timwindsor",
+    "email": "twindsor@blackberry.com"
+  },
+  "_npmVersion": "2.5.1",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "cordova-plugin-toast",
+    "scope": null,
+    "escapedName": "cordova-plugin-toast",
+    "name": "cordova-plugin-toast",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-toast/-/cordova-plugin-toast-1.0.1.tgz",
+  "_shasum": "cf8931c66e8cdac1fc9b654ecffef41ff5c7d8cf",
+  "_shrinkwrap": null,
+  "_spec": "cordova-plugin-toast",
+  "_where": "C:\\Users\\Béatrice\\Desktop\\AdoniFMobile\\node_modules",
+  "author": {
+    "name": "BlackBerry Limited"
+  },
+  "bugs": {
+    "url": "https://github.com/blackberry/cordova-blackberry-plugins/issues"
+  },
+  "cordova": {
+    "id": "cordova-plugin-toast",
+    "platforms": [
+      "blackberry10"
+    ]
+  },
+  "dependencies": {},
+  "description": "BlackBerry 10 Toast APIs",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "cf8931c66e8cdac1fc9b654ecffef41ff5c7d8cf",
+    "tarball": "https://registry.npmjs.org/cordova-plugin-toast/-/cordova-plugin-toast-1.0.1.tgz"
+  },
+  "homepage": "https://github.com/blackberry/cordova-blackberry-plugins#readme",
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-blackberry10",
+    "toast",
+    "dialog"
+  ],
+  "license": "Apache 2.0",
+  "maintainers": [
+    {
+      "name": "timwindsor",
+      "email": "twindsor@blackberry.com"
+    },
+    {
+      "name": "blackberry",
+      "email": "npmjs@blackberry.com"
+    }
+  ],
+  "name": "cordova-plugin-toast",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackberry/cordova-blackberry-plugins.git"
+  },
+  "scripts": {},
+  "version": "1.0.1"
+}
