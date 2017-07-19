@@ -1,0 +1,21 @@
+{
+  "name": "fr.app.adonif",
+  "version": "1.0",
+  "displayName": "Adonif",
+  "cordova": {
+    "platforms": [
+      "android"
+    ],
+    "plugins": {
+      "cordova-plugin-geolocation": {},
+      "cordova-plugin-toast": {}
+    }
+  },
+  "dependencies": {
+    "cordova-android": "~6.2.3",
+    "cordova-plugin-camera": "^2.4.1",
+    "cordova-plugin-compat": "^1.1.0",
+    "cordova-plugin-geolocation": "~2.4.3",
+    "cordova-plugin-toast": "~1.0.1"
+  }
+}
