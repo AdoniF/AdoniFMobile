@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="fr.app.adonif" version="1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Adonif</name>
+    <description>
+		Application permettant d'entrer des récoltes dans la base de données mycologique de l'Adonif.
+	</description>
+    <author email="" href="">
+		Adonif
+	</author>
+    <content src="index.html" />
+    <access origin="*" />
+    <preference name="android-targetSdkVersion" value="10" />
+    <preference name="SplashScreen" value="screen" />
+    <preference name="SplashScreenDelay" value="3000" />
+    <preference name="SplashMaintainAspectRatio" value="false" />
+    <preference name="FadeSplashScreen" value="true" />
+    <preference name="FadeSplashScreenDuration" value="1" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="AutoHideSplashScreen" value="false" />
+</widget>
