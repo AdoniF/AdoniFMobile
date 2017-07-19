@@ -1,5 +1,5 @@
 // Platform: android
-// 7ef9f9c03167a4dde4372d869472241b6816fee9
+// 24ab6855470f2dc0662624b597c98585e56a1666
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var PLATFORM_VERSION_BUILD_LABEL = '6.2.3';
+var PLATFORM_VERSION_BUILD_LABEL = '3.7.1';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -101,16 +101,9 @@ if (typeof module === "object" && typeof require === "function") {
 // file: src/cordova.js
 define("cordova", function(require, exports, module) {
 
-// Workaround for Windows 10 in hosted environment case
-// http://www.w3.org/html/wg/drafts/html/master/browsers.html#named-access-on-the-window-object
-if (window.cordova && !(window.cordova instanceof HTMLElement)) {
-    throw new Error("cordova already defined");
-}
-
 
 var channel = require('cordova/channel');
 var platform = require('cordova/platform');
-
 
 /**
  * Intercept calls to addEventListener + removeEventListener and handle deviceready,
@@ -330,7 +323,7 @@ module.exports = cordova;
 
 });
 
-// file: /Users/maj/src/cordova-android/cordova-js-src/android/nativeapiprovider.js
+// file: src/android/android/nativeapiprovider.js
 define("cordova/android/nativeapiprovider", function(require, exports, module) {
 
 /**
@@ -353,7 +346,7 @@ module.exports = {
 
 });
 
-// file: /Users/maj/src/cordova-android/cordova-js-src/android/promptbasednativeapi.js
+// file: src/android/android/promptbasednativeapi.js
 define("cordova/android/promptbasednativeapi", function(require, exports, module) {
 
 /**
@@ -378,6 +371,7 @@ module.exports = {
 // file: src/common/argscheck.js
 define("cordova/argscheck", function(require, exports, module) {
 
+var exec = require('cordova/exec');
 var utils = require('cordova/utils');
 
 var moduleExports = module.exports;
@@ -742,13 +736,8 @@ var Channel = function(type, sticky) {
         }
     };
 
-function checkSubscriptionArgument(argument) {
-    if (typeof argument !== "function" && typeof argument.handleEvent !== "function") {
-        throw new Error(
-                "Must provide a function or an EventListener object " +
-                "implementing the handleEvent interface."
-        );
-    }
+function forceFunction(f) {
+    if (typeof f != 'function') throw "Function required as first argument!";
 }
 
 /**
@@ -758,39 +747,28 @@ function checkSubscriptionArgument(argument) {
  * and a guid that can be used to stop subscribing to the channel.
  * Returns the guid.
  */
-Channel.prototype.subscribe = function(eventListenerOrFunction, eventListener) {
-    checkSubscriptionArgument(eventListenerOrFunction);
-    var handleEvent, guid;
-
-    if (eventListenerOrFunction && typeof eventListenerOrFunction === "object") {
-        // Received an EventListener object implementing the handleEvent interface
-        handleEvent = eventListenerOrFunction.handleEvent;
-        eventListener = eventListenerOrFunction;
-    } else {
-        // Received a function to handle event
-        handleEvent = eventListenerOrFunction;
-    }
-
+Channel.prototype.subscribe = function(f, c) {
+    // need a function to call
+    forceFunction(f);
     if (this.state == 2) {
-        handleEvent.apply(eventListener || this, this.fireArgs);
+        f.apply(c || this, this.fireArgs);
         return;
     }
 
-    guid = eventListenerOrFunction.observer_guid;
-    if (typeof eventListener === "object") {
-        handleEvent = utils.close(eventListener, handleEvent);
-    }
+    var func = f,
+        guid = f.observer_guid;
+    if (typeof c == "object") { func = utils.close(c, f); }
 
     if (!guid) {
-        // First time any channel has seen this subscriber
+        // first time any channel has seen this subscriber
         guid = '' + nextGuid++;
     }
-    handleEvent.observer_guid = guid;
-    eventListenerOrFunction.observer_guid = guid;
+    func.observer_guid = guid;
+    f.observer_guid = guid;
 
     // Don't add the same handler more than once.
     if (!this.handlers[guid]) {
-        this.handlers[guid] = handleEvent;
+        this.handlers[guid] = func;
         this.numHandlers++;
         if (this.numHandlers == 1) {
             this.onHasSubscribersChange && this.onHasSubscribersChange();
@@ -801,20 +779,12 @@ Channel.prototype.subscribe = function(eventListenerOrFunction, eventListener) {
 /**
  * Unsubscribes the function with the given guid from the channel.
  */
-Channel.prototype.unsubscribe = function(eventListenerOrFunction) {
-    checkSubscriptionArgument(eventListenerOrFunction);
-    var handleEvent, guid, handler;
+Channel.prototype.unsubscribe = function(f) {
+    // need a function to unsubscribe
+    forceFunction(f);
 
-    if (eventListenerOrFunction && typeof eventListenerOrFunction === "object") {
-        // Received an EventListener object implementing the handleEvent interface
-        handleEvent = eventListenerOrFunction.handleEvent;
-    } else {
-        // Received a function to handle event
-        handleEvent = eventListenerOrFunction;
-    }
-
-    guid = handleEvent.observer_guid;
-    handler = this.handlers[guid];
+    var guid = f.observer_guid,
+        handler = this.handlers[guid];
     if (handler) {
         delete this.handlers[guid];
         this.numHandlers--;
@@ -886,7 +856,7 @@ module.exports = channel;
 
 });
 
-// file: /Users/maj/src/cordova-android/cordova-js-src/exec.js
+// file: src/android/exec.js
 define("cordova/exec", function(require, exports, module) {
 
 /**
@@ -922,17 +892,16 @@ var cordova = require('cordova'),
         // listeners (both through addEventListener and window.ononline) as well
         // as set the navigator property itself.
         ONLINE_EVENT: 2,
-        EVAL_BRIDGE: 3
+        // Uses reflection to access private APIs of the WebView that can send JS
+        // to be executed.
+        // Requires Android 3.2.4 or above.
+        PRIVATE_API: 3
     },
     jsToNativeBridgeMode,  // Set lazily.
-    nativeToJsBridgeMode = nativeToJsModes.EVAL_BRIDGE,
+    nativeToJsBridgeMode = nativeToJsModes.ONLINE_EVENT,
     pollEnabled = false,
+    messagesFromNative = [],
     bridgeSecret = -1;
-
-var messagesFromNative = [];
-var isProcessing = false;
-var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
-var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };
 
 function androidExec(success, fail, service, action, args) {
     if (bridgeSecret < 0) {
@@ -948,9 +917,6 @@ function androidExec(success, fail, service, action, args) {
         androidExec.setJsToNativeBridgeMode(jsToNativeModes.JS_OBJECT);
     }
 
-    // If args is not provided, default to an empty array
-    args = args || [];
-
     // Process any ArrayBuffers in the args into a string.
     for (var i = 0; i < args.length; i++) {
         if (utils.typeName(args[i]) == 'ArrayBuffer') {
@@ -960,36 +926,25 @@ function androidExec(success, fail, service, action, args) {
 
     var callbackId = service + cordova.callbackId++,
         argsJson = JSON.stringify(args);
+
     if (success || fail) {
         cordova.callbacks[callbackId] = {success:success, fail:fail};
     }
 
-    var msgs = nativeApiProvider.get().exec(bridgeSecret, service, action, callbackId, argsJson);
+    var messages = nativeApiProvider.get().exec(bridgeSecret, service, action, callbackId, argsJson);
     // If argsJson was received by Java as null, try again with the PROMPT bridge mode.
     // This happens in rare circumstances, such as when certain Unicode characters are passed over the bridge on a Galaxy S2.  See CB-2666.
-    if (jsToNativeBridgeMode == jsToNativeModes.JS_OBJECT && msgs === "@Null arguments.") {
+    if (jsToNativeBridgeMode == jsToNativeModes.JS_OBJECT && messages === "@Null arguments.") {
         androidExec.setJsToNativeBridgeMode(jsToNativeModes.PROMPT);
         androidExec(success, fail, service, action, args);
         androidExec.setJsToNativeBridgeMode(jsToNativeModes.JS_OBJECT);
-    } else if (msgs) {
-        messagesFromNative.push(msgs);
-        // Always process async to avoid exceptions messing up stack.
-        nextTick(processMessages);
+        return;
+    } else {
+        androidExec.processMessages(messages, true);
     }
 }
 
 androidExec.init = function() {
-    //CB-11828
-    //This failsafe checks the version of Android and if it's Jellybean, it switches it to
-    //using the Online Event bridge for communicating from Native to JS
-    //
-    //It's ugly, but it's necessary.
-    var check = navigator.userAgent.toLowerCase().match(/android\s[0-9].[0-9]/);
-    var version_code = check && check[0].match(/4.[0-3].*/);
-    if (version_code != null && nativeToJsBridgeMode == nativeToJsModes.EVAL_BRIDGE) {
-      nativeToJsBridgeMode = nativeToJsModes.ONLINE_EVENT;
-    }
-
     bridgeSecret = +prompt('', 'gap_init:' + nativeToJsBridgeMode);
     channel.onNativeReady.fire();
 };
@@ -1004,12 +959,8 @@ function pollOnce(opt_fromOnlineEvent) {
         // We know there's nothing to retrieve, so no need to poll.
         return;
     }
-    var msgs = nativeApiProvider.get().retrieveJsMessages(bridgeSecret, !!opt_fromOnlineEvent);
-    if (msgs) {
-        messagesFromNative.push(msgs);
-        // Process sync since we know we're already top-of-stack.
-        processMessages();
-    }
+    var msg = nativeApiProvider.get().retrieveJsMessages(bridgeSecret, !!opt_fromOnlineEvent);
+    androidExec.processMessages(msg);
 }
 
 function pollingTimerFunc() {
@@ -1102,51 +1053,63 @@ function buildPayload(payload, message) {
 
 // Processes a single message, as encoded by NativeToJsMessageQueue.java.
 function processMessage(message) {
-    var firstChar = message.charAt(0);
-    if (firstChar == 'J') {
-        // This is deprecated on the .java side. It doesn't work with CSP enabled.
-        eval(message.slice(1));
-    } else if (firstChar == 'S' || firstChar == 'F') {
-        var success = firstChar == 'S';
-        var keepCallback = message.charAt(1) == '1';
-        var spaceIdx = message.indexOf(' ', 2);
-        var status = +message.slice(2, spaceIdx);
-        var nextSpaceIdx = message.indexOf(' ', spaceIdx + 1);
-        var callbackId = message.slice(spaceIdx + 1, nextSpaceIdx);
-        var payloadMessage = message.slice(nextSpaceIdx + 1);
-        var payload = [];
-        buildPayload(payload, payloadMessage);
-        cordova.callbackFromNative(callbackId, success, status, payload, keepCallback);
-    } else {
-        console.log("processMessage failed: invalid message: " + JSON.stringify(message));
+    try {
+        var firstChar = message.charAt(0);
+        if (firstChar == 'J') {
+            eval(message.slice(1));
+        } else if (firstChar == 'S' || firstChar == 'F') {
+            var success = firstChar == 'S';
+            var keepCallback = message.charAt(1) == '1';
+            var spaceIdx = message.indexOf(' ', 2);
+            var status = +message.slice(2, spaceIdx);
+            var nextSpaceIdx = message.indexOf(' ', spaceIdx + 1);
+            var callbackId = message.slice(spaceIdx + 1, nextSpaceIdx);
+            var payloadMessage = message.slice(nextSpaceIdx + 1);
+            var payload = [];
+            buildPayload(payload, payloadMessage);
+            cordova.callbackFromNative(callbackId, success, status, payload, keepCallback);
+        } else {
+            console.log("processMessage failed: invalid message: " + JSON.stringify(message));
+        }
+    } catch (e) {
+        console.log("processMessage failed: Error: " + e);
+        console.log("processMessage failed: Stack: " + e.stack);
+        console.log("processMessage failed: Message: " + message);
     }
 }
 
-function processMessages() {
+var isProcessing = false;
+
+// This is called from the NativeToJsMessageQueue.java.
+androidExec.processMessages = function(messages, opt_useTimeout) {
+    if (messages) {
+        messagesFromNative.push(messages);
+    }
     // Check for the reentrant case.
     if (isProcessing) {
         return;
     }
-    if (messagesFromNative.length === 0) {
+    if (opt_useTimeout) {
+        window.setTimeout(androidExec.processMessages, 0);
         return;
     }
     isProcessing = true;
     try {
-        var msg = popMessageFromQueue();
-        // The Java side can send a * message to indicate that it
-        // still has messages waiting to be retrieved.
-        if (msg == '*' && messagesFromNative.length === 0) {
-            nextTick(pollOnce);
-            return;
+        // TODO: add setImmediate polyfill and process only one message at a time.
+        while (messagesFromNative.length) {
+            var msg = popMessageFromQueue();
+            // The Java side can send a * message to indicate that it
+            // still has messages waiting to be retrieved.
+            if (msg == '*' && messagesFromNative.length === 0) {
+                setTimeout(pollOnce, 0);
+                return;
+            }
+            processMessage(msg);
         }
-        processMessage(msg);
     } finally {
         isProcessing = false;
-        if (messagesFromNative.length > 0) {
-            nextTick(processMessages);
-        }
     }
-}
+};
 
 function popMessageFromQueue() {
     var messageBatch = messagesFromNative.shift();
@@ -1269,7 +1232,6 @@ if (!window.console.warn) {
 // Register pause, resume and deviceready channels as events on document.
 channel.onPause = cordova.addDocumentEventHandler('pause');
 channel.onResume = cordova.addDocumentEventHandler('resume');
-channel.onActivated = cordova.addDocumentEventHandler('activated');
 channel.onDeviceReady = cordova.addStickyDocumentEventHandler('deviceready');
 
 // Listen for DOMContentLoaded and notify our channel subscribers.
@@ -1331,12 +1293,10 @@ define("cordova/init_b", function(require, exports, module) {
 
 var channel = require('cordova/channel');
 var cordova = require('cordova');
-var modulemapper = require('cordova/modulemapper');
 var platform = require('cordova/platform');
-var pluginloader = require('cordova/pluginloader');
 var utils = require('cordova/utils');
 
-var platformInitChannelsArray = [channel.onDOMContentLoaded, channel.onNativeReady, channel.onPluginsReady];
+var platformInitChannelsArray = [channel.onDOMContentLoaded, channel.onNativeReady];
 
 // setting exec
 cordova.exec = require('cordova/exec');
@@ -1399,7 +1359,6 @@ if (!window.console.warn) {
 // Register pause, resume and deviceready channels as events on document.
 channel.onPause = cordova.addDocumentEventHandler('pause');
 channel.onResume = cordova.addDocumentEventHandler('resume');
-channel.onActivated = cordova.addDocumentEventHandler('activated');
 channel.onDeviceReady = cordova.addStickyDocumentEventHandler('deviceready');
 
 // Listen for DOMContentLoaded and notify our channel subscribers.
@@ -1421,19 +1380,10 @@ if (window._nativeReady) {
 // Call the platform-specific initialization.
 platform.bootstrap && platform.bootstrap();
 
-// Wrap in a setTimeout to support the use-case of having plugin JS appended to cordova.js.
-// The delay allows the attached modules to be defined before the plugin loader looks for them.
-setTimeout(function() {
-    pluginloader.load(function() {
-        channel.onPluginsReady.fire();
-    });
-}, 0);
-
 /**
  * Create all cordova objects once native side is ready.
  */
 channel.join(function() {
-    modulemapper.mapModules(window);
 
     platform.initialize && platform.initialize();
 
@@ -1552,108 +1502,8 @@ exports.reset();
 
 });
 
-// file: src/common/modulemapper_b.js
-define("cordova/modulemapper_b", function(require, exports, module) {
-
-var builder = require('cordova/builder'),
-    symbolList = [],
-    deprecationMap;
-
-exports.reset = function() {
-    symbolList = [];
-    deprecationMap = {};
-};
-
-function addEntry(strategy, moduleName, symbolPath, opt_deprecationMessage) {
-    symbolList.push(strategy, moduleName, symbolPath);
-    if (opt_deprecationMessage) {
-        deprecationMap[symbolPath] = opt_deprecationMessage;
-    }
-}
-
-// Note: Android 2.3 does have Function.bind().
-exports.clobbers = function(moduleName, symbolPath, opt_deprecationMessage) {
-    addEntry('c', moduleName, symbolPath, opt_deprecationMessage);
-};
-
-exports.merges = function(moduleName, symbolPath, opt_deprecationMessage) {
-    addEntry('m', moduleName, symbolPath, opt_deprecationMessage);
-};
-
-exports.defaults = function(moduleName, symbolPath, opt_deprecationMessage) {
-    addEntry('d', moduleName, symbolPath, opt_deprecationMessage);
-};
-
-exports.runs = function(moduleName) {
-    addEntry('r', moduleName, null);
-};
-
-function prepareNamespace(symbolPath, context) {
-    if (!symbolPath) {
-        return context;
-    }
-    var parts = symbolPath.split('.');
-    var cur = context;
-    for (var i = 0, part; part = parts[i]; ++i) {
-        cur = cur[part] = cur[part] || {};
-    }
-    return cur;
-}
-
-exports.mapModules = function(context) {
-    var origSymbols = {};
-    context.CDV_origSymbols = origSymbols;
-    for (var i = 0, len = symbolList.length; i < len; i += 3) {
-        var strategy = symbolList[i];
-        var moduleName = symbolList[i + 1];
-        var module = require(moduleName);
-        // <runs/>
-        if (strategy == 'r') {
-            continue;
-        }
-        var symbolPath = symbolList[i + 2];
-        var lastDot = symbolPath.lastIndexOf('.');
-        var namespace = symbolPath.substr(0, lastDot);
-        var lastName = symbolPath.substr(lastDot + 1);
-
-        var deprecationMsg = symbolPath in deprecationMap ? 'Access made to deprecated symbol: ' + symbolPath + '. ' + deprecationMsg : null;
-        var parentObj = prepareNamespace(namespace, context);
-        var target = parentObj[lastName];
-
-        if (strategy == 'm' && target) {
-            builder.recursiveMerge(target, module);
-        } else if ((strategy == 'd' && !target) || (strategy != 'd')) {
-            if (!(symbolPath in origSymbols)) {
-                origSymbols[symbolPath] = target;
-            }
-            builder.assignOrWrapInDeprecateGetter(parentObj, lastName, module, deprecationMsg);
-        }
-    }
-};
-
-exports.getOriginalSymbol = function(context, symbolPath) {
-    var origSymbols = context.CDV_origSymbols;
-    if (origSymbols && (symbolPath in origSymbols)) {
-        return origSymbols[symbolPath];
-    }
-    var parts = symbolPath.split('.');
-    var obj = context;
-    for (var i = 0; i < parts.length; ++i) {
-        obj = obj && obj[parts[i]];
-    }
-    return obj;
-};
-
-exports.reset();
-
-
-});
-
-// file: /Users/maj/src/cordova-android/cordova-js-src/platform.js
+// file: src/android/platform.js
 define("cordova/platform", function(require, exports, module) {
-
-// The last resume event that was received that had the result of a plugin call.
-var lastResumeEvent = null;
 
 module.exports = {
     id: 'android',
@@ -1694,19 +1544,6 @@ module.exports = {
         bindButtonChannel('volumeup');
         bindButtonChannel('volumedown');
 
-        // The resume event is not "sticky", but it is possible that the event
-        // will contain the result of a plugin call. We need to ensure that the
-        // plugin result is delivered even after the event is fired (CB-10498)
-        var cordovaAddEventListener = document.addEventListener;
-
-        document.addEventListener = function(evt, handler, capture) {
-            cordovaAddEventListener(evt, handler, capture);
-
-            if (evt === 'resume' && lastResumeEvent) {
-                handler(lastResumeEvent);
-            }
-        };
-
         // Let native code know we are all done on the JS side.
         // Native code will then un-hide the WebView.
         channel.onCordovaReady.subscribe(function() {
@@ -1728,29 +1565,14 @@ function onMessageFromNative(msg) {
         case 'searchbutton':
         // App life cycle events
         case 'pause':
+        case 'resume':
+        // Keyboard events
+        case 'hidekeyboard':
+        case 'showkeyboard':
         // Volume events
         case 'volumedownbutton':
         case 'volumeupbutton':
             cordova.fireDocumentEvent(action);
-            break;
-        case 'resume':
-            if(arguments.length > 1 && msg.pendingResult) {
-                if(arguments.length === 2) {
-                    msg.pendingResult.result = arguments[1];
-                } else {
-                    // The plugin returned a multipart message
-                    var res = [];
-                    for(var i = 1; i < arguments.length; i++) {
-                        res.push(arguments[i]);
-                    }
-                    msg.pendingResult.result = res;
-                }
-
-                // Save the plugin result so that it can be delivered to the js
-                // even if they miss the initial firing of the event
-                lastResumeEvent = msg;
-            }
-            cordova.fireDocumentEvent(action, msg);
             break;
         default:
             throw new Error('Unknown event action ' + action);
@@ -1759,18 +1581,17 @@ function onMessageFromNative(msg) {
 
 });
 
-// file: /Users/maj/src/cordova-android/cordova-js-src/plugin/android/app.js
+// file: src/android/plugin/android/app.js
 define("cordova/plugin/android/app", function(require, exports, module) {
 
 var exec = require('cordova/exec');
-var APP_PLUGIN_NAME = Number(require('cordova').platformVersion.split('.')[0]) >= 4 ? 'CoreAndroid' : 'App';
 
 module.exports = {
     /**
     * Clear the resource cache.
     */
     clearCache:function() {
-        exec(null, null, APP_PLUGIN_NAME, "clearCache", []);
+        exec(null, null, "App", "clearCache", []);
     },
 
     /**
@@ -1788,14 +1609,14 @@ module.exports = {
     *      navigator.app.loadUrl("http://server/myapp/index.html", {wait:2000, loadingDialog:"Wait,Loading App", loadUrlTimeoutValue: 60000});
     */
     loadUrl:function(url, props) {
-        exec(null, null, APP_PLUGIN_NAME, "loadUrl", [url, props]);
+        exec(null, null, "App", "loadUrl", [url, props]);
     },
 
     /**
     * Cancel loadUrl that is waiting to be loaded.
     */
     cancelLoadUrl:function() {
-        exec(null, null, APP_PLUGIN_NAME, "cancelLoadUrl", []);
+        exec(null, null, "App", "cancelLoadUrl", []);
     },
 
     /**
@@ -1803,7 +1624,7 @@ module.exports = {
     * Instead of BACK button loading the previous web page, it will exit the app.
     */
     clearHistory:function() {
-        exec(null, null, APP_PLUGIN_NAME, "clearHistory", []);
+        exec(null, null, "App", "clearHistory", []);
     },
 
     /**
@@ -1811,7 +1632,7 @@ module.exports = {
     * This is the same as pressing the backbutton on Android device.
     */
     backHistory:function() {
-        exec(null, null, APP_PLUGIN_NAME, "backHistory", []);
+        exec(null, null, "App", "backHistory", []);
     },
 
     /**
@@ -1824,7 +1645,7 @@ module.exports = {
     * @param override        T=override, F=cancel override
     */
     overrideBackbutton:function(override) {
-        exec(null, null, APP_PLUGIN_NAME, "overrideBackbutton", [override]);
+        exec(null, null, "App", "overrideBackbutton", [override]);
     },
 
     /**
@@ -1839,14 +1660,14 @@ module.exports = {
     * @param override        T=override, F=cancel override
     */
     overrideButton:function(button, override) {
-        exec(null, null, APP_PLUGIN_NAME, "overrideButton", [button, override]);
+        exec(null, null, "App", "overrideButton", [button, override]);
     },
 
     /**
     * Exit and terminate the application.
     */
     exitApp:function() {
-        return exec(null, null, APP_PLUGIN_NAME, "exitApp", []);
+        return exec(null, null, "App", "exitApp", []);
     }
 };
 
@@ -1964,54 +1785,6 @@ exports.load = function(callback) {
 
 });
 
-// file: src/common/pluginloader_b.js
-define("cordova/pluginloader_b", function(require, exports, module) {
-
-var modulemapper = require('cordova/modulemapper');
-
-// Handler for the cordova_plugins.js content.
-// See plugman's plugin_loader.js for the details of this object.
-function handlePluginsObject(moduleList) {
-    // if moduleList is not defined or empty, we've nothing to do
-    if (!moduleList || !moduleList.length) {
-        return;
-    }
-
-    // Loop through all the modules and then through their clobbers and merges.
-    for (var i = 0, module; module = moduleList[i]; i++) {
-        if (module.clobbers && module.clobbers.length) {
-            for (var j = 0; j < module.clobbers.length; j++) {
-                modulemapper.clobbers(module.id, module.clobbers[j]);
-            }
-        }
-
-        if (module.merges && module.merges.length) {
-            for (var k = 0; k < module.merges.length; k++) {
-                modulemapper.merges(module.id, module.merges[k]);
-            }
-        }
-
-        // Finally, if runs is truthy we want to simply require() the module.
-        if (module.runs) {
-            modulemapper.runs(module.id);
-        }
-    }
-}
-
-// Loads all plugins' js-modules. Plugin loading is syncronous in browserified bundle
-// but the method accepts callback to be compatible with non-browserify flow.
-// onDeviceReady is blocked on onPluginsReady. onPluginsReady is fired when there are
-// no plugins to load, or they are all done.
-exports.load = function(callback) {
-    var moduleList = require("cordova/plugin_list");
-    handlePluginsObject(moduleList);
-
-    callback();
-};
-
-
-});
-
 // file: src/common/urlutil.js
 define("cordova/urlutil", function(require, exports, module) {
 
@@ -2091,14 +1864,15 @@ utils.typeName = function(val) {
 /**
  * Returns an indication of whether the argument is an array or not
  */
-utils.isArray = Array.isArray ||
-                function(a) {return utils.typeName(a) == 'Array';};
+utils.isArray = function(a) {
+    return utils.typeName(a) == 'Array';
+};
 
 /**
  * Returns an indication of whether the argument is a Date or not
  */
 utils.isDate = function(d) {
-    return (d instanceof Date);
+    return utils.typeName(d) == 'Date';
 };
 
 /**
@@ -2121,10 +1895,7 @@ utils.clone = function(obj) {
 
     retVal = {};
     for(i in obj){
-        // https://issues.apache.org/jira/browse/CB-11522 'unknown' type may be returned in
-        // custom protocol activation case on Windows Phone 8.1 causing "No such interface supported" exception
-        // on cloning.
-        if((!(i in retVal) || retVal[i] != obj[i]) && typeof obj[i] != 'undefined' && typeof obj[i] != 'unknown') {
+        if(!(i in retVal) || retVal[i] != obj[i]) {
             retVal[i] = utils.clone(obj[i]);
         }
     }
@@ -2135,24 +1906,16 @@ utils.clone = function(obj) {
  * Returns a wrapped version of the function
  */
 utils.close = function(context, func, params) {
-    return function() {
-        var args = params || arguments;
-        return func.apply(context, args);
-    };
-};
-
-//------------------------------------------------------------------------------
-function UUIDcreatePart(length) {
-    var uuidpart = "";
-    for (var i=0; i<length; i++) {
-        var uuidchar = parseInt((Math.random() * 256), 10).toString(16);
-        if (uuidchar.length == 1) {
-            uuidchar = "0" + uuidchar;
-        }
-        uuidpart += uuidchar;
+    if (typeof params == 'undefined') {
+        return function() {
+            return func.apply(context, arguments);
+        };
+    } else {
+        return function() {
+            return func.apply(context, params);
+        };
     }
-    return uuidpart;
-}
+};
 
 /**
  * Create a UUID
@@ -2165,7 +1928,6 @@ utils.createUUID = function() {
         UUIDcreatePart(6);
 };
 
-
 /**
  * Extends a child object from a parent object using classical inheritance
  * pattern.
@@ -2175,7 +1937,6 @@ utils.extend = (function() {
     var F = function() {};
     // extend Child from Parent
     return function(Child, Parent) {
-
         F.prototype = Parent.prototype;
         Child.prototype = new F();
         Child.__super__ = Parent.prototype;
@@ -2195,7 +1956,18 @@ utils.alert = function(msg) {
 };
 
 
-
+//------------------------------------------------------------------------------
+function UUIDcreatePart(length) {
+    var uuidpart = "";
+    for (var i=0; i<length; i++) {
+        var uuidchar = parseInt((Math.random() * 256), 10).toString(16);
+        if (uuidchar.length == 1) {
+            uuidchar = "0" + uuidchar;
+        }
+        uuidpart += uuidchar;
+    }
+    return uuidpart;
+}
 
 
 });
