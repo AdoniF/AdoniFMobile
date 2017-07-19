@@ -1,5 +1,4 @@
-cordova.define("hu.dpal.phonegap.plugins.SpinnerDialog.SpinnerDialog", function(require, exports, module) {
-var exec = require('cordova/exec');
+cordova.define("hu.dpal.phonegap.plugins.SpinnerDialog.SpinnerDialog", function(require, exports, module) { var exec = require('cordova/exec');
 
 module.exports = {
 

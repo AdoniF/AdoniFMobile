@@ -1,5 +1,4 @@
-cordova.define("nl.x-services.plugins.toast.tests", function(require, exports, module) {
-exports.defineAutoTests = function() {
+cordova.define("nl.x-services.plugins.toast.tests", function(require, exports, module) { exports.defineAutoTests = function() {
   
   var fail = function (done) {
     expect(true).toBe(false);

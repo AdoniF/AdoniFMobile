@@ -1,5 +1,4 @@
-cordova.define("org.devgeeks.Canvas2ImagePlugin.Canvas2ImagePlugin", function(require, exports, module) {
-//
+cordova.define("org.devgeeks.Canvas2ImagePlugin.Canvas2ImagePlugin", function(require, exports, module) { //
 //  Canvas2ImagePlugin.js
 //  Canvas2ImagePlugin PhoneGap/Cordova plugin
 //

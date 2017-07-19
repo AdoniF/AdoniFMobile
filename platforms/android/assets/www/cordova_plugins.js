@@ -15,213 +15,213 @@ module.exports = [
         "runs": true
     },
     {
-        "id": "nl.x-services.plugins.toast.Toast",
         "file": "plugins/nl.x-services.plugins.toast/www/Toast.js",
+        "id": "nl.x-services.plugins.toast.Toast",
         "pluginId": "nl.x-services.plugins.toast",
         "clobbers": [
             "window.plugins.toast"
         ]
     },
     {
-        "id": "nl.x-services.plugins.toast.tests",
         "file": "plugins/nl.x-services.plugins.toast/test/tests.js",
+        "id": "nl.x-services.plugins.toast.tests",
         "pluginId": "nl.x-services.plugins.toast"
     },
     {
-        "id": "org.apache.cordova.file-transfer.FileTransferError",
         "file": "plugins/org.apache.cordova.file-transfer/www/FileTransferError.js",
+        "id": "org.apache.cordova.file-transfer.FileTransferError",
         "pluginId": "org.apache.cordova.file-transfer",
         "clobbers": [
             "window.FileTransferError"
         ]
     },
     {
-        "id": "org.apache.cordova.file-transfer.FileTransfer",
         "file": "plugins/org.apache.cordova.file-transfer/www/FileTransfer.js",
+        "id": "org.apache.cordova.file-transfer.FileTransfer",
         "pluginId": "org.apache.cordova.file-transfer",
         "clobbers": [
             "window.FileTransfer"
         ]
     },
     {
-        "id": "org.apache.cordova.camera.Camera",
         "file": "plugins/org.apache.cordova.camera/www/CameraConstants.js",
+        "id": "org.apache.cordova.camera.Camera",
         "pluginId": "org.apache.cordova.camera",
         "clobbers": [
             "Camera"
         ]
     },
     {
-        "id": "org.apache.cordova.camera.CameraPopoverOptions",
         "file": "plugins/org.apache.cordova.camera/www/CameraPopoverOptions.js",
+        "id": "org.apache.cordova.camera.CameraPopoverOptions",
         "pluginId": "org.apache.cordova.camera",
         "clobbers": [
             "CameraPopoverOptions"
         ]
     },
     {
-        "id": "org.apache.cordova.camera.camera",
         "file": "plugins/org.apache.cordova.camera/www/Camera.js",
+        "id": "org.apache.cordova.camera.camera",
         "pluginId": "org.apache.cordova.camera",
         "clobbers": [
             "navigator.camera"
         ]
     },
     {
-        "id": "org.apache.cordova.camera.CameraPopoverHandle",
         "file": "plugins/org.apache.cordova.camera/www/CameraPopoverHandle.js",
+        "id": "org.apache.cordova.camera.CameraPopoverHandle",
         "pluginId": "org.apache.cordova.camera",
         "clobbers": [
             "CameraPopoverHandle"
         ]
     },
     {
-        "id": "org.apache.cordova.dialogs.notification",
         "file": "plugins/org.apache.cordova.dialogs/www/notification.js",
+        "id": "org.apache.cordova.dialogs.notification",
         "pluginId": "org.apache.cordova.dialogs",
         "merges": [
             "navigator.notification"
         ]
     },
     {
-        "id": "org.apache.cordova.dialogs.notification_android",
         "file": "plugins/org.apache.cordova.dialogs/www/android/notification.js",
+        "id": "org.apache.cordova.dialogs.notification_android",
         "pluginId": "org.apache.cordova.dialogs",
         "merges": [
             "navigator.notification"
         ]
     },
     {
-        "id": "cordova-plugin-splashscreen.SplashScreen",
         "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+        "id": "cordova-plugin-splashscreen.SplashScreen",
         "pluginId": "cordova-plugin-splashscreen",
         "clobbers": [
             "navigator.splashscreen"
         ]
     },
     {
-        "id": "org.devgeeks.Canvas2ImagePlugin.Canvas2ImagePlugin",
         "file": "plugins/org.devgeeks.Canvas2ImagePlugin/www/Canvas2ImagePlugin.js",
+        "id": "org.devgeeks.Canvas2ImagePlugin.Canvas2ImagePlugin",
         "pluginId": "org.devgeeks.Canvas2ImagePlugin",
         "clobbers": [
             "window.canvas2ImagePlugin"
         ]
     },
     {
-        "id": "hu.dpal.phonegap.plugins.SpinnerDialog.SpinnerDialog",
         "file": "plugins/hu.dpal.phonegap.plugins.SpinnerDialog/www/spinner.js",
+        "id": "hu.dpal.phonegap.plugins.SpinnerDialog.SpinnerDialog",
         "pluginId": "hu.dpal.phonegap.plugins.SpinnerDialog",
         "merges": [
             "window.plugins.spinnerDialog"
         ]
     },
     {
-        "id": "cordova-sqlite-common.SQLitePlugin",
         "file": "plugins/cordova-sqlite-common/www/SQLitePlugin.js",
+        "id": "cordova-sqlite-common.SQLitePlugin",
         "pluginId": "cordova-sqlite-common",
         "clobbers": [
             "SQLitePlugin"
         ]
     },
     {
-        "id": "org.apache.cordova.file.DirectoryEntry",
         "file": "plugins/org.apache.cordova.file/www/DirectoryEntry.js",
+        "id": "org.apache.cordova.file.DirectoryEntry",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.DirectoryEntry"
         ]
     },
     {
-        "id": "org.apache.cordova.file.DirectoryReader",
         "file": "plugins/org.apache.cordova.file/www/DirectoryReader.js",
+        "id": "org.apache.cordova.file.DirectoryReader",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.DirectoryReader"
         ]
     },
     {
-        "id": "org.apache.cordova.file.Entry",
         "file": "plugins/org.apache.cordova.file/www/Entry.js",
+        "id": "org.apache.cordova.file.Entry",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.Entry"
         ]
     },
     {
-        "id": "org.apache.cordova.file.File",
         "file": "plugins/org.apache.cordova.file/www/File.js",
+        "id": "org.apache.cordova.file.File",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.File"
         ]
     },
     {
-        "id": "org.apache.cordova.file.FileEntry",
         "file": "plugins/org.apache.cordova.file/www/FileEntry.js",
+        "id": "org.apache.cordova.file.FileEntry",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.FileEntry"
         ]
     },
     {
-        "id": "org.apache.cordova.file.FileError",
         "file": "plugins/org.apache.cordova.file/www/FileError.js",
+        "id": "org.apache.cordova.file.FileError",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.FileError"
         ]
     },
     {
-        "id": "org.apache.cordova.file.FileReader",
         "file": "plugins/org.apache.cordova.file/www/FileReader.js",
+        "id": "org.apache.cordova.file.FileReader",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.FileReader"
         ]
     },
     {
-        "id": "org.apache.cordova.file.FileSystem",
         "file": "plugins/org.apache.cordova.file/www/FileSystem.js",
+        "id": "org.apache.cordova.file.FileSystem",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.FileSystem"
         ]
     },
     {
-        "id": "org.apache.cordova.file.FileUploadOptions",
         "file": "plugins/org.apache.cordova.file/www/FileUploadOptions.js",
+        "id": "org.apache.cordova.file.FileUploadOptions",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.FileUploadOptions"
         ]
     },
     {
-        "id": "org.apache.cordova.file.FileUploadResult",
         "file": "plugins/org.apache.cordova.file/www/FileUploadResult.js",
+        "id": "org.apache.cordova.file.FileUploadResult",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.FileUploadResult"
         ]
     },
     {
-        "id": "org.apache.cordova.file.FileWriter",
         "file": "plugins/org.apache.cordova.file/www/FileWriter.js",
+        "id": "org.apache.cordova.file.FileWriter",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.FileWriter"
         ]
     },
     {
-        "id": "org.apache.cordova.file.Flags",
         "file": "plugins/org.apache.cordova.file/www/Flags.js",
+        "id": "org.apache.cordova.file.Flags",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.Flags"
         ]
     },
     {
-        "id": "org.apache.cordova.file.LocalFileSystem",
         "file": "plugins/org.apache.cordova.file/www/LocalFileSystem.js",
+        "id": "org.apache.cordova.file.LocalFileSystem",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.LocalFileSystem"
@@ -231,59 +231,59 @@ module.exports = [
         ]
     },
     {
-        "id": "org.apache.cordova.file.Metadata",
         "file": "plugins/org.apache.cordova.file/www/Metadata.js",
+        "id": "org.apache.cordova.file.Metadata",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.Metadata"
         ]
     },
     {
-        "id": "org.apache.cordova.file.ProgressEvent",
         "file": "plugins/org.apache.cordova.file/www/ProgressEvent.js",
+        "id": "org.apache.cordova.file.ProgressEvent",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.ProgressEvent"
         ]
     },
     {
-        "id": "org.apache.cordova.file.fileSystems",
         "file": "plugins/org.apache.cordova.file/www/fileSystems.js",
+        "id": "org.apache.cordova.file.fileSystems",
         "pluginId": "org.apache.cordova.file"
     },
     {
-        "id": "org.apache.cordova.file.requestFileSystem",
         "file": "plugins/org.apache.cordova.file/www/requestFileSystem.js",
+        "id": "org.apache.cordova.file.requestFileSystem",
         "pluginId": "org.apache.cordova.file",
         "clobbers": [
             "window.requestFileSystem"
         ]
     },
     {
-        "id": "org.apache.cordova.file.resolveLocalFileSystemURI",
         "file": "plugins/org.apache.cordova.file/www/resolveLocalFileSystemURI.js",
+        "id": "org.apache.cordova.file.resolveLocalFileSystemURI",
         "pluginId": "org.apache.cordova.file",
         "merges": [
             "window"
         ]
     },
     {
-        "id": "org.apache.cordova.file.androidFileSystem",
         "file": "plugins/org.apache.cordova.file/www/android/FileSystem.js",
+        "id": "org.apache.cordova.file.androidFileSystem",
         "pluginId": "org.apache.cordova.file",
         "merges": [
             "FileSystem"
         ]
     },
     {
-        "id": "org.apache.cordova.file.fileSystems-roots",
         "file": "plugins/org.apache.cordova.file/www/fileSystems-roots.js",
+        "id": "org.apache.cordova.file.fileSystems-roots",
         "pluginId": "org.apache.cordova.file",
         "runs": true
     },
     {
-        "id": "org.apache.cordova.file.fileSystemPaths",
         "file": "plugins/org.apache.cordova.file/www/fileSystemPaths.js",
+        "id": "org.apache.cordova.file.fileSystemPaths",
         "pluginId": "org.apache.cordova.file",
         "merges": [
             "cordova"
@@ -306,6 +306,6 @@ module.exports.metadata =
     "hu.dpal.phonegap.plugins.SpinnerDialog": "1.3.1",
     "cordova-sqlite-common": "0.7.0-dev",
     "org.apache.cordova.file": "1.3.3"
-};
+}
 // BOTTOM OF METADATA
 });
